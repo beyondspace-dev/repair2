@@ -142,7 +142,10 @@ function pasteInProject(
     assignDataId(clonedData, record.newId);
     applyPastedNodePosition(record, clonedData, position, nodePositionBase);
     rewriteRelationIds(record.type, clonedData, (type, id) => {
-      return idMap.get(createPasteIdKey(type, id)) ?? (preserveExternalOutputs ? id : null);
+      return (
+        idMap.get(createPasteIdKey(type, id)) ??
+        (type !== "nodes" || preserveExternalOutputs ? id : null)
+      );
     });
     getMutator().add(record.type, record.newId, clonedData as never);
   }
