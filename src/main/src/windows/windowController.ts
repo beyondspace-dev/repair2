@@ -1,9 +1,9 @@
 import { BrowserWindow, ipcMain, type IpcMainEvent } from "electron";
 import { join } from "path";
 import { createEditorMenu } from "./editorMenu";
-import { checkVscodeInstalled } from "../system/vscodeUtils";
 import type { MainApp } from "../app/mainApp";
 import { logger } from "../logs/logger";
+import { ipc } from "../ipc/ipcMethods";
 
 export class WindowController {
   #app: MainApp;
@@ -43,14 +43,14 @@ export class WindowController {
 
     const onPlayWindowReady = (event: IpcMainEvent) => {
       if (event.sender !== mainWindow.webContents) return;
-      ipcMain.removeListener("play-win-ready", onPlayWindowReady);
+      ipc.off("play-win-ready", onPlayWindowReady);
       playRendererShown = true;
       startup.closeSplash();
       mainWindow.show();
 
       controllers.project.applyDataConfig();
     };
-    ipcMain.on("play-win-ready", onPlayWindowReady);
+    ipc.on("play-win-ready", onPlayWindowReady);
 
     if (this.#app.isDev) {
       mainWindow.loadURL("http://localhost:3100");
@@ -107,10 +107,6 @@ export class WindowController {
     const { state, editorSave, message, system } = this.#app;
     if (state.window.editor) return;
 
-    if (state.device.isVscodeInstalled === null) {
-      checkVscodeInstalled().then((r) => (state.device.isVscodeInstalled = r));
-    }
-
     const editorWindow = new BrowserWindow({
       width: 1200,
       height: 800,
@@ -135,13 +131,18 @@ export class WindowController {
     editorWindow.setMenu(createEditorMenu(this.#app));
     editorWindow.setMenuBarVisibility(false);
 
-    editorWindow.on("ready-to-show", () => {
+    function showEditorWin(evt: IpcMainEvent) {
+      if (evt.sender !== editorWindow.webContents) return;
+
+      ipc.off("editor-win-ready", showEditorWin);
+
       editorWindow.show();
       editorWindow.focus();
       if (state.project.data) {
         editorWindow.setAlwaysOnTop(!!state.project.data?.config?.alwaysOnTop, "screen-saver");
       }
-    });
+    }
+    ipc.on("editor-win-ready", showEditorWin);
 
     editorWindow.webContents.setWindowOpenHandler((details) => {
       system.shell.openExternal(details.url);

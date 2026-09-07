@@ -1,7 +1,7 @@
 import { electronApp, is } from "@electron-toolkit/utils";
 
 import { setupIpcHandlers } from "../ipc";
-import { registerLogger } from "../logs/logger";
+import { logger, registerLogger } from "../logs/logger";
 import { MainAppEditorSave } from "./mainAppEditorSave";
 import { GlobalKey } from "../system/globalKey";
 import { createReporter } from "./createReporter";
@@ -16,6 +16,7 @@ import { LogStore } from "../logs/logStore";
 import { Store } from "../system/store";
 import { createEditorAction } from "./editorActions";
 import { handleProtocol, registerProtocol } from "../system/customProtocol";
+import { checkExternalTools } from "../system/externalTools";
 
 declare const __APP_VERSION__: string;
 export class MainApp {
@@ -35,12 +36,15 @@ export class MainApp {
   readonly store = new Store(this.paths.storePath);
   readonly config = this.store.makeConfig();
   readonly editorAction = createEditorAction(this);
+  private readonly readyToStart: Promise<unknown> = checkExternalTools(this.state).then(() =>
+    logger.debug("READY TO START")
+  );
 
-  start() {
+  async start() {
     registerProtocol();
     registerLogger(this.reportLog);
-
     this.service.initialize(this);
+
     this.#registerAppLifecycle();
 
     this.system.app.on("window-all-closed", () => {
@@ -74,11 +78,6 @@ export class MainApp {
   }
 
   #registerAppLifecycle() {
-    if (!this.system.app.requestSingleInstanceLock()) {
-      this.system.app.quit();
-      return;
-    }
-
     this.system.app.on("second-instance", async (_event, argv) => {
       if (!this.state.window.main) return;
 
@@ -90,6 +89,8 @@ export class MainApp {
 
       handleProtocol();
       setupIpcHandlers(this);
+
+      await this.readyToStart;
 
       if (!(await this.#appOpenedWithProject(process.argv, false))) {
         this.startup.showSplash();

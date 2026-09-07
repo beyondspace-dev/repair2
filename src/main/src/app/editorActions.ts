@@ -1,5 +1,19 @@
 import type { EditorMenuAction } from "@shared/editorMenu";
 import type { MainApp } from "./mainApp";
+import type { BrowserWindow } from "electron";
+
+function toggleDevtool(window: BrowserWindow | null, title: string) {
+  if (!window) return;
+
+  if (window.webContents.isDevToolsFocused()) {
+    window.webContents.closeDevTools();
+    return;
+  }
+  window.webContents.openDevTools({
+    mode: "detach",
+    title
+  });
+}
 
 export function createEditorAction(app: MainApp) {
   return {
@@ -42,16 +56,18 @@ export function createEditorAction(app: MainApp) {
     "file:open-data-folder": () => app.system.shell.openPath(app.paths.dataDir),
     "file:quit": () => app.system.app.quit(),
 
-    "tools:toggle-editor-devtools": () => app.state.window.editor?.webContents.toggleDevTools(),
-    "tools:toggle-player-devtools": () => app.state.window.main?.webContents.toggleDevTools(),
+    "tools:toggle-editor-devtools": () => toggleDevtool(app.state.window.editor, "편집기 콘솔"),
+    "tools:toggle-player-devtools": () => toggleDevtool(app.state.window.main, "플레이 콘솔"),
 
     "plugin:rebuild-all-plugins": async () => {
       if (!app.service.pluginManager) return;
-      await app.service.pluginManager.updateAllPluginInfo({ forceBuild: true });
+      await app.service.pluginManager.updateAllPluginInfo({
+        forceBuild: true,
+        forceDependencies: true
+      });
     },
 
-    "view:zoom-in": () => app.message.sendToEditor("zoom", 1),
-    "view:zoom-out": () => app.message.sendToEditor("zoom", -1),
-    "view:reload-editor": () => app.state.window.editor?.webContents.reloadIgnoringCache()
-  } satisfies Partial<Record<EditorMenuAction, () => unknown>>;
+    "view:reload-editor": () => app.state.window.editor?.webContents.reloadIgnoringCache(),
+    "view:reload-play": () => app.state.window.main?.webContents.reloadIgnoringCache()
+  } satisfies Record<EditorMenuAction<"main">, () => unknown>;
 }

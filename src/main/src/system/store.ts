@@ -47,32 +47,32 @@ export class Store {
   async #setData(k: string, value: any) {
     this.#stores.set(k, value);
     try {
-      await writeFile(join(this.#storePath, `${k}.json`), JSON.stringify(value), "utf8");
+      await writeFile(join(this.#storePath, `${k}.json`), JSON.stringify(value, null, 2), "utf8");
     } catch (err: any) {
       logger.source("store").error("An error occurred while storing data: ", err);
     }
   }
-  async get(key: string | string[], forceUpdate: boolean = false) {
-    const [k, p] = keyAndPath(key, true);
+  async get(key: string | string[], forceUpdate: boolean = false, safe = true) {
+    const [k, p] = keyAndPath(key, safe);
     let result: any = await this.#getData(k, forceUpdate);
     for (const current of p) {
-      if (!result || !(k in result)) return undefined;
+      if (!result || !(current in result)) return undefined;
       result = result[current];
     }
     return result;
   }
-  set(key: string | string[], value: any) {
-    const [k, p] = keyAndPath(key, true);
-    return this.#setData(k, setPropertyAt(this.#getData(k, false), p, value));
+  async set(key: string | string[], value: any, safe = true) {
+    const [k, p] = keyAndPath(key, safe);
+    return this.#setData(k, setPropertyAt(await this.#getData(k, false), p, value));
   }
   makeConfig() {
     const getConfig = (keys: string | string[], forceUpdate: boolean = false) => {
       const arr = Array.isArray(keys) ? keys : keys.split(".");
-      return this.get([CONFIG_KEY, ...arr], forceUpdate);
+      return this.get([CONFIG_KEY, ...arr], forceUpdate, false);
     };
     const setConfig = (keys: string | string[], value: any) => {
       const arr = Array.isArray(keys) ? keys : keys.split(".");
-      return this.set([CONFIG_KEY, ...arr], value);
+      return this.set([CONFIG_KEY, ...arr], value, false);
     };
     return { get: getConfig, set: setConfig };
   }

@@ -113,7 +113,10 @@
           style={`--a: ${nthMenuBtnAnchor(i)};`}
           bind:this={btnEls[i]}
           class={["menu-btn", focussing === i && (showItems ? "hover" : "focussed")]}
-          onclick={() => clickMenuBtn(i)}
+          onclick={() => {
+            if (focussing === i && showItems) unfocus();
+            else clickMenuBtn(i);
+          }}
           onpointerenter={() => {
             if (!showItems) return;
             showItems = 1;
@@ -154,6 +157,8 @@
 
 <style>
   .title-bar {
+    position: relative;
+    z-index: var(--titlebar-z);
     background-color: var(--darkgray);
     flex: 0 0 auto;
     app-region: drag;

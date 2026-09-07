@@ -1,10 +1,10 @@
 {
   "name": "@fainthit/repair2-plugin-sdk",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Type-first authoring contracts for REPAIR2 plugins.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hinaple/repair2.git",
+    "url": "git+https://github.com/beyondspace-dev/repair2.git",
     "directory": "packages/plugin-sdk"
   },
   "publishConfig": {
