@@ -181,3 +181,7 @@ button {
   font-family: "Pretend";
   src: url("app-resource://fonts/PretendardVariable.woff2") format("woff2-variations");
 }
+@font-face {
+  font-family: "ArchivoExt";
+  src: url("app-resource://fonts/archivoExt.woff2") format("woff2");
+}
