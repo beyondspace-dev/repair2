@@ -29,7 +29,7 @@ export function createEditorAction(app: MainApp) {
         noLink: true
       });
 
-      if (response === 2) return;
+      if (response === 2 || !(await app.editorSave.requestEditorSave())) return;
       if (
         response === 0 &&
         !(await app.service.projectFileManager.exportProject(
