@@ -8,7 +8,7 @@ export default async function (): Promise<Configuration> {
       buildResources: "build"
     },
     files: ["out/**/*", "assets/**/*"],
-    extraFiles: ["templates/**/*", "packages/plugin-sdk/**/*"],
+    extraFiles: ["templates/**/*", "packages/plugin-sdk/**/*", "LICENSE", "SOURCE_CODE.txt"],
     asarUnpack: ["resources/**"],
     win: {
       executableName: "repair2",

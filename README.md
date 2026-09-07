@@ -118,3 +118,13 @@ resources/                    앱 아이콘 및 리소스
 | `npm run build:win`    | Windows 설치 파일 생성                 |
 | `npm run build:unpack` | 압축 해제된 앱 빌드                    |
 | `npm run release`      | Main 브랜치로 머지 및 Release Tag 생성 |
+
+## LICENSE
+
+REPAIR is licensed under the [Mozilla Public License 2.0](LICENSE).
+
+The REPAIR Plugin SDK (`packages/plugin-sdk`) is licensed separately under the MIT License.
+
+User-created projects, plugins, assets, and scripts are not covered by the REPAIR license merely because they were created or used with REPAIR.
+
+The plugin scaffolding templates in `templates/plugin-scaffold` are licensed separately under the 0BSD License. Generated plugins may be licensed under terms chosen by their authors.
