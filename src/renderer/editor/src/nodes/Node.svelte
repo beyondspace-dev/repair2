@@ -151,8 +151,13 @@
   bind:borderBoxSize={null, boxSizeUpdated}
 >
   <div class="node-wrapper" style={`--node-color: ${color};`}>
-    <div class={["node", isFocused && "focus"]} {id} style={`min-width: ${minWidth}px;`}>
-      <div class="head" use:inputNode={{ hasInput, id }}>
+    <div
+      class={["node", isFocused && "focus"]}
+      {id}
+      style={`min-width: ${minWidth}px;`}
+      use:inputNode={{ hasInput, id }}
+    >
+      <div class="head">
         <div class="handle" bind:this={handleEl}><span>{title}</span></div>
         {#if node.nodeType !== "entry" && node.nodeType !== "branch"}
           <FoldArrow {folded} toggle={toggleFold} />
@@ -169,7 +174,7 @@
           {/each}
         </div>
       {/if}
-      {#if hasInput}<div class="start-circle" use:inputNode={{ id, hasInput }}></div>{/if}
+      {#if hasInput}<div class="start-circle"></div>{/if}
     </div>
     <div class="outputs">
       {#each outputs as output}
@@ -198,6 +203,18 @@
     display: flex;
     flex-direction: row;
     pointer-events: all;
+  }
+  .node:global(.ready-to-input) {
+    animation: blink-bright 1s ease-out infinite;
+  }
+  @keyframes blink-bright {
+    0%,
+    100% {
+      outline: solid calc(var(--outline-width) * 1) var(--orange-contextmenu);
+    }
+    50% {
+      outline: solid calc(var(--outline-width) * 2) var(--orange-contextmenu);
+    }
   }
   .node {
     min-width: 200px;
