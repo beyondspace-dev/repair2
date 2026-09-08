@@ -48,6 +48,8 @@ export default class Grabber {
 
     this.pointerdown = (evt) => {
       if (get(grabbing) || evt.button) return;
+
+      document.body.setPointerCapture(evt.pointerId);
       evt.stopPropagation();
 
       grabbing.set(myGrab);
@@ -63,6 +65,7 @@ export default class Grabber {
         this.container.classList.remove("grabbing");
         return;
       }
+
       evt.preventDefault();
       actuallyMoved = true;
       const currentMouse = { x: evt.clientX, y: evt.clientY };
@@ -87,6 +90,10 @@ export default class Grabber {
       };
     } else this.realOnmoved = this.pointermove;
     this.pointerup = (evt) => {
+      if (evt && document.body.hasPointerCapture(evt.pointerId)) {
+        document.body.releasePointerCapture(evt.pointerId);
+      }
+
       if (get(grabbing) !== myGrab || (evt && evt.button)) return;
 
       if (this.pendingEvent) {
