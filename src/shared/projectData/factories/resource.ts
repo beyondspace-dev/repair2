@@ -1,9 +1,9 @@
-import { genId } from "../../genId";
+import { nanoid } from "nanoid";
 import type { Types } from "../types";
 import { createFactory } from "./factory";
 
 export const createResource = createFactory<Types.Resource>({
-  id: () => genId(),
+  id: () => nanoid(),
   src: null,
   alias: null
 });

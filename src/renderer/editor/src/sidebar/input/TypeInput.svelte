@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { genId } from "@shared/genId";
+  import { nanoid } from "nanoid";
   import { forEachRelationId } from "@shared/projectData/relation";
   import { createPayload } from "@shared/projectData/typePayload/create";
   import { PayloadTemplates } from "@shared/projectData/typePayload/templates";
@@ -85,7 +85,7 @@
       }
 
       const payload = createPayload(typeName, nextType as never, undefined, (type, data) => {
-        const id = "id" in data && typeof data.id === "string" ? data.id : genId();
+        const id = "id" in data && typeof data.id === "string" ? data.id : nanoid();
         mutator.add(type, id, data);
         return id;
       });

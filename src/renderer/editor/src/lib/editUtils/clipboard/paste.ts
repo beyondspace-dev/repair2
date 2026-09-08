@@ -1,4 +1,4 @@
-import { genId } from "@shared/genId";
+import { nanoid } from "nanoid";
 import {
   PROJECT_RECORDS,
   SINGULAR_RECORD_MAP,
@@ -197,7 +197,7 @@ function createPasteIdKey(type: RecordKey, id: string): PasteIdKey {
 function genUniqueRecordId(project: ProjectInstance, type: RecordKey, reserved: Set<PasteIdKey>) {
   let id: string;
   do {
-    id = genId();
+    id = nanoid();
   } while (hasProjectRecordId(project, type, id) || reserved.has(createPasteIdKey(type, id)));
   return id;
 }

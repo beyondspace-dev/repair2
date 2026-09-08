@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { genId } from "@shared/genId";
+  import { nanoid } from "nanoid";
   import outClickAction from "../actions/outclickaction";
   import outScrollAction from "../actions/outscrollaction";
   import { onMount } from "svelte";
@@ -34,7 +34,7 @@
     collapse: (blurred: boolean) => unknown;
   } = $props();
 
-  const menuId = genId();
+  const menuId = nanoid();
 
   function isButtonItem(item: MenuItem): item is MenuButtonItem {
     return item.type !== "separator";

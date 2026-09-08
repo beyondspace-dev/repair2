@@ -1,4 +1,4 @@
-import { genId } from "../../genId";
+import { nanoid } from "nanoid";
 import type { Types } from "../types";
 import { createCoord } from "./coord";
 import { createFactory, createRecordFactory, nested, owns } from "./factory";
@@ -8,7 +8,7 @@ import { createTransition } from "./transition";
 export const createComponent = createRecordFactory(
   "components",
   createFactory<Types.Component>()({
-    id: () => genId(),
+    id: () => nanoid(),
     alias: null,
     elements: () => [],
     pos: nested(createCoord),

@@ -1,4 +1,4 @@
-import { genId } from "../../genId";
+import { nanoid } from "nanoid";
 import type { Types } from "../types";
 import { createFactory, owns } from "./factory";
 import type { RegisterOwned } from "./factory";
@@ -8,7 +8,7 @@ import { createValue } from "./value";
 const createNodePos = () => ({ x: 0, y: 0 });
 
 export const createEntry = createTypePayloadFactory<Types.Entry>("entry")({
-  id: () => genId(),
+  id: () => nanoid(),
   alias: null,
   nodePos: createNodePos,
   nodeType: "entry",
@@ -18,7 +18,7 @@ export const createEntry = createTypePayloadFactory<Types.Entry>("entry")({
 });
 
 export const createSequence = createFactory<Types.Sequence>({
-  id: () => genId(),
+  id: () => nanoid(),
   alias: null,
   nodePos: createNodePos,
   nodeType: "sequence",
@@ -30,7 +30,7 @@ export const createSequence = createFactory<Types.Sequence>({
 });
 
 export const createBranch = createFactory<Types.Branch>()({
-  id: () => genId(),
+  id: () => nanoid(),
   alias: null,
   nodePos: createNodePos,
   nodeType: "branch",
@@ -45,7 +45,7 @@ export const createBranch = createFactory<Types.Branch>()({
 });
 
 export const createVariableSet = createFactory<Types.VariableSet>()({
-  id: () => genId(),
+  id: () => nanoid(),
   alias: null,
   nodePos: createNodePos,
   nodeType: "variableSet",
