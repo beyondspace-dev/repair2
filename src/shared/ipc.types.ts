@@ -16,6 +16,7 @@ import type {
 } from "./plugin.types";
 import type { GlobalKeyEvent } from "./globalKeyEvent.types";
 import type { EditorMenuAction } from "./editorMenu";
+import type { ShowToastOptions } from "./toast.types";
 
 export type IpcSocketIncomeArgs = [channel: string, data: unknown, url?: string];
 
@@ -214,6 +215,7 @@ export interface MainToEditorSendMap extends MainToRendererSharedSendMap {
   "log:changed": [change: LogChange];
   "plugin:manifest-error": [errors: ManifestErrorForRenderer[]];
   "menu-action": [action: EditorMenuAction<"editor">];
+  "toast:show": [option: ShowToastOptions];
 }
 
 export interface MainToPlaySendMap extends MainToRendererSharedSendMap {

@@ -79,11 +79,11 @@ export function createEditorAction(app: MainApp) {
         false
       );
       if (!linkResult.ok) {
-        logger.error("Plugin Link Error:", linkResult.message ?? "Unknown error");
+        logger.toast().error("Plugin Link Error:", linkResult.message ?? "Unknown error");
         return;
       }
-      await app.service.pluginManager.updateAllPluginInfo({});
-      logger.info(`"${linkResult.manifest.name}" plugin linked successfully`);
+      logger.toast().info(`"${linkResult.manifest.name}" plugin linked successfully`);
+      await app.service.pluginManager.updateAllPluginInfo();
     },
 
     "view:reload-editor": () => app.state.window.editor?.webContents.reloadIgnoringCache(),
