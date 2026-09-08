@@ -4,6 +4,7 @@ import { createEditorMenu } from "./editorMenu";
 import type { MainApp } from "../app/mainApp";
 import { logger } from "../logs/logger";
 import { ipc } from "../ipc/ipcMethods";
+import { getMainScreenArea, getWindowArea } from "../system/screenManager";
 
 export class WindowController {
   #app: MainApp;
@@ -101,6 +102,18 @@ export class WindowController {
       logger.error("Play renderer error", message + `\n\tat ${sourceId}:${lineNumber}`);
       quitOnStartupError();
     });
+  }
+
+  async updateMainWindowArea() {
+    if (!this.#app.state.window.main) return;
+    this.#app.state.window.main.setBounds?.(
+      this.#app.state.project.data
+        ? getWindowArea(
+            this.#app.state.project.data.config,
+            await this.#app.settings.get("anchorDisplay")
+          )
+        : getMainScreenArea()
+    );
   }
 
   createEditorWindow() {

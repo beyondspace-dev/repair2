@@ -1,5 +1,4 @@
 import { net, protocol } from "electron";
-import { appResource } from "./dirs";
 import { resolve, relative, isAbsolute } from "path";
 import { pathToFileURL } from "url";
 
@@ -17,7 +16,7 @@ export function registerProtocol() {
   ]);
 }
 
-export function handleProtocol() {
+export function handleProtocol(appResource: string) {
   protocol.handle("app-resource", (request) => {
     const { host, pathname } = new URL(request.url);
 

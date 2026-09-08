@@ -81,6 +81,7 @@ export function setupPluginIpc(app: MainApp) {
         typescript
       },
       {
+        paths: app.paths,
         skipNameValidation: false,
         npmInstalled: app.state.externalTools.npm,
         status(status) {

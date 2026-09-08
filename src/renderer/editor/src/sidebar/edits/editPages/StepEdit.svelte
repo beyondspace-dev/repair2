@@ -64,7 +64,12 @@
   <InputField label="이벤트 채널" binding={editor.at("payload", "channel")} />
   <InputField label="데이터" binding={editor.at("payload", "data")} type="textarea" />
 {:else if data.type === "Others.setVariable"}
-  <InputField label="수정할 변수" binding={editor.at("payload", "variableId")} type="variable" />
+  <InputField
+    label="수정할 변수"
+    binding={editor.at("payload", "variableId")}
+    type="variable"
+    canUnselect={false}
+  />
   <InputField label="수정할 값" binding={editor.at("payload", "value")} />
 {:else if data.type === "Others.executePlugin"}
   <InputField

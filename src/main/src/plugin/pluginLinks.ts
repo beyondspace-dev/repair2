@@ -1,24 +1,24 @@
 import { join } from "path";
 import fs from "fs/promises";
-import { dataDir, pluginDir } from "../system/dirs";
 import { getManifest, MANIFEST, normalizeManifest } from "./pluginManifest";
 import { pathExists } from "../system/pathExists";
 import type { PluginDiagnostics } from "./pluginDiagnostics";
 import type { PluginManifest, PluginType } from "./type";
 import { toKebabCase } from "@shared/stringUtils";
+import type { PathManager } from "../app/mainAppPaths";
 
 type Result = { ok: boolean; message?: string };
 
 export type PluginLinks = Record<string, { sourcePath: string; linked: boolean }>;
 
-export const PLUGIN_LINK = "plugin-links.json";
-const LINKS_FILE_PATH = join(dataDir, PLUGIN_LINK);
-
 export function createPluginLinkService({
-  pluginDiagnostics
+  pluginDiagnostics,
+  paths
 }: {
   pluginDiagnostics: PluginDiagnostics;
+  paths: PathManager;
 }) {
+  const getLinksPath = () => paths.inProject("plugin-links.json");
   const diagnostics = pluginDiagnostics;
 
   let currentPluginLinks: PluginLinks;
@@ -107,7 +107,7 @@ export function createPluginLinkService({
       !(
         await updateManifestFromSource(
           sourceDir,
-          join(pluginDir, toKebabCase(manifest.name)),
+          join(paths.inProject("plugins"), toKebabCase(manifest.name)),
           true,
           manifest
         )
@@ -134,34 +134,36 @@ export function createPluginLinkService({
   async function getPluginLinks(): Promise<PluginLinks | null> {
     if (currentPluginLinks) return currentPluginLinks;
 
-    if (!(await pathExists(LINKS_FILE_PATH))) {
+    const linksPath = getLinksPath();
+    if (!(await pathExists(linksPath))) {
       currentPluginLinks = {};
       return currentPluginLinks;
     }
 
     try {
-      const content = await fs.readFile(LINKS_FILE_PATH, "utf8");
+      const content = await fs.readFile(linksPath, "utf8");
       const obj = JSON.parse(content);
       const links = await normalizeLinks(obj);
       if (!links) {
-        await diagnostics.linkRegistryInvalid(LINKS_FILE_PATH);
+        await diagnostics.linkRegistryInvalid(linksPath);
         return null;
       }
       currentPluginLinks = links;
       return links;
     } catch (err) {
-      await diagnostics.linkRegistryReadFailed(LINKS_FILE_PATH, [err]);
+      await diagnostics.linkRegistryReadFailed(linksPath, [err]);
       return null;
     }
   }
 
   async function updatePluginLinks(newLinks: PluginLinks = currentPluginLinks): Promise<Result> {
+    const linksPath = getLinksPath();
     try {
       currentPluginLinks = newLinks;
-      await fs.writeFile(LINKS_FILE_PATH, JSON.stringify(serializePluginLinks(newLinks)), "utf8");
+      await fs.writeFile(linksPath, JSON.stringify(serializePluginLinks(newLinks)), "utf8");
       return { ok: true };
     } catch (err) {
-      await diagnostics.linkRegistrySaveFailed(LINKS_FILE_PATH, [err]);
+      await diagnostics.linkRegistrySaveFailed(linksPath, [err]);
       return { ok: false, message: "Failed to write plugin-links.json file" };
     }
   }

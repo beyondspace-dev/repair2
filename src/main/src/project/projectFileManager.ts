@@ -89,7 +89,7 @@ export default class ProjectFileManager {
         this.exporting = false;
       });
 
-      zip(this.#app.paths.dataDir, output, (progress) =>
+      zip(this.#app.paths.getProjectDir(), output, (progress) =>
         this.#exportProgress?.(Math.floor(progress * 100))
       );
     });
@@ -101,7 +101,8 @@ export default class ProjectFileManager {
       this.importing = true;
       await this.#beforeImport?.();
 
-      await emptyProjectDir(this.#app.paths.dataDir);
+      const projectDir = this.#app.paths.getProjectDir();
+      await emptyProjectDir(projectDir);
 
       const zip = new (await import("node-stream-zip")).async({
         file: filePath,
@@ -124,7 +125,7 @@ export default class ProjectFileManager {
           this.importing = false;
           reject(err);
         });
-        zip.extract(null, this.#app.paths.dataDir).then(() => resolve(), reject);
+        zip.extract(null, projectDir).then(() => resolve(), reject);
       });
       await zip.close();
 

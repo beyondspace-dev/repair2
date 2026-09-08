@@ -101,7 +101,7 @@ class RuntimePluginInstanceProxy {
 }
 
 export default class MainRuntimePluginEngine {
-  private readonly pluginDir: string;
+  private readonly getPluginDir: () => string;
   private readonly plugins: Map<string, RuntimePluginData> = new Map();
   private readonly pluginDiagnostics: PluginDiagnostics;
   private readonly message: MainAppMessage;
@@ -117,15 +117,15 @@ export default class MainRuntimePluginEngine {
   constructor(
     message: MainAppMessage,
     {
-      pluginDir,
+      getPluginDir,
       pluginDiagnostics
     }: {
-      pluginDir: string;
+      getPluginDir: () => string;
       pluginDiagnostics: PluginDiagnostics;
     }
   ) {
     this.message = message;
-    this.pluginDir = pluginDir;
+    this.getPluginDir = getPluginDir;
     this.pluginDiagnostics = pluginDiagnostics;
   }
 
@@ -251,11 +251,12 @@ export default class MainRuntimePluginEngine {
       ready: false,
       instance: previous?.instance
     };
+    const pluginDir = this.getPluginDir();
     logger.info(
-      `LOADING PLUGIN: ${pluginInfo.name}(${join(this.pluginDir, pluginInfo.mainDistFile as string)})`
+      `LOADING PLUGIN: ${pluginInfo.name}(${join(pluginDir, pluginInfo.mainDistFile as string)})`
     );
     const importing = this.request<"update-plugin", boolean>("update-plugin", {
-      pluginDir: this.pluginDir,
+      pluginDir,
       pluginInfo,
       forceImport
     })
@@ -444,7 +445,7 @@ export default class MainRuntimePluginEngine {
       await Promise.all(
         [...this.plugins.values()].map((plugin) => {
           const importing = this.sendRequest<"update-plugin", boolean>(child, "update-plugin", {
-            pluginDir: this.pluginDir,
+            pluginDir: this.getPluginDir(),
             pluginInfo: plugin.info,
             forceImport: true
           })

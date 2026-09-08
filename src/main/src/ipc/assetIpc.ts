@@ -6,7 +6,7 @@ import { ipc } from "./ipcMethods";
 
 export function setupAssetIpc(app: MainApp) {
   ipc.on("getDataDir", (evt) => {
-    evt.returnValue = app.paths.dataDir;
+    evt.returnValue = app.paths.getProjectDir();
   });
 
   ipc.handle("selectFile", (event, opt) => {
@@ -21,16 +21,17 @@ export function setupAssetIpc(app: MainApp) {
   });
 
   ipc.handle("copyInfoAsset", (event, srcs: string[]) => {
+    const assetDir = app.paths.inProject("assets");
     return Promise.all(
       srcs.map(async (src) => {
         const ext = extname(src);
         const baseName = basename(src, ext);
         let filename = basename(src);
         for (let duplicatedCount = 2; ; duplicatedCount++) {
-          if (!(await pathExists(join(app.paths.assetDir, filename)))) break;
+          if (!(await pathExists(join(assetDir, filename)))) break;
           filename = `${baseName}(${duplicatedCount})${ext}`;
         }
-        await fs.copyFile(src, join(app.paths.assetDir, filename));
+        await fs.copyFile(src, join(assetDir, filename));
         return filename;
       })
     );

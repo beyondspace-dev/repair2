@@ -39,7 +39,7 @@ export function createEditorAction(app: MainApp) {
       )
         return;
 
-      await app.service.projectFileManager.importProject(app.paths.emptyProjectFile);
+      await app.service.projectFileManager.importProject(app.paths.templates.empty);
     },
     "file:save": async () => {
       await app.editorSave.requestEditorSave();
@@ -54,7 +54,7 @@ export function createEditorAction(app: MainApp) {
         app.controllers.project.getProjectExportName()
       );
     },
-    "file:open-data-folder": () => app.system.shell.openPath(app.paths.dataDir),
+    "file:open-data-folder": async () => app.system.shell.openPath(app.paths.getProjectDir()),
     "file:quit": () => app.system.app.quit(),
 
     "tools:toggle-editor-devtools": () => toggleDevtool(app.state.window.editor, "편집기 콘솔"),
