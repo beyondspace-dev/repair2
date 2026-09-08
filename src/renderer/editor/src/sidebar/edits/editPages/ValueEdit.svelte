@@ -18,5 +18,10 @@
 {#if data.baseType === "string"}
   <InputField label="기본값 직접 입력" binding={editor.field("baseValue")} />
 {:else if data.baseType === "variable"}
-  <InputField label="변수 할당" binding={editor.field("baseValue")} type="variable" />
+  <InputField
+    label="변수 할당"
+    binding={editor.field("baseValue")}
+    type="variable"
+    canUnselect={false}
+  />
 {/if}

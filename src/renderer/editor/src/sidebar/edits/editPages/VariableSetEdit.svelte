@@ -7,4 +7,9 @@
 </script>
 
 <InputField label="노드 이름" binding={editor.field("alias")} />
-<InputField label="설정할 변수" binding={editor.field("variable")} type="variable" />
+<InputField
+  label="설정할 변수"
+  binding={editor.field("variable")}
+  type="variable"
+  canUnselect={false}
+/>

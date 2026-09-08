@@ -45,6 +45,7 @@
   class={[
     "item",
     `style-${style}`,
+    `type-${item.type ?? "button"}`,
     selectable && "selectable",
     selected && "selected",
     (active || expanded) && "active"
@@ -93,6 +94,9 @@
     border-radius: 10px;
     corner-shape: squircle;
     gap: 6px;
+  }
+  .item.type-submenu {
+    padding-right: 8px;
   }
 
   .item.active {

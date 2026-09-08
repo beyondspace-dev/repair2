@@ -14,7 +14,4 @@ export type SelectSubmenuOption<T extends SelectValue> = {
 };
 
 export type SelectOption<T extends SelectValue> =
-  | T
-  | SelectValueOption<T>
-  | readonly [T, string]
-  | SelectSubmenuOption<T>;
+  T | SelectValueOption<T> | readonly [T, string] | SelectSubmenuOption<T>;
