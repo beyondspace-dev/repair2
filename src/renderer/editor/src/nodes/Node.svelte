@@ -210,10 +210,10 @@
   @keyframes blink-bright {
     0%,
     100% {
-      outline: solid calc(var(--outline-width) * 1) var(--orange-contextmenu);
+      box-shadow: #ff800099 0 0 0 4px;
     }
     50% {
-      outline: solid calc(var(--outline-width) * 2) var(--orange-contextmenu);
+      box-shadow: #ff800099 0 0 0 7px;
     }
   }
   .node {
