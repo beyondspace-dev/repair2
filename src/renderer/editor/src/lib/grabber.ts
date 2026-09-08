@@ -27,7 +27,8 @@ export default class Grabber {
     onMoveEnd,
     inNodeSpace = true,
     noHandle = false,
-    optimizedOnMoved = false
+    optimizedOnMoved = false,
+    pointerCapture = true
   }: {
     container: HTMLElement;
     handle?: HTMLElement;
@@ -37,6 +38,7 @@ export default class Grabber {
     inNodeSpace?: boolean;
     noHandle?: boolean;
     optimizedOnMoved?: boolean;
+    pointerCapture?: boolean;
   }) {
     this.container = container;
     this.handle = handle ?? container;
@@ -49,7 +51,7 @@ export default class Grabber {
     this.pointerdown = (evt) => {
       if (get(grabbing) || evt.button) return;
 
-      document.body.setPointerCapture(evt.pointerId);
+      if (pointerCapture) document.body.setPointerCapture(evt.pointerId);
       evt.stopPropagation();
 
       grabbing.set(myGrab);

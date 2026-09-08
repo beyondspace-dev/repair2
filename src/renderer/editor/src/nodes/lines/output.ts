@@ -97,6 +97,7 @@ const outputNode: Action<HTMLElement, OutputNodeParams> = (node, params) => {
   const grabber = new Grabber({
     container: node,
     optimizedOnMoved: true,
+    pointerCapture: false,
     onMoveStart: () => {
       if (!mounted || destroyed) return;
 
