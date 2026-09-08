@@ -1,6 +1,7 @@
 import type { EditorMenuAction } from "@shared/editorMenu";
 import type { MainApp } from "./mainApp";
 import type { BrowserWindow } from "electron";
+import { logger } from "../logs/logger";
 
 function toggleDevtool(window: BrowserWindow | null, title: string) {
   if (!window) return;
@@ -65,6 +66,24 @@ export function createEditorAction(app: MainApp) {
         forceBuild: true,
         forceDependencies: true
       });
+    },
+    "plugin:link-plugin": async () => {
+      if (!app.service.pluginManager) return;
+      const sourceDir = await app.system.dialog.showOpenDialog({
+        title: "Select the plugin source directory to link",
+        properties: ["openDirectory"]
+      });
+      if (sourceDir.canceled || !sourceDir.filePaths.length) return;
+      const linkResult = await app.service.pluginManager.pluginLinkService.addPluginLink(
+        sourceDir.filePaths[0],
+        false
+      );
+      if (!linkResult.ok) {
+        logger.error("Plugin Link Error:", linkResult.message ?? "Unknown error");
+        return;
+      }
+      await app.service.pluginManager.updateAllPluginInfo({});
+      logger.info(`"${linkResult.manifest.name}" plugin linked successfully`);
     },
 
     "view:reload-editor": () => app.state.window.editor?.webContents.reloadIgnoringCache(),

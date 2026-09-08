@@ -4,7 +4,10 @@ import { dataDir, pluginDir } from "../system/dirs";
 import { getManifest, MANIFEST, normalizeManifest } from "./pluginManifest";
 import { pathExists } from "../system/pathExists";
 import type { PluginDiagnostics } from "./pluginDiagnostics";
-import type { PluginType } from "./type";
+import type { PluginManifest, PluginType } from "./type";
+import { toKebabCase } from "@shared/stringUtils";
+
+type Result = { ok: boolean; message?: string };
 
 export type PluginLinks = Record<string, { sourcePath: string; linked: boolean }>;
 
@@ -83,11 +86,14 @@ export function createPluginLinkService({
     }
   }
 
-  async function addPluginLink(sourceDir: string, replace: boolean = false): Promise<boolean> {
+  async function addPluginLink(
+    sourceDir: string,
+    replace: boolean = false
+  ): Promise<{ ok: false; message?: string } | { ok: true; manifest: PluginManifest }> {
     const current = await getPluginLinks();
-    if (!current) return false;
+    if (!current) return { ok: false, message: "Failed to access current plugin links" };
     const manifest = await readManifest(join(sourceDir, MANIFEST));
-    if (!manifest) return false;
+    if (!manifest) return { ok: false, message: `"${sourceDir}" is not a valid plugin directory` };
     if (!replace && current[manifest.name]) {
       await diagnostics.duplicateLink({
         pluginName: manifest.name,
@@ -95,20 +101,31 @@ export function createPluginLinkService({
         currentSourcePath: current[manifest.name].sourcePath,
         requestedSourcePath: sourceDir
       });
-      return false;
+      return { ok: false, message: `"${manifest.name}" is already registered plugin name` };
     }
     if (
-      !(await updateManifestFromSource(sourceDir, join(pluginDir, manifest.name), true, manifest))
-        .updated
+      !(
+        await updateManifestFromSource(
+          sourceDir,
+          join(pluginDir, toKebabCase(manifest.name)),
+          true,
+          manifest
+        )
+      ).updated
     )
-      return false;
+      return { ok: false, message: "Failed to copy plugin manifest file" };
     const newLinks = { ...current, [manifest.name]: { sourcePath: sourceDir, linked: true } };
-    return await updatePluginLinks(newLinks);
+    const updateResult = await updatePluginLinks(newLinks);
+    return updateResult.ok
+      ? { ok: true, manifest: manifest }
+      : { ok: false, message: updateResult.message };
   }
 
-  async function unlinkPlugin(pluginName: string): Promise<boolean> {
+  async function unlinkPlugin(pluginName: string): Promise<Result> {
     const current = await getPluginLinks();
-    if (!current || !(pluginName in current)) return false;
+    if (!current) return { ok: false, message: "Failed to access current plugin links" };
+    if (!(pluginName in current))
+      return { ok: false, message: `"${pluginName}" is not registered linked plugin` };
     delete current[pluginName];
 
     return await updatePluginLinks(current);
@@ -138,14 +155,14 @@ export function createPluginLinkService({
     }
   }
 
-  async function updatePluginLinks(newLinks: PluginLinks = currentPluginLinks): Promise<boolean> {
+  async function updatePluginLinks(newLinks: PluginLinks = currentPluginLinks): Promise<Result> {
     try {
       currentPluginLinks = newLinks;
       await fs.writeFile(LINKS_FILE_PATH, JSON.stringify(serializePluginLinks(newLinks)), "utf8");
-      return true;
+      return { ok: true };
     } catch (err) {
       await diagnostics.linkRegistrySaveFailed(LINKS_FILE_PATH, [err]);
-      return false;
+      return { ok: false, message: "Failed to write plugin-links.json file" };
     }
   }
 
