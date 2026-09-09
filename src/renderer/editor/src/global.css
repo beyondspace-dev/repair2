@@ -31,8 +31,9 @@ body {
   --viewport-ratio: 1;
   --outline-width: max(calc(4px / var(--viewport-ratio)), 3px);
 }
-body.grabbing {
-  cursor: grabbing;
+body.grabbing,
+body.grabbing * {
+  cursor: grabbing !important;
 }
 body.selecting {
   cursor: default !important;

@@ -210,10 +210,10 @@
   @keyframes blink-bright {
     0%,
     100% {
-      box-shadow: #ff800099 0 0 0 4px;
+      box-shadow: #ff800099 0 0 0 calc(var(--outline-width));
     }
     50% {
-      box-shadow: #ff800099 0 0 0 7px;
+      box-shadow: #ff800099 0 0 0 calc(var(--outline-width) * 2);
     }
   }
   .node {
