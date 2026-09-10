@@ -15,11 +15,11 @@ import {
   createVariable
 } from "@shared/projectData/factories";
 import type { RegisterOwned } from "@shared/projectData/factories/factory";
-import { genId } from "@shared/genId";
+import { nanoid } from "nanoid";
 import { getMutator } from "./store";
 
 function recordId(data: object): string {
-  return "id" in data && typeof data.id === "string" ? data.id : genId();
+  return "id" in data && typeof data.id === "string" ? data.id : nanoid();
 }
 
 type DefaultFactory<K extends RecordKey> = (

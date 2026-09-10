@@ -1,3 +1,5 @@
+/// <reference types="svelte" />
+
 import type { RepairAssetAttributes } from "@fainthit/repair2-plugin-sdk";
 import type { HTMLAttributes } from "svelte/elements";
 

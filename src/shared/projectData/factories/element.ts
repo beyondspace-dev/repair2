@@ -1,4 +1,4 @@
-import { genId } from "../../genId";
+import { nanoid } from "nanoid";
 import type { Types } from "../types";
 import { createCoord } from "./coord";
 import { createDragOption } from "./dragOption";
@@ -6,7 +6,7 @@ import { nested } from "./factory";
 import { createTypePayloadFactory } from "./typePayloadFactory";
 
 export const createElement = createTypePayloadFactory<Types.Element>("element")({
-  id: () => genId(),
+  id: () => nanoid(),
   alias: null,
   width: null,
   height: null,

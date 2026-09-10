@@ -1,3 +1,4 @@
+import type { ShowToastOptions } from "@shared/toast.types";
 import { ipc } from "../ipc";
 
 type EditFn = (editOpt: { title: string | null; content: string | null }) => boolean;
@@ -15,22 +16,6 @@ export type Toast = {
   timeout: ReturnType<typeof setTimeout> | null;
   destroy: () => void;
   edit: EditFn;
-};
-
-type ShowToastOptions = (
-  | {
-      id: string | null;
-      title?: string | null;
-    }
-  | {
-      id?: string | null;
-      title: string | null;
-    }
-) & {
-  type?: ToastTypes;
-  content?: string | null;
-  duration?: number | null;
-  closable?: boolean | null;
 };
 
 export const toasts: Toast[] = $state([]);
@@ -83,14 +68,16 @@ export function showToast({
     toasts.splice(idx, 1);
     return true;
   };
+  duration = duration === null ? 3000 : duration;
   const timeout = duration ? setTimeout(destroy, +duration) : null;
+
   const toast = {
     id,
     symbol,
     type,
     title,
     content,
-    duration: duration === null ? 3000 : duration,
+    duration,
     closable: closable ?? true,
     destroy,
     edit,
@@ -119,6 +106,8 @@ function getDiagnosticSubjectLabel(
     .filter(Boolean)
     .join("\n");
 }
+
+ipc.on("toast:show", (_, opt) => showToast(opt));
 
 ipc.on("exporting", (evt, process) => {
   showToast({
@@ -179,17 +168,17 @@ ipc.on("socket-income", (evt, channel, data, url) => {
 });
 
 ipc.on("mqtt-connected", (_) => {
-    showToast({
-        title: "MQTT 통신이 시작되었습니다.",
-        duration: 3000
-    });
+  showToast({
+    title: "MQTT 통신이 시작되었습니다.",
+    duration: 3000
+  });
 });
 ipc.on("mqtt-income", (_, topic, data) => {
-    showToast({
-        title: "MQTT 통신 데이터를 수신했습니다.",
-        content: `토픽: <${topic}>\n<${data}>`,
-        duration: 3000
-    });
+  showToast({
+    title: "MQTT 통신 데이터를 수신했습니다.",
+    content: `토픽: <${topic}>\n<${data}>`,
+    duration: 3000
+  });
 });
 
 // ipc.on("custom-log", (evt, content) => {

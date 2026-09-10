@@ -3,7 +3,6 @@ import { join } from "path";
 import { buildPlugin } from "./pluginBuild";
 import { getManifest, MANIFEST, normalizeManifest, watchManifest } from "./pluginManifest";
 import MainRuntimePluginEngine from "./runtimeMain";
-import { pluginDir } from "../system/dirs";
 import { createPluginLinkService, type PluginLinkService } from "./pluginLinks";
 import {
   createPluginDiagnostics,
@@ -27,6 +26,7 @@ import type { PluginErrorPayload, PluginRunningTarget } from "@shared/plugin.typ
 import type { RollupError } from "rollup";
 import type { MainAppMessage } from "../app/mainAppMessage";
 import { updateMainDependencies } from "./mainDependencies";
+import type { PathManager } from "../app/mainAppPaths";
 
 function closeViteWatchers(data: PluginData) {
   if (data.watchers && data.watchers.length)
@@ -39,33 +39,41 @@ export class PluginManager {
   private pluginDiagnostics: PluginDiagnostics;
   private sendUpdate: UpdateSender;
   private getNpmExists: () => boolean;
+  private getPluginDir: () => string;
 
   destroyed: boolean = false;
 
   pluginLinkService: PluginLinkService;
   mainRuntime: MainRuntimePluginEngine;
 
-  plugins: Map<string, PluginInfoData>;
+  plugins = new Map<string, PluginInfoData>();
   manifestErrors: Map<string, ManifestError> = new Map();
   constructor(
     message: MainAppMessage,
     {
       devMode = false,
       getNpmExists,
-      onupdate
-    }: { devMode: boolean; getNpmExists: () => boolean; onupdate: UpdateHandler }
+      onupdate,
+      paths
+    }: {
+      devMode: boolean;
+      getNpmExists: () => boolean;
+      onupdate: UpdateHandler;
+      paths: PathManager;
+    }
   ) {
     this.sendUpdate = createSender(this, onupdate);
-    this.plugins = new Map();
     this.devMode = devMode;
     this.getNpmExists = getNpmExists;
+    this.getPluginDir = () => paths.inProject("plugins");
     this.updated = false;
     this.pluginDiagnostics = createPluginDiagnostics();
     this.pluginLinkService = createPluginLinkService({
-      pluginDiagnostics: this.pluginDiagnostics
+      pluginDiagnostics: this.pluginDiagnostics,
+      paths
     });
     this.mainRuntime = new MainRuntimePluginEngine(message, {
-      pluginDir,
+      getPluginDir: this.getPluginDir,
       pluginDiagnostics: this.pluginDiagnostics
     });
   }
@@ -211,10 +219,11 @@ export class PluginManager {
   }
 
   private ensureDirectories() {
+    const pluginDir = this.getPluginDir();
     return fs.access(pluginDir).catch(() => fs.mkdir(pluginDir));
   }
   private async getPluginDirList() {
-    return (await fs.readdir(pluginDir, { withFileTypes: true })).reduce(
+    return (await fs.readdir(this.getPluginDir(), { withFileTypes: true })).reduce(
       (dirs: string[], dirent) => {
         if (dirent.isDirectory()) dirs.push(dirent.name);
         return dirs;
@@ -301,7 +310,7 @@ export class PluginManager {
         else if (result.status === "manifest-error") {
           await this.manifestErrorHandler(
             dir,
-            result.sourcePath ?? join(pluginDir, dir),
+            result.sourcePath ?? join(this.getPluginDir(), dir),
             result.reason
           );
         }
@@ -369,7 +378,7 @@ export class PluginManager {
 
     return {
       dir,
-      path: join(pluginDir, dir),
+      path: join(this.getPluginDir(), dir),
       distFile: join(dir, manifest.outDir, "index.js"),
       ...(manifest.main ? { mainDistFile: join(dir, manifest.main.outDir, "index.cjs") } : null),
       linked: await this.getPluginLinkedInfo(manifest.name),
@@ -380,7 +389,7 @@ export class PluginManager {
   private async getPluginInfoFromDir(
     dir: string
   ): Promise<{ info: PluginInfo } | { reason: string; isENOENT: boolean; info: null }> {
-    const manifestResult = await getManifest(join(pluginDir, dir, MANIFEST));
+    const manifestResult = await getManifest(join(this.getPluginDir(), dir, MANIFEST));
     if (manifestResult.ok === false) {
       if (!manifestResult.silent) {
         await this.pluginDiagnostics.manifestInvalid({
@@ -506,7 +515,7 @@ export class PluginManager {
 
   private async isBuilt(pluginInfo: PluginInfo) {
     const files = [pluginInfo.distFile, pluginInfo.mainDistFile].filter(Boolean);
-    return Promise.all(files.map((file) => fs.access(join(pluginDir, file as string))))
+    return Promise.all(files.map((file) => fs.access(join(this.getPluginDir(), file as string))))
       .then(() => true)
       .catch(() => false);
   }

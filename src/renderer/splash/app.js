@@ -7,7 +7,7 @@ const Copy = document.getElementById("copy");
 ipcRenderer.invoke("request-version").then((versionString) => {
   Version.innerText = `v${versionString}`;
   Copy.innerText = `RepairV${versionString}
-    ⓒ 2026 BeyondSpace Co. All rights reserved.
+    ⓒ 2026 SiwonPark All rights reserved.
     Repair™ is a trademark of BeyondSpace™ and SiwonPark.`;
 });
 

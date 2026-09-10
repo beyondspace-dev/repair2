@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { genId } from "@shared/genId";
+  import { nanoid } from "nanoid";
   import Menu from "../../menu/Menu.svelte";
   import { closeContextMenu, contextMenu } from "./contextUtils";
 
-  const anchorName = `--context-menu-${genId()}`;
+  const anchorName = `--context-menu-${nanoid()}`;
 </script>
 
 {#if $contextMenu}

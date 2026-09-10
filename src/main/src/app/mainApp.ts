@@ -11,18 +11,19 @@ import { MainAppStartup } from "../windows/splash";
 import { createMainAppState } from "./state";
 import { createControllers } from "./mainAppControllers";
 import { createSystem } from "./mainAppSystem";
-import { paths } from "./mainAppPaths";
 import { LogStore } from "../logs/logStore";
 import { Store } from "../system/store";
 import { createEditorAction } from "./editorActions";
 import { handleProtocol, registerProtocol } from "../system/customProtocol";
 import { checkExternalTools } from "../system/externalTools";
+import { Settings } from "../system/settings";
+import { createPathManager } from "./mainAppPaths";
 
 declare const __APP_VERSION__: string;
 export class MainApp {
   readonly version = __APP_VERSION__;
   readonly isDev = is.dev;
-  readonly paths = paths;
+  readonly paths = createPathManager(this);
   readonly system = createSystem(this);
   readonly state = createMainAppState();
   readonly controllers = createControllers(this);
@@ -34,11 +35,13 @@ export class MainApp {
   readonly startup = new MainAppStartup(this);
   readonly globalKey = new GlobalKey();
   readonly store = new Store(this.paths.storePath);
-  readonly config = this.store.makeConfig();
+  readonly settings = new Settings(this);
   readonly editorAction = createEditorAction(this);
-  private readonly readyToStart: Promise<unknown> = checkExternalTools(this.state).then(() =>
-    logger.debug("READY TO START")
-  );
+
+  private readonly readyToStart: Promise<unknown> = Promise.all([
+    this.paths.updateProjectDir(),
+    checkExternalTools(this.state)
+  ]).then(() => logger.debug("READY TO START"));
 
   async start() {
     registerProtocol();
@@ -87,7 +90,7 @@ export class MainApp {
     this.system.app.once("ready", async () => {
       electronApp.setAppUserModelId("com.repair2");
 
-      handleProtocol();
+      handleProtocol(this.paths.appResource);
       setupIpcHandlers(this);
 
       await this.readyToStart;

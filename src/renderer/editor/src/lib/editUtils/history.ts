@@ -89,14 +89,17 @@ export function beginPendingHistoryChange() {
 }
 
 function pushHistory(item: HistoryItem | HistoryItem[]) {
-  if (history.length > currentCursor) history = history.toSpliced(currentCursor);
+  if (history.length > currentCursor) {
+    if (saveIdx > currentCursor) saveIdx = -1;
+    history = history.toSpliced(currentCursor);
+  }
   history.push(item);
   setCurrentCursor(currentCursor + 1);
   if (history.length > MaxHistoryLen) {
     const offset = history.length - MaxHistoryLen;
     history = history.toSpliced(0, offset);
     currentCursor -= offset;
-    saveIdx -= offset;
+    if (saveIdx >= 0) saveIdx -= offset;
   }
 }
 

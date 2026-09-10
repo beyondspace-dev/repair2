@@ -1,9 +1,9 @@
-import { genId } from "../../genId";
+import { nanoid } from "nanoid";
 import type { Types } from "../types";
 import { createTypePayloadFactory } from "./typePayloadFactory";
 
 export const createListener = createTypePayloadFactory<Types.Listener>("listener")({
-  id: () => genId(),
+  id: () => nanoid(),
   repeatCount: 1,
   repeatInterval: 0,
   once: false,

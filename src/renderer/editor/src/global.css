@@ -31,10 +31,11 @@ body {
   --viewport-ratio: 1;
   --outline-width: max(calc(4px / var(--viewport-ratio)), 3px);
 }
+body.grabbing,
 body.grabbing * {
   cursor: grabbing !important;
 }
-body.selecting * {
+body.selecting {
   cursor: default !important;
 }
 
@@ -180,4 +181,8 @@ button {
 @font-face {
   font-family: "Pretend";
   src: url("app-resource://fonts/PretendardVariable.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "ArchivoExt";
+  src: url("app-resource://fonts/archivoExt.woff2") format("woff2");
 }

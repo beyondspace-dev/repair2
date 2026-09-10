@@ -8,6 +8,7 @@
   import { tippySingleton } from "../lib/tippy";
   import { sidebar } from "./resizer/sidebarSize";
   import { getSidebarWidth, setActualSidebarWidth, SIDEBAR_WIDTH_MIN } from "../nodes/viewport";
+  import Settings from "./setting/Settings.svelte";
 
   type Tab = keyof typeof tabs;
   let currentTab = $state<Tab>("edit");
@@ -22,8 +23,15 @@
     variables: "Variables",
     resources: "Resources",
     plugins: "Plugins",
-    logs: "Logs"
-  };
+    logs: "Logs",
+    settings: "Settings"
+  } as const;
+
+  const tabButtons = [
+    ["edit", "variables", "resources", "plugins"],
+    // ["logs", "settings"]
+    ["logs"] //temporary...
+  ] as const satisfies [(keyof typeof tabs)[], (keyof typeof tabs)[]];
 
   let tempWidth = $state(getSidebarWidth());
 </script>
@@ -39,16 +47,21 @@
   style={`width: ${tempWidth}px;`}
 >
   <div class="tabs" use:tippySingleton={{ duration: 100, delay: [400, 0], placement: "right" }}>
-    {#each Object.entries(tabs) as [id, label]}
-      <button
-        class={["tab-wrapper", currentTab === id && "active"]}
-        onclick={() => (currentTab = id as Tab)}
-        data-tippy-content={label}
-      >
-        <div class="tab">
-          <BigIcons icon={id} color="#fff" size={30} />
-        </div>
-      </button>
+    {#each tabButtons as btnIds, i}
+      {#each btnIds as id}
+        <button
+          class={["tab-wrapper", currentTab === id && "active"]}
+          onclick={() => (currentTab = id as Tab)}
+          data-tippy-content={tabs[id]}
+        >
+          <div class="tab">
+            <BigIcons icon={id} color="#fff" size={30} />
+          </div>
+        </button>
+      {/each}
+      {#if i < tabButtons.length - 1}
+        <div class="tab-btn-spacer"></div>
+      {/if}
     {/each}
   </div>
   <div class="side-bar-body">
@@ -63,6 +76,8 @@
       <Plugins />
     {:else if currentTab === "logs"}
       <Logs />
+    {:else if currentTab === "settings"}
+      <Settings />
     {/if}
   </div>
 </div>
@@ -89,6 +104,9 @@
     flex-direction: column;
     flex: 0 0 auto;
     box-sizing: border-box;
+  }
+  .tab-btn-spacer {
+    flex: 1 1 auto;
   }
   .tab-wrapper {
     padding: 3px;

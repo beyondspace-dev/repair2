@@ -97,6 +97,7 @@ const outputNode: Action<HTMLElement, OutputNodeParams> = (node, params) => {
   const grabber = new Grabber({
     container: node,
     optimizedOnMoved: true,
+    pointerCapture: false,
     onMoveStart: () => {
       if (!mounted || destroyed) return;
 
@@ -106,6 +107,7 @@ const outputNode: Action<HTMLElement, OutputNodeParams> = (node, params) => {
       };
       o.noBezier = true;
       positiveUpdate();
+      grabbingOutput.set(true);
     },
     onMoved: ({ dx, dy }) => {
       if (!mounted || !o.toCoord || destroyed) return;
@@ -116,6 +118,8 @@ const outputNode: Action<HTMLElement, OutputNodeParams> = (node, params) => {
     },
     onMoveEnd: () => {
       if (!mounted || destroyed) return;
+
+      grabbingOutput.set(false);
 
       o.noBezier = false;
       const targetEnd = get(hoverInput);
@@ -159,6 +163,8 @@ const outputNode: Action<HTMLElement, OutputNodeParams> = (node, params) => {
   };
 };
 export default outputNode;
+
+export const grabbingOutput = writable(false);
 
 type LineChangeType = "reset" | "set" | "remove";
 type LineSubCB = (type: LineChangeType, changedId?: string) => void;

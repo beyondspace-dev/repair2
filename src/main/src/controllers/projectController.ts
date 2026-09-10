@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import { join } from "path";
-import { getWindowArea } from "../system/screenManager";
 import { migratePlugins, migrateProject } from "../project/migrate";
 import { normalizeProjectData } from "@shared/projectData/normalize";
 import { logger } from "../logs/logger";
@@ -20,10 +19,7 @@ export class ProjectController {
     state.project.data = { ...tempData, updatedAt: Date.now() };
     this.applyDataConfig();
     return fs
-      .writeFile(
-        join(paths.dataDir, "data.json"),
-        JSON.stringify(convertToStored(state.project.data))
-      )
+      .writeFile(paths.inProject("data.json"), JSON.stringify(convertToStored(state.project.data!)))
       .then(() => true)
       .catch((e) => {
         logger
@@ -44,16 +40,17 @@ export class ProjectController {
 
     logger.info("Importing default project");
     startup.sendStartupInfo("기본 프로젝트 로드 중...");
-    return service.projectFileManager.importProject(paths.defaultProjectFile);
+    return service.projectFileManager.importProject(paths.templates.default);
   }
 
   async loadData() {
     const { state, controllers, paths, system, startup } = this.#app;
     startup.sendStartupInfo("데이터 파일 로드 중...");
     let rawData: PossibleStoredData;
+
+    const dataDir = paths.getProjectDir();
     try {
-      // await fs.access(paths.dataDir);
-      const tempData = (await fs.readFile(join(paths.dataDir, "data.json"))).toString();
+      const tempData = (await fs.readFile(join(dataDir, "data.json"))).toString();
       rawData = JSON.parse(tempData);
       state.project.data = convertToRuntime(
         normalizeProjectData(
@@ -75,8 +72,8 @@ export class ProjectController {
       await migratePlugins({
         appVersion: this.#app.version,
         projectAppVer: storedAppVer,
-        dataDir: paths.dataDir,
-        pluginDir: paths.pluginDir
+        dataDir: dataDir,
+        pluginDir: join(dataDir, "plugins")
       })
     ) {
       startup.afterSplashClose(() => {
@@ -114,11 +111,7 @@ export class ProjectController {
     }
     state.window.main.setTitle?.(state.project.data.config?.title ?? "REPAIRv2");
 
-    if (!state.project.data.config.screenConfig) return;
-
-    const rectangle = getWindowArea(state.project.data.config);
-    if (!rectangle) return;
-    state.window.main.setBounds?.(rectangle);
+    this.#app.controllers.window.updateMainWindowArea();
   }
 
   getProjectExportName() {

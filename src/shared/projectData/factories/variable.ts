@@ -1,9 +1,9 @@
-import { genId } from "../../genId";
+import { nanoid } from "nanoid";
 import type { Types } from "../types";
 import { createFactory } from "./factory";
 
 export const createVariable = createFactory<Types.Variable>({
-  id: () => genId(),
+  id: () => nanoid(),
   name: null,
   defaultValue: null
 });

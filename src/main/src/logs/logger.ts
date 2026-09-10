@@ -8,6 +8,7 @@ type LoggerMethods = Record<(typeof LogLevels)[number], LoggerMethod>;
 type Logger = {
   source: (source: LogSource) => Logger;
   dialog: (showDialog?: boolean) => Logger;
+  toast: (showToast?: boolean) => Logger;
   phase: (phase: string) => Logger;
   type: (type: string) => Logger;
   subject: (subject: LogSubject) => Logger;
@@ -25,6 +26,7 @@ function createLogger(payload: LoggerOption): Logger {
   return {
     source: (source) => currentCreateLogger({ source }),
     dialog: (dialog = true) => currentCreateLogger({ dialog }),
+    toast: (toast = true) => currentCreateLogger({ toast }),
     phase: (phase) => currentCreateLogger({ phase }),
     type: (type) => currentCreateLogger({ type }),
     subject: (subject) => currentCreateLogger({ subject }),

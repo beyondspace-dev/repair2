@@ -1,5 +1,4 @@
 import { logger } from "../logs/logger";
-import type { SerialPort as SerialPortType } from "serialport";
 
 let SerialPortClass: typeof import("serialport").SerialPort | null = null;
 
@@ -13,43 +12,43 @@ type SerialDataHandler = (data: string) => void;
 type SerialConnectHandler = (port: string) => void;
 
 export default class SerialConnector {
-  port: SerialPortType | null = null;
+  port: import("serialport").SerialPort | null = null;
 
-  #onconnect: SerialConnectHandler;
-  #ondata: SerialDataHandler;
+  constructor(
+    private readonly getDefaultPath: () => Promise<string | null>,
+    private readonly ondata: SerialDataHandler,
+    private readonly onconnect: SerialConnectHandler
+  ) {}
 
-  constructor(ondata: SerialDataHandler, onconnect: SerialConnectHandler) {
-    this.#ondata = ondata;
-    this.#onconnect = onconnect;
-  }
-
-  async open(portAlias?: string, path?: string, baudRate = 9600) {
+  async open(portAlias?: string, path?: string | null, baudRate = 9600) {
     if (this.port?.isOpen) this.port.close();
-
-    let realPort = path;
 
     const SP = await getSerialPort();
 
-    if (portAlias || !path) {
-      const list = await SP.list();
-      realPort =
-        list.find((port) => port.friendlyName?.includes(portAlias || "USB-SERIAL"))?.path ?? path;
+    if (!portAlias && !path) {
+      path = await this.getDefaultPath();
+      if (!path) portAlias = "USB-SERIAL";
     }
 
-    if (!realPort) return;
+    if (!path) {
+      const list = await SP.list();
+      path = list.find((port) => port.friendlyName?.includes?.(portAlias))?.path;
+    }
+
+    if (!path) return;
 
     this.port = new SP({
-      path: realPort,
-      baudRate: baudRate ?? 9600
+      path,
+      baudRate: baudRate
     });
 
-    logger.info("SERIAL OPENED: ", realPort);
-    this.#onconnect(realPort);
+    logger.info("SERIAL OPENED: ", path);
+    this.onconnect(path);
 
     this.port.on("readable", () => {
       const data = this.port?.read();
       if (!data) return;
-      this.#ondata(data.toString().trim());
+      this.ondata(data.toString().trim());
     });
   }
 

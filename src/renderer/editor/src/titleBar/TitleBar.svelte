@@ -179,14 +179,12 @@
     white-space: pre;
     font-weight: 500;
     flex: 0 0 auto;
-    overflow: hidden;
   }
   .title-container.unsaved {
     font-style: oblique;
   }
   .title {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-family: "ArchivoExt", "Pretend";
   }
   .side {
     flex: 1 2 100%;

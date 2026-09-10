@@ -225,11 +225,7 @@ export function getViewportCenter() {
   return { x: vp.x, y: vp.y };
 }
 
-// ipc.on("zoom", (_, step) => {
-// });
-
 function zoom(step: number) {
-  console.log(123);
   const scr = get(viewport.screen);
   const center = { x: scr.width / 2 + scr.x, y: scr.height / 2 + scr.y };
   resizeViewport(step, center);

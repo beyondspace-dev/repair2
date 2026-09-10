@@ -178,14 +178,16 @@
       unselectable={props.canUnselect}
     />
   {:else if type === "variable"}
-    <select {value} onchange={(evt) => selectChange(evt.currentTarget.value || null)}>
-      <option value={null}>변수 할당 없음</option>
-      {#each getProject().variables.values() as variable}
-        <option value={variable.id}>
-          {variable.name?.length ? variable.name : "이름 없는 변수"}
-        </option>
-      {/each}
-    </select>
+    <Select
+      {value}
+      onchange={(v) => selectChange(v || null)}
+      unselectable={props.canUnselect !== undefined ? props.canUnselect : true}
+      options={getProject()
+        .variables.values()
+        .map((v) => [v.id, v.name ?? "이름 없는 변수"])
+        .toArray()}
+      placeholder="변수 할당 없음"
+    />
   {:else if type === "type" && binding}
     <TypeInput
       {binding}

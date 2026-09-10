@@ -1,4 +1,4 @@
-import { genId } from "@shared/genId";
+import { nanoid } from "nanoid";
 import { emitPluginEvent, addPluginEventListener } from "./pluginEventBus";
 import { emitRepairEvent, addRepairEventListener } from "../event";
 import {
@@ -284,7 +284,7 @@ function createAppApi(): SDK.AppApi {
 export function createPluginContext({
   pluginId = "",
   pluginType = "",
-  instanceId = genId(8),
+  instanceId = nanoid(8),
   component = null,
   element = null,
   frame = null

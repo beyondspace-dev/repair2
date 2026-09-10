@@ -1,4 +1,4 @@
-import { genId } from "@shared/genId";
+import { nanoid } from "nanoid";
 import type * as V1 from "@shared/projectData/v1Data.types";
 import type * as V2 from "@shared/projectData/v2Data.types";
 import type { EntryTypePayload, TypePayloads } from "@shared/projectData/typePayload";
@@ -14,7 +14,7 @@ function resolveOutput<K extends string, T extends { [k in K]: V1.Output }>(
 }
 
 function moveToRecord<T extends Record<string, any>>(object: T, target: Record<string, T>) {
-  const id = "id" in object ? (object.id as string) : genId();
+  const id = "id" in object ? (object.id as string) : nanoid();
   target[id] = object;
   return id;
 }

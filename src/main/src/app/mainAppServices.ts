@@ -96,6 +96,7 @@ export class MainAppServices {
   }
   #createSerialConnector(app: MainApp) {
     return new SerialConnector(
+      () => app.settings.get("defaultSerialPath"),
       (data) => {
         if (!app.state.window.main) return;
 

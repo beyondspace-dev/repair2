@@ -1,11 +1,11 @@
 import fs from "fs/promises";
 import { join } from "path";
-import { pluginDir, sdkDir, templateDir } from "../system/dirs";
 import { pathExists } from "../system/pathExists";
 import type { RawManifest } from "./type";
 import { logger } from "../logs/logger";
 import { toKebabCase } from "@shared/stringUtils";
 import { npmInstall } from "../system/externalTools";
+import type { PathManager } from "../app/mainAppPaths";
 
 declare const __SDK_VERSION__: string;
 declare const __SVELTE_VERSION__: string;
@@ -91,18 +91,18 @@ export async function createEmptyPlugin(
   entry: PLUGIN_ENTRY_TYPE,
   {
     root,
-    templatePath = templateDir,
     typescript = false
   }: {
     root?: string;
-    templatePath?: string;
     typescript?: boolean;
   },
   {
+    paths,
     skipNameValidation = false,
     npmInstalled,
     status
   }: {
+    paths: PathManager;
     skipNameValidation?: boolean;
     npmInstalled: boolean;
     status?: (status: string) => unknown;
@@ -117,7 +117,7 @@ export async function createEmptyPlugin(
     name = validateResult.name;
   }
 
-  const targetDir = join(root ?? pluginDir, name);
+  const targetDir = join(root ?? paths.inProject("plugins"), name);
 
   const alreadyExists = await pathExists(targetDir);
   if (alreadyExists) return { error: `${targetDir} is already exists` };
@@ -142,7 +142,7 @@ export async function createEmptyPlugin(
 
   status?.("Creating Plugin Directory...");
   await fs.mkdir(targetDir, { recursive: true });
-  const pluginTemplateDir = join(templatePath, "plugin-scaffold");
+  const pluginTemplateDir = join(paths.templateDir, "plugin-scaffold");
 
   status?.("Copying Files...");
   await Promise.all([
@@ -157,7 +157,7 @@ export async function createEmptyPlugin(
     ...(manifest.svelte
       ? [fs.cp(join(pluginTemplateDir, "common/svelte"), targetDir, { recursive: true })]
       : []),
-    copyModule(targetDir, SDK_NAME),
+    copySDK(targetDir, paths.sdkDir),
     ...(typescript
       ? [
           fs.writeFile(
@@ -180,8 +180,8 @@ export async function createEmptyPlugin(
   return { dir: targetDir };
 }
 
-function copyModule(targetDir: string, module: string) {
-  return fs.cp(sdkDir, join(targetDir, "node_modules", module), {
+function copySDK(targetDir: string, sdkDir: string) {
+  return fs.cp(sdkDir, join(targetDir, "node_modules", SDK_NAME), {
     recursive: true
   });
 }

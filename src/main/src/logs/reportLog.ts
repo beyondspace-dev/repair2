@@ -10,16 +10,13 @@ import type { LogContent } from "@shared/logContent";
 import type { LogEntryInput } from "@shared/log.types";
 import type { NewDialogs } from "../system/dialog";
 import type { LogStore } from "./logStore";
+import type { MainApp } from "../app/mainApp";
+import type { ToastTypes } from "@shared/toast.types";
 
 export type LogPayload = Omit<LogEntryInput, "createdAt" | "updatedAt" | "count"> & {
   log?: boolean;
   dialog?: boolean;
-};
-
-type LogReporterOptions = {
-  makeLogFile?: (type: string, content: string) => Promise<string>;
-  dialog: NewDialogs;
-  logStore: LogStore;
+  toast?: boolean;
 };
 
 const LOG_SEGMENT_MAX_LENGTH = 16;
@@ -29,10 +26,12 @@ function getSubjectLabel(subject: ReturnType<typeof normalizeLogSubject>) {
   return [subject.id, subject.type, subject.instanceId].filter(Boolean).join(" / ") || null;
 }
 
-function getDialogType(level: LogLevel) {
+function getOtherType(level: LogLevel, forToast: true): ToastTypes;
+function getOtherType(level: LogLevel, forToast?: false): "error" | "warning" | "info";
+function getOtherType(level: LogLevel, forToast: boolean = false) {
   if (level === "error") return "error";
   if (level === "warning") return "warning";
-  return "info";
+  return forToast ? "normal" : "info";
 }
 
 function compactSegment(value: string) {
@@ -103,9 +102,11 @@ export type ReportLog = (
 
 export function createLogReporter({
   makeLogFile,
-  dialog: { showMessageBox },
-  logStore
-}: LogReporterOptions): ReportLog {
+  app
+}: {
+  makeLogFile?: (type: string, content: string) => Promise<string>;
+  app: MainApp;
+}): ReportLog {
   function reportLog(
     {
       level = "info",
@@ -114,6 +115,7 @@ export function createLogReporter({
       subject = null,
       log = undefined,
       dialog = false,
+      toast = false,
       type = null,
       phase = null,
       from
@@ -126,7 +128,7 @@ export function createLogReporter({
     const normalizedType = type ?? `${normalizedSource}-log`;
     const subjectLabel = getSubjectLabel(normalizedSubject);
 
-    const entry = logStore.record(
+    const entry = app.logStore.record(
       {
         type: normalizedType,
         source: normalizedSource,
@@ -152,12 +154,20 @@ export function createLogReporter({
     }
 
     if (dialog) {
-      showMessageBox({
-        type: getDialogType(entry.level),
+      app.system.dialog.showMessageBox({
+        type: getOtherType(entry.level),
         title: "Repair2",
         message: `${entry.level} at ${entry.source}`,
         detail: detailText,
         noLink: true
+      });
+    }
+
+    if (toast) {
+      app.message.sendToEditor("toast:show", {
+        type: getOtherType(entry.level, true),
+        title: entry.content[0]?.toString() ?? `${entry.level} at ${entry.source}`,
+        content: entry.content.length > 1 ? entry.content.toSpliced(0, 1).join(" ") : undefined
       });
     }
 

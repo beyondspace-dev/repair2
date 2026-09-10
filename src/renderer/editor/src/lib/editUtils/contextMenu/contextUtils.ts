@@ -25,11 +25,15 @@ function clearContextMenuClass() {
   rightNode = null;
 }
 
-function showContextMenu(menu: ContextMenu, source: HTMLElement, addClass = true) {
+function showContextMenu(menu: ContextMenu): void;
+function showContextMenu(menu: ContextMenu, source: HTMLElement, addClass?: boolean): void;
+function showContextMenu(menu: ContextMenu, source?: HTMLElement, addClass = true) {
   clearContextMenuClass();
+  contextMenu.set(menu);
+
+  if (!source || !addClass) return;
   rightNode = source;
   if (addClass) rightNode.classList.add("contextmenu");
-  contextMenu.set(menu);
 }
 
 export function closeContextMenu() {

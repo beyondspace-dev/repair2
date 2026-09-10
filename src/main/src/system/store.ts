@@ -3,12 +3,10 @@ import { join } from "path";
 import { logger } from "../logs/logger";
 import { toKebabCase } from "@shared/stringUtils";
 
-const CONFIG_KEY = "config";
-
 function keyAndPath(key: string | string[], safe: boolean = true): [string, string[]] {
   const arr = Array.isArray(key) ? key : key.split(".");
   const k = toKebabCase(arr[0]);
-  return [k === CONFIG_KEY && safe ? `_${k}` : k, arr.toSpliced(0, 1)];
+  return [k === Store.SETTING_KEY && safe ? `_${k}` : k, arr.toSpliced(0, 1)];
 }
 
 function isPlainObject(val: any) {
@@ -24,6 +22,8 @@ function setPropertyAt(data: any, keys: string[], val: any, _step = 0): any {
 }
 
 export class Store {
+  static SETTING_KEY = "settings";
+
   #stores: Map<string, any> = new Map();
   #storePath: string;
   constructor(storePath: string) {
@@ -64,16 +64,5 @@ export class Store {
   async set(key: string | string[], value: any, safe = true) {
     const [k, p] = keyAndPath(key, safe);
     return this.#setData(k, setPropertyAt(await this.#getData(k, false), p, value));
-  }
-  makeConfig() {
-    const getConfig = (keys: string | string[], forceUpdate: boolean = false) => {
-      const arr = Array.isArray(keys) ? keys : keys.split(".");
-      return this.get([CONFIG_KEY, ...arr], forceUpdate, false);
-    };
-    const setConfig = (keys: string | string[], value: any) => {
-      const arr = Array.isArray(keys) ? keys : keys.split(".");
-      return this.set([CONFIG_KEY, ...arr], value, false);
-    };
-    return { get: getConfig, set: setConfig };
   }
 }

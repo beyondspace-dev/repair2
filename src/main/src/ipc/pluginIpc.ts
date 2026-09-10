@@ -81,6 +81,7 @@ export function setupPluginIpc(app: MainApp) {
         typescript
       },
       {
+        paths: app.paths,
         skipNameValidation: false,
         npmInstalled: app.state.externalTools.npm,
         status(status) {
@@ -94,7 +95,7 @@ export function setupPluginIpc(app: MainApp) {
         createResult.dir,
         false
       );
-      if (!linkResult) return { canceled: true as const };
+      if (!linkResult.ok) return { canceled: true as const, error: linkResult.message };
     }
     if (app.state.externalTools.vscode) openVsCode(createResult.dir);
     else app.system.shell.openPath(createResult.dir);

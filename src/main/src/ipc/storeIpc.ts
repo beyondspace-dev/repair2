@@ -9,10 +9,11 @@ export function setupStoreIpc(app: MainApp) {
     return app.store.set(key, value, true);
   });
 
-  ipc.handle("get-config", (evt, path) => {
-    return app.config.get(path);
+  ipc.handle("settings:get", (evt, key) => {
+    return app.settings.get(key);
   });
-  ipc.handle("set-config", (evt, path, value) => {
-    return app.config.set(path, value);
+  ipc.handle("settings:set", (evt, key, value) => {
+    return app.settings.set(key, value);
   });
+  ipc.handle("settings:get-all", () => app.settings.getAll());
 }

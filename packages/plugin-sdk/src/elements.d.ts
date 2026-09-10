@@ -1,5 +1,5 @@
 export interface RepairAssetAttributes {
-  src?: string;
+  src: string;
   clone?: boolean | "true" | "false";
   notpreload?: boolean | "true" | "false";
   volume?: number | string;

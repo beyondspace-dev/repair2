@@ -1,6 +1,7 @@
 import type { EditorMenuAction } from "@shared/editorMenu";
 import type { MainApp } from "./mainApp";
 import type { BrowserWindow } from "electron";
+import { logger } from "../logs/logger";
 
 function toggleDevtool(window: BrowserWindow | null, title: string) {
   if (!window) return;
@@ -29,7 +30,7 @@ export function createEditorAction(app: MainApp) {
         noLink: true
       });
 
-      if (response === 2) return;
+      if (response === 2 || !(await app.editorSave.requestEditorSave())) return;
       if (
         response === 0 &&
         !(await app.service.projectFileManager.exportProject(
@@ -38,7 +39,7 @@ export function createEditorAction(app: MainApp) {
       )
         return;
 
-      await app.service.projectFileManager.importProject(app.paths.emptyProjectFile);
+      await app.service.projectFileManager.importProject(app.paths.templates.empty);
     },
     "file:save": async () => {
       await app.editorSave.requestEditorSave();
@@ -53,7 +54,7 @@ export function createEditorAction(app: MainApp) {
         app.controllers.project.getProjectExportName()
       );
     },
-    "file:open-data-folder": () => app.system.shell.openPath(app.paths.dataDir),
+    "file:open-data-folder": async () => app.system.shell.openPath(app.paths.getProjectDir()),
     "file:quit": () => app.system.app.quit(),
 
     "tools:toggle-editor-devtools": () => toggleDevtool(app.state.window.editor, "편집기 콘솔"),
@@ -65,6 +66,24 @@ export function createEditorAction(app: MainApp) {
         forceBuild: true,
         forceDependencies: true
       });
+    },
+    "plugin:link-plugin": async () => {
+      if (!app.service.pluginManager) return;
+      const sourceDir = await app.system.dialog.showOpenDialog({
+        title: "Select the plugin source directory to link",
+        properties: ["openDirectory"]
+      });
+      if (sourceDir.canceled || !sourceDir.filePaths.length) return;
+      const linkResult = await app.service.pluginManager.pluginLinkService.addPluginLink(
+        sourceDir.filePaths[0],
+        false
+      );
+      if (!linkResult.ok) {
+        logger.toast().error("Plugin Link Error:", linkResult.message ?? "Unknown error");
+        return;
+      }
+      logger.toast().info(`"${linkResult.manifest.name}" plugin linked successfully`);
+      await app.service.pluginManager.updateAllPluginInfo();
     },
 
     "view:reload-editor": () => app.state.window.editor?.webContents.reloadIgnoringCache(),

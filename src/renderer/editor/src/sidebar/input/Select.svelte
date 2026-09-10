@@ -1,5 +1,5 @@
 <script lang="ts" generics="T extends string | number | boolean">
-  import { genId } from "@shared/genId";
+  import { nanoid } from "nanoid";
   import type { MenuItem } from "../../lib/menu/menu.types";
   import Menu from "../../lib/menu/Menu.svelte";
   import Icon from "../../assets/icons/Icon.svelte";
@@ -97,7 +97,7 @@
     expanded = false;
   }
 
-  const anchorName = `--select-${genId()}`;
+  const anchorName = `--select-${nanoid()}`;
 
   let btnEl: HTMLButtonElement | undefined = $state();
 

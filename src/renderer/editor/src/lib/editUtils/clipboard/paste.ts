@@ -1,4 +1,4 @@
-import { genId } from "@shared/genId";
+import { nanoid } from "nanoid";
 import {
   PROJECT_RECORDS,
   SINGULAR_RECORD_MAP,
@@ -142,7 +142,10 @@ function pasteInProject(
     assignDataId(clonedData, record.newId);
     applyPastedNodePosition(record, clonedData, position, nodePositionBase);
     rewriteRelationIds(record.type, clonedData, (type, id) => {
-      return idMap.get(createPasteIdKey(type, id)) ?? (preserveExternalOutputs ? id : null);
+      return (
+        idMap.get(createPasteIdKey(type, id)) ??
+        (type !== "nodes" || preserveExternalOutputs ? id : null)
+      );
     });
     getMutator().add(record.type, record.newId, clonedData as never);
   }
@@ -194,7 +197,7 @@ function createPasteIdKey(type: RecordKey, id: string): PasteIdKey {
 function genUniqueRecordId(project: ProjectInstance, type: RecordKey, reserved: Set<PasteIdKey>) {
   let id: string;
   do {
-    id = genId();
+    id = nanoid();
   } while (hasProjectRecordId(project, type, id) || reserved.has(createPasteIdKey(type, id)));
   return id;
 }

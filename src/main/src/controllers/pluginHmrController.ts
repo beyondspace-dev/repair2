@@ -21,9 +21,10 @@ export class PluginHmrController {
   async updateCss() {
     const { paths, state } = this.#app;
     try {
-      state.project.cssCode = String(await fs.readFile(join(paths.styleDir, "global.css"))).replace(
+      const styleDir = paths.inProject("styles");
+      state.project.cssCode = String(await fs.readFile(join(styleDir, "global.css"))).replace(
         /%FONTS%/g,
-        join(paths.styleDir, "fonts").replace(/\\/g, "/")
+        join(styleDir, "fonts").replace(/\\/g, "/")
       );
     } catch (err) {
       logger
@@ -47,6 +48,7 @@ export class PluginHmrController {
     if (state.hmr.importing) await state.hmr.importing;
 
     if (!state.hmr.setter) {
+      const dataDir = paths.getProjectDir();
       state.hmr.importing = (async () => {
         state.hmr.setter = createHmr({
           onHmr: (type) => {
@@ -57,9 +59,9 @@ export class PluginHmrController {
 
             this.#requirePluginManager().updateAllPluginInfo({});
           },
-          styleDir: paths.styleDir,
-          pluginDir: paths.pluginDir,
-          dataDir: paths.dataDir
+          styleDir: join(dataDir, "styles"),
+          pluginDir: join(dataDir, "plugins"),
+          dataDir
         });
         return state.hmr.setter(state.hmr.isActive);
       })();
@@ -84,11 +86,12 @@ export class PluginHmrController {
   }
 
   async setPluginManager(devMode = false) {
-    const { service, message } = this.#app;
+    const { service, message, paths } = this.#app;
     if (service.pluginManager) await this.destroyPluginManager();
     const pluginManager = new PluginManager(message, {
       devMode,
       getNpmExists: () => this.#app.state.externalTools.npm,
+      paths,
       onupdate: ({ type, updateData }) => {
         if (type === "single") {
           message.sendToEditor("plugin:update", updateData);

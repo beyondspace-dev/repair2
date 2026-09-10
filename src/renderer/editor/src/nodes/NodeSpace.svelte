@@ -57,6 +57,8 @@
   function pointerdown(evt: PointerEvent) {
     if (isFocusHandled(evt)) return;
 
+    document.body.setPointerCapture(evt.pointerId);
+
     if (evt.button === 0 && !$grabbing) {
       const x = evt.clientX,
         y = evt.clientY;
@@ -72,6 +74,8 @@
       focusData("project");
   }
   function pointermove(evt: PointerEvent) {
+    if (!selectOrigin && !realGrabbing) return;
+
     if (selectOrigin && selectBoxEl) {
       if ($grabbing !== "select") $grabbing = "select";
 
@@ -90,6 +94,9 @@
     prvMouse = { x: evt.screenX, y: evt.screenY };
   }
   function pointerup(evt: PointerEvent) {
+    if (document.body.hasPointerCapture(evt.pointerId))
+      document.body.releasePointerCapture(evt.pointerId);
+
     if (selectOrigin) {
       const p1 = getOriginalPos(selectOrigin.x1, selectOrigin.y1);
       const p2 = getOriginalPos(selectOrigin.x2, selectOrigin.y2);
