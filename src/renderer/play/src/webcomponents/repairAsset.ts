@@ -48,6 +48,7 @@ export default class RepairAsset extends HTMLElement {
       this.resourceElement.currentTime = 0;
       this.resourceElement.muted = false;
       this.applyVideo();
+      this.resourceElement.play();
     }
   }
   applyVideo() {

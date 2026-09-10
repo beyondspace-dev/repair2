@@ -63,6 +63,7 @@ export class Settings {
         this.app.isDev ? "dev_project" : "project"
       );
     if (id === "anchorDisplay") return screen.getPrimaryDisplay().id;
+    if (id === "startOnBoot") return this.app.system.boot.getAutoStartOpt();
     else return null;
   }
   private afterSetSetting<K extends SettingId>(key: K, value: SettingValueMap[K]) {

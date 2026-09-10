@@ -1,9 +1,27 @@
 <script lang="ts">
-let 
+  import { SettingFields, type SettingValueMap } from "@shared/setting/settingFields";
+  import { ipc } from "../../lib/ipc";
+
+  let settings = $state<SettingValueMap | null>(null);
+
+  ipc.invoke("settings:get-all").then((result) => (settings = result));
 </script>
 
 <div class="configs">
-  <InputField 
+  {#if !settings}
+    LOADING SETTINGS
+  {:else}
+    {#each SettingFields as f}
+      {f.id}<br />
+      {f.name}<br />
+      {#if "description" in f}
+        {f.description}<br />
+      {/if}
+      {f.type}<br />
+      {settings[f.id]}<br />
+      <hr />
+    {/each}
+  {/if}
 </div>
 
 <style>

@@ -29,7 +29,8 @@
 
   const tabButtons = [
     ["edit", "variables", "resources", "plugins"],
-    ["logs", "settings"]
+    // ["logs", "settings"]
+    ["logs"] //temporary...
   ] as const satisfies [(keyof typeof tabs)[], (keyof typeof tabs)[]];
 
   let tempWidth = $state(getSidebarWidth());
