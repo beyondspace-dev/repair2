@@ -95,13 +95,13 @@ export class MainApp {
 
       await this.readyToStart;
 
-      if (!(await this.#appOpenedWithProject(process.argv, false))) {
-        this.startup.showSplash();
-        await Promise.all([
-          new Promise((res) => setTimeout(res, 3000)),
-          this.controllers.project.loadData()
-        ]);
-      }
+      if (await this.#appOpenedWithProject(process.argv, false)) return;
+
+      this.startup.showSplash();
+      await Promise.all([
+        new Promise((res) => setTimeout(res, 3000)),
+        this.controllers.project.loadData()
+      ]);
 
       if (this.isDev) {
         this.controllers.window.createMainWindow();

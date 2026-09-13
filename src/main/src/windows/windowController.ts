@@ -15,6 +15,8 @@ export class WindowController {
 
   createMainWindow() {
     const { controllers, globalKey, service, startup, state, system } = this.#app;
+    if (state.window.main) return;
+
     let playRendererShown = false;
     let playRendererFailed = false;
     const quitOnStartupError = () => {
