@@ -44,11 +44,9 @@
 
   function oninput() {
     const next = modelValue();
-    if (session) session.update(next);
-    else {
-      session = binding.begin();
-      session.update(next);
-    }
+    if (!session?.active) session = binding.begin();
+
+    session.update(next);
     onpreview?.();
   }
 

@@ -52,6 +52,7 @@ export type ProjectChange = {
 };
 
 export interface EditSession<T> {
+  readonly active: boolean;
   update(value: T): void;
   commit(): void;
   cancel(): void;
@@ -173,6 +174,9 @@ export class ProjectMutator {
     let finished = false;
     const pendingChange = beginPendingHistoryChange();
     const session: EditSession<T> = {
+      get active() {
+        return !finished;
+      },
       update: (value) => {
         if (finished || Object.is(after, value)) return;
         this.setTransient(target, path, value);
