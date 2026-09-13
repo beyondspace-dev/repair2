@@ -64,8 +64,10 @@ svg {
 
 *::-webkit-scrollbar {
   width: 14px;
-  border-left: solid var(--w-o6) 1px;
   box-sizing: border-box;
+}
+.scroll::-webkit-scrollbar {
+  border-left: solid var(--w-o6) 1px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;

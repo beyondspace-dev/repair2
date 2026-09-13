@@ -71,7 +71,7 @@
   });
 </script>
 
-<div class="options">
+<div class="options scroll">
   {#if CurrentEditComponent && editor}
     {#key `${$currentFocus.type}:${$currentFocus.target}`}
       <CurrentEditComponent {editor} />

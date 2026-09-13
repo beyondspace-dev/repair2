@@ -4,7 +4,7 @@
   import PluginPreview from "./PluginPreview.svelte";
 </script>
 
-<div class="plugins-container">
+<div class="plugins-container scroll">
   {#each PLUGIN_TYPES as t}
     {@const arr = Object.values(plugins[t])}
     {#if arr.length}
@@ -27,7 +27,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow-y: scroll;
     scrollbar-gutter: stable;
     padding-bottom: 30px;
   }

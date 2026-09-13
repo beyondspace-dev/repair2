@@ -134,6 +134,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     flex: 1 1 auto;
 
     contain: strict style;

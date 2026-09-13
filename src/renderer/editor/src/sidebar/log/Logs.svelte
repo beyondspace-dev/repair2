@@ -4,4 +4,4 @@
   import "./logs.scss";
 </script>
 
-<div class="logs" use:logs></div>
+<div class="logs scroll" use:logs></div>
