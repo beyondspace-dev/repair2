@@ -88,13 +88,22 @@ export function createPluginLinkService({
 
   async function addPluginLink(
     sourceDir: string,
-    replace: boolean = false
+    beforeInfo?: { name: string; type: PluginType }
   ): Promise<{ ok: false; message?: string } | { ok: true; manifest: PluginManifest }> {
     const current = await getPluginLinks();
     if (!current) return { ok: false, message: "Failed to access current plugin links" };
+
     const manifest = await readManifest(join(sourceDir, MANIFEST));
     if (!manifest) return { ok: false, message: `"${sourceDir}" is not a valid plugin directory` };
-    if (!replace && current[manifest.name]) {
+
+    if (beforeInfo && (beforeInfo.type !== manifest.type || beforeInfo.name !== manifest.name)) {
+      return {
+        ok: false,
+        message: "unexpected plugin name or type"
+      };
+    }
+
+    if (!beforeInfo && current[manifest.name]) {
       await diagnostics.duplicateLink({
         pluginName: manifest.name,
         pluginType: manifest.type,

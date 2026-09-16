@@ -147,6 +147,18 @@ export type RendererToMainInvokeMap = {
     args: [];
     result: boolean;
   };
+  "plugin:delete": {
+    args: [pluginName: string];
+    result: { ok: boolean; message?: string };
+  };
+  "plugin:rebuild": {
+    args: [pluginName: string];
+    result: void;
+  };
+  "plugin:relink": {
+    args: [pluginName: string];
+    result: void;
+  };
 };
 
 export type RendererToMainSendMap = {

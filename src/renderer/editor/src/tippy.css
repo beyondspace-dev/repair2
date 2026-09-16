@@ -1,3 +1,6 @@
+[data-tippy-root] {
+  z-index: var(--tippy-z) !important;
+}
 .tippy-box {
   opacity: 0.9;
   --tippy-color: #3b3b3b;

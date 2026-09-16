@@ -75,8 +75,7 @@ export function createEditorAction(app: MainApp) {
       });
       if (sourceDir.canceled || !sourceDir.filePaths.length) return;
       const linkResult = await app.service.pluginManager.pluginLinkService.addPluginLink(
-        sourceDir.filePaths[0],
-        false
+        sourceDir.filePaths[0]
       );
       if (!linkResult.ok) {
         logger.toast().error("Plugin Link Error:", linkResult.message ?? "Unknown error");

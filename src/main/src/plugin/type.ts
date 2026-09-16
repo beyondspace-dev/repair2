@@ -1,6 +1,4 @@
-import type {
-  PluginErrorData,
-  PluginRunningTarget} from "@shared/plugin.types";
+import type { PluginErrorData, PluginRunningTarget } from "@shared/plugin.types";
 import {
   PLUGIN_TYPES,
   type PluginAttributes,
@@ -47,7 +45,9 @@ export type RawManifest = {
   svelte?: boolean;
 };
 export type PluginInfo = PluginManifest & {
+  /** Directory Name */
   dir: string;
+  /** Full Plugin Directory In Live Project Data */
   path: string;
   distFile: string;
   mainDistFile?: string;

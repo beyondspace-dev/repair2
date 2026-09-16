@@ -1,7 +1,7 @@
 import { currentFocus, focusData, removeFocusTarget, type FocusData } from "./focus";
 import { get } from "svelte/store";
 import { grabbing } from "../stores";
-import { createContextFocusData, rightclick } from "./contextMenu/contextUtils";
+import { createContextFocusData, spaceRightclick } from "./contextMenu/contextUtils";
 import type { Action } from "svelte/action";
 import type { ContextMenuParam } from "./contextMenu/types";
 
@@ -31,7 +31,7 @@ export const data: Action<HTMLElement, ContextMenuParam> = (node, p) => {
   const contextNode = node.querySelector<HTMLElement>("[data-contextmenu]") || node;
   const focusNode = node.querySelector<HTMLElement>("[data-focus]") || node;
 
-  const contextMenuAction = rightclick(contextNode, p);
+  const contextMenuAction = spaceRightclick(contextNode, p);
 
   let focussingData = createContextFocusData(p);
 

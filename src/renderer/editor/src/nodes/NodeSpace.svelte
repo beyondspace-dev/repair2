@@ -15,7 +15,7 @@
   import Lines from "./lines/Lines.svelte";
   import { getProject } from "../project/store";
   import { focusData } from "../lib/editUtils/focus";
-  import { rightclick } from "../lib/editUtils/contextMenu/contextUtils";
+  import { spaceRightclick } from "../lib/editUtils/contextMenu/contextUtils";
   import Branch from "./Branch.svelte";
   import Entry from "./Entry.svelte";
   import { fade } from "svelte/transition";
@@ -162,7 +162,7 @@
   class:ready-to-grab={readyToGrab}
   onpointerdown={pointerdown}
   use:event={["wheel", wheel, { passive: true }]}
-  use:rightclick={{ type: "project" }}
+  use:spaceRightclick={{ type: "project" }}
   use:setViewportEl
 >
   <Background />

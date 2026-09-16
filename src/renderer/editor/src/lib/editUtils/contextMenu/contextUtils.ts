@@ -5,6 +5,7 @@ import type { Action } from "svelte/action";
 import type { ContextMenu, ContextMenuContext, ContextMenuParam } from "./types";
 import { CONTEXT_FOCUS_TYPE_MAP } from "../clipboard/constants";
 import type { FocusData } from "../focus";
+import type { MenuItem } from "../../menu/menu.types";
 
 export const contextMenu: Writable<ContextMenu | null> = writable(null);
 
@@ -41,7 +42,40 @@ export function closeContextMenu() {
   clearContextMenuClass();
 }
 
-export const rightclick: Action<HTMLElement, ContextMenuParam> = (node, p) => {
+export const rightclick: Action<
+  HTMLElement,
+  {
+    items: MenuItem[] | (() => MenuItem[]);
+    addClass?: boolean;
+  }
+> = (node, props) => {
+  const oncontextmenu = (evt: MouseEvent) => {
+    if (get(grabbing)) return;
+
+    const position = { x: evt.clientX, y: evt.clientY };
+    showContextMenu(
+      { position, items: typeof props.items === "function" ? props.items() : props.items },
+      node,
+      props.addClass
+    );
+    evt.preventDefault();
+    evt.stopPropagation();
+  };
+
+  node.addEventListener("contextmenu", oncontextmenu);
+
+  return {
+    update(newProps) {
+      props = newProps;
+    },
+    destroy() {
+      node.removeEventListener("contextmenu", oncontextmenu);
+      if (rightNode === node) closeContextMenu();
+    }
+  };
+};
+
+export const spaceRightclick: Action<HTMLElement, ContextMenuParam> = (node, p) => {
   let param = p;
 
   const oncontextmenu = (evt: MouseEvent) => {

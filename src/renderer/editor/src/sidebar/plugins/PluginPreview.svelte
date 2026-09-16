@@ -4,6 +4,9 @@
   import { getVscode, openVscode } from "../../lib/vscode";
   import { tippy } from "../../lib/tippy";
   import type { PluginRendererInfo } from "@shared/plugin.types";
+  import { rightclick } from "../../lib/editUtils/contextMenu/contextUtils";
+  import { ipc } from "../../lib/ipc";
+  import type { MenuItem } from "../../lib/menu/menu.types";
 
   let { info }: { info: PluginRendererInfo } = $props();
 
@@ -11,6 +14,34 @@
   // let showOpt = $state(false);
 
   let color = $derived(info.error ? "#ff3636" : "#fff");
+
+  function getContextMenu(): MenuItem[] {
+    return [
+      {
+        label: "다시 빌드",
+        disabled: !!(info.linked && !info.linked.linked),
+        activate: () => ipc.invoke("plugin:rebuild", info.name)
+      },
+      ...(info.linked
+        ? [
+            {
+              label: "원본 다시 지정",
+              activate: () => ipc.invoke("plugin:relink", info.name)
+            }
+          ]
+        : []),
+      { type: "separator" },
+      {
+        label: (info.linked ? "원본 " : "") + "폴더 열기",
+        disabled: !!(info.linked && !info.linked.linked),
+        activate: () => ipc.send("open-dir", info.linked?.sourcePath ?? info.path)
+      },
+      {
+        label: "플러그인 제거",
+        activate: () => ipc.invoke("plugin:delete", info.name)
+      }
+    ];
+  }
 </script>
 
 <div
@@ -28,6 +59,7 @@
   }}
   class="plugin"
   use:hoverHighlight={{ type: "plugin", data: info.name }}
+  use:rightclick={{ items: getContextMenu }}
 >
   {#if info.svelte}
     <Icon icon="svelte" {color} size={16} />
@@ -68,6 +100,9 @@
     align-items: center;
     font-weight: 300;
     height: 30px;
+  }
+  .plugin:global(.contextmenu) {
+    outline: solid var(--orange-contextmenu) 1px;
   }
   .plugin:hover {
     border-color: var(--w-o2);
