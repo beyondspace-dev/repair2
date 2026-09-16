@@ -11,6 +11,7 @@ import type { Types } from "@shared/projectData/types";
 
 let project: Project;
 const gamezone = document.getElementById("gamezone") as HTMLDivElement;
+const previewzone = document.getElementById("previewzone") as HTMLDivElement;
 const globalStyles = document.createElement("style");
 globalStyles.id = "global-styles";
 document.head.append(globalStyles);
@@ -42,7 +43,7 @@ export function updateData(
 
   sendTotalInfo();
 
-  applyStyle(document.body, gamezone, data.config);
+  applyStyle(document.body, [gamezone, previewzone], data.config);
   globalStyles.textContent = data.globalStyles;
 
   onReadyResolve?.();

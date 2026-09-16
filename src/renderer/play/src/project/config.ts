@@ -10,7 +10,7 @@ const styleMap = {
 
 export function applyStyle(
   body: HTMLElement,
-  container: HTMLDivElement,
+  containers: HTMLDivElement[],
   config: Types.ProjectConfig
 ) {
   if (config.width) body.style.setProperty("--gamezone-width", `${config.width}px`);
@@ -33,5 +33,5 @@ export function applyStyle(
       }, [])
       .join("; ") +
     ";";
-  container.setAttribute("style", baseStyleString);
+  containers.forEach((c) => c.setAttribute("style", baseStyleString));
 }
