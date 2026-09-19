@@ -30,8 +30,10 @@ export class Project {
     branch: [],
     variableSet: []
   };
+  readonly entryMap: Map<Types.Entry["type"], (Entry | StandbyEntry)[]> = new Map();
   readonly values: Map<string, Value> = new Map();
   readonly resources: Map<string, Resource> = new Map();
+  readonly resourceTitleMap: Map<string, Resource> = new Map();
   constructor(readonly data: RuntimeProjectData) {
     data.nodes.forEach((nn) => {
       const obj = new (
@@ -39,11 +41,22 @@ export class Project {
       )(nn as any);
       this.n[nn.nodeType].push(obj as any);
       this.nodes.set(nn.id, obj);
+
+      if (nn.nodeType !== "entry") return;
+      const prevArr = this.entryMap.getOrInsertComputed(nn.type, () => []);
+      prevArr.push(obj as Entry | StandbyEntry);
     });
-    this.values = new Map(data.values.entries().map(([id, v]) => [id, new Value(v)]));
-    this.resources = new Map(
-      data.resources.values().map((resource) => [resource.id, new Resource(resource)])
-    );
+
+    data.values.forEach((value, id) => {
+      this.values.set(id, new Value(value));
+    });
+
+    data.resources.forEach((resource, id) => {
+      const r = new Resource(resource);
+      this.resources.set(id, r);
+      if (r.title) this.resourceTitleMap.set(r.title, r);
+    });
+
     registerVariables(data.variables);
     updateRefProject(this);
   }
@@ -55,39 +68,40 @@ export class Project {
     T extends Types.Entry["type"],
     E extends Extract<Types.Entry, { type: T }>["payload"]
   >(entryType: T, data?: Partial<E>): Entry[] {
-    return this.n.entry.filter(({ d: entryData }) => {
-      if (entryType !== entryData.type) return false;
-      if (typeof entryData.payload !== "object" || !entryData.payload || !data) return true;
+    return (
+      this.entryMap.get(entryType)?.filter(({ d: entryData }) => {
+        if (typeof entryData.payload !== "object" || !entryData.payload || !data) return true;
 
-      if (entryData.type === "Communication.serialData" && !entryData.payload.whenDataIs?.length)
-        return true;
+        if (entryData.type === "Communication.serialData" && !entryData.payload.whenDataIs?.length)
+          return true;
 
-      if (
-        entryData.type === "Communication.Socket.ondata" &&
-        "channel" in data &&
-        entryData.payload.channel === data.channel &&
-        !entryData.payload.data
-      )
-        return true;
+        if (
+          entryData.type === "Communication.Socket.ondata" &&
+          "channel" in data &&
+          entryData.payload.channel === data.channel &&
+          !entryData.payload.data
+        )
+          return true;
 
-      if (
-        entryData.type === "Communication.Mqtt.ondata" &&
-        "topic" in data &&
-        entryData.payload.topic === data.topic &&
-        !entryData.payload.data?.length
-      )
-        return true;
+        if (
+          entryData.type === "Communication.Mqtt.ondata" &&
+          "topic" in data &&
+          entryData.payload.topic === data.topic &&
+          !entryData.payload.data?.length
+        )
+          return true;
 
-      return Object.entries(entryData.payload).every(([key, value]) => {
-        const expectedValue = data[key as keyof typeof data];
+        return Object.entries(entryData.payload).every(([key, value]) => {
+          const expectedValue = data[key as keyof typeof data];
 
-        if (typeof value === "string" && typeof expectedValue === "string") {
-          return value.trim() === expectedValue.trim();
-        }
+          if (typeof value === "string" && typeof expectedValue === "string") {
+            return value.trim() === expectedValue.trim();
+          }
 
-        return Object.is(value, expectedValue);
-      });
-    });
+          return Object.is(value, expectedValue);
+        });
+      }) ?? []
+    );
   }
   enterEntries<
     T extends Types.Entry["type"],
@@ -105,6 +119,6 @@ export class Project {
   }
 
   findResourceByTitle(resourceTitle: string) {
-    return this.resources.values().find((r) => r.title === resourceTitle);
+    return this.resourceTitleMap.get(resourceTitle);
   }
 }
