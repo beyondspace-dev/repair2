@@ -8,6 +8,7 @@ import { registerVariables } from "../lib/variables";
 import { Value } from "./value";
 import { updateRefProject } from "./refs";
 import { Resource } from "./resource";
+import { compileValueProcess, type CompiledProcess } from "./valueProcess";
 
 const NodeClasses = {
   entry: Entry,
@@ -32,6 +33,7 @@ export class Project {
   };
   readonly entryMap: Map<Types.Entry["type"], (Entry | StandbyEntry)[]> = new Map();
   readonly values: Map<string, Value> = new Map();
+  readonly valueProcesses: Map<string, CompiledProcess> = new Map();
   readonly resources: Map<string, Resource> = new Map();
   readonly resourceTitleMap: Map<string, Resource> = new Map();
   constructor(readonly data: RuntimeProjectData) {
@@ -49,6 +51,10 @@ export class Project {
 
     data.values.forEach((value, id) => {
       this.values.set(id, new Value(value));
+    });
+
+    data.valueProcesses.forEach((vp, id) => {
+      this.valueProcesses.set(id, compileValueProcess(vp));
     });
 
     data.resources.forEach((resource, id) => {
