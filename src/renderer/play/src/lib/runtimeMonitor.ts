@@ -5,7 +5,7 @@ import { getProject, onReady } from "../project";
 import { getAllComponents } from "./components";
 import type { StandbyEntry } from "../project/nodes/standbyEntry";
 import { editor } from "./msg";
-import type { MsgRuntimeMonitorChange } from "@renderer/messagePort";
+import type { MsgRuntimeMonitorChange, MsgRuntimeMonitorTotal } from "@renderer/messagePort";
 
 let changesBuffer: Array<MsgRuntimeMonitorChange> = [];
 
@@ -16,57 +16,48 @@ export function sendChanges(...data: MsgRuntimeMonitorChange): void {
   readyToFlush();
 }
 
-const FLUSH_TIME_MS = 5;
 let isReadyToFlush = false;
-let flushTimeout: NodeJS.Timeout | number = 0;
 function readyToFlush() {
   if (isReadyToFlush) return;
 
   isReadyToFlush = true;
-  flushTimeout = setTimeout(flush, FLUSH_TIME_MS);
+  requestAnimationFrame(flush);
 }
 
 function flush() {
+  if (!isReadyToFlush || !changesBuffer.length) return;
+
   editor.send("monitor:info", "update", changesBuffer);
   clear();
 }
 function clear() {
   changesBuffer = [];
-  flushTimeout = 0;
   isReadyToFlush = false;
-}
-function discard() {
-  clearTimeout(flushTimeout);
-  clear();
 }
 
 export async function sendTotalInfo() {
   await onReady();
 
   if (!monitoring) return;
-  discard();
+  clear();
 
-  const variables = new Map(
-    getVariables()
-      .values()
-      .map((v) => [v.id, v.value])
-  );
-  const preloads = [...getPreloads().keys()];
-  const steps = WaitingSteps.values().reduce(
-    (map: Map<string, number>, { id }) => map.set(id, (map.get(id) ?? 0) + 1),
-    new Map()
-  );
-  const entries = getProject()
-    .n.entry.filter((node) => node.d.standbyMode && (node as StandbyEntry).activated)
-    .map((node) => node.d.id);
-  const components = getAllComponents().map((c) => c.realId);
-  editor.send("monitor:info", "total", {
-    variables,
-    preloads,
-    steps,
-    entries,
-    components
-  });
+  const Data: MsgRuntimeMonitorTotal = {
+    variables: new Map(
+      getVariables()
+        .values()
+        .map((v) => [v.id, v.value])
+    ),
+    preloads: [...getPreloads().keys()],
+    steps: WaitingSteps.values().reduce(
+      (map: Map<string, number>, { id }) => map.set(id, (map.get(id) ?? 0) + 1),
+      new Map()
+    ),
+    entries: getProject()
+      .n.entry.filter((node) => node.d.standbyMode && (node as StandbyEntry).activated)
+      .map((node) => node.d.id),
+    components: getAllComponents().map((c) => c.realId)
+  };
+  editor.send("monitor:info", "total", Data);
 }
 
 let monitoring: boolean = false;
@@ -76,5 +67,5 @@ editor.on("monitor:start", () => {
 });
 editor.on("end", () => {
   monitoring = false;
-  discard();
+  clear();
 });
