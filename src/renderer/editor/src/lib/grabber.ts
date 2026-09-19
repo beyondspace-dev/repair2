@@ -14,6 +14,7 @@ export default class Grabber {
   private pointermove: (evt: PointerEvent) => void;
   private pointerup: (evt?: PointerEvent) => void;
   private noHandle: boolean;
+  private moving = false;
 
   private frameUpdater?: FrameUpdater;
   private realOnmoved: (evt: PointerEvent) => void;
@@ -59,6 +60,8 @@ export default class Grabber {
 
       prvMouse = { x: evt.clientX, y: evt.clientY };
       if (onMoveStart) onMoveStart({ px: prvMouse.x, py: prvMouse.y });
+
+      this.setMoveEvents();
     };
     if (!this.noHandle) this.handle.addEventListener("pointerdown", this.pointerdown, true);
 
@@ -96,6 +99,8 @@ export default class Grabber {
         document.body.releasePointerCapture(evt.pointerId);
       }
 
+      this.removeMoveEvents();
+
       if (get(grabbing) !== myGrab || (evt && evt.button)) return;
 
       if (this.pendingEvent) {
@@ -107,18 +112,30 @@ export default class Grabber {
       if (onMoveEnd) onMoveEnd(actuallyMoved);
       actuallyMoved = false;
     };
+  }
+  setMoveEvents() {
+    if (this.moving) return;
+
+    this.moving = true;
 
     document.body.addEventListener("pointermove", this.realOnmoved, true);
     document.body.addEventListener("pointerup", this.pointerup, true);
+  }
+  removeMoveEvents() {
+    if (!this.moving) return;
+
+    this.moving = false;
+
+    document.body.removeEventListener("pointermove", this.realOnmoved, true);
+    document.body.removeEventListener("pointerup", this.pointerup, true);
   }
   onpointerdown(evt: PointerEvent) {
     this.pointerdown(evt);
   }
   destroy() {
+    this.removeMoveEvents();
     this.pointerup();
     if (!this.noHandle) this.handle.removeEventListener("pointerdown", this.pointerdown, true);
-    document.body.removeEventListener("pointermove", this.realOnmoved, true);
-    document.body.removeEventListener("pointerup", this.pointerup, true);
     this.frameUpdater?.destroy();
   }
 }
