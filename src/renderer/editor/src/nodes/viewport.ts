@@ -83,11 +83,13 @@ export const observingViewport: Action = (target) => {
   observer.observe(target);
 };
 
-setPanelResizeHandler((o) => {
-  const dw = (o.width - viewportOffset.width) / 2 + (o.x - viewportOffset.x);
-  const dh = (o.height - viewportOffset.height) / 2 + (o.y - viewportOffset.y);
+setPanelResizeHandler((o, first) => {
+  if (!first) {
+    const dw = (o.width - viewportOffset.width) / 2 + (o.x - viewportOffset.x);
+    const dh = (o.height - viewportOffset.height) / 2 + (o.y - viewportOffset.y);
+    moveViewport(dw, dh);
+  }
   viewportOffset = o;
-  moveViewport(dw, dh);
   fu.draw();
 });
 

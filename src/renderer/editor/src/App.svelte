@@ -27,8 +27,6 @@
 
     showLogs = settings.showLogs;
 
-    await tick();
-
     const project = getProject();
 
     viewport.pos.set(project.viewport.pos);

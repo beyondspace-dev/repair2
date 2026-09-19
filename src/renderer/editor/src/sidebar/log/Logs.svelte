@@ -52,8 +52,10 @@
     border-radius: 10px;
     corner-shape: squircle;
     cursor: pointer;
+    opacity: 0.6;
   }
   button.close:hover {
     background-color: var(--w-o1);
+    opacity: 1;
   }
 </style>

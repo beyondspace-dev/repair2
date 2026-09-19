@@ -10,8 +10,10 @@ interface ViewportOffset {
   height: number;
 }
 
-let resizeHandler: (viewportOffset: ViewportOffset) => unknown | null;
-export function setPanelResizeHandler(handler: (viewportOffset: ViewportOffset) => unknown) {
+let resizeHandler: (viewportOffset: ViewportOffset, first: boolean) => unknown | null;
+export function setPanelResizeHandler(
+  handler: (viewportOffset: ViewportOffset, first: boolean) => unknown
+) {
   resizeHandler = handler;
   onResize();
 }
@@ -19,18 +21,21 @@ export function setPanelResizeHandler(handler: (viewportOffset: ViewportOffset) 
 type DIR = "left" | "top" | "right" | "bottom";
 export const Panels: Partial<Record<DIR, number>> = {};
 
-function onResize() {
-  resizeHandler({
-    x: Panels.left ?? 0,
-    y: Panels.top ?? 0,
-    width: -(Panels.left ?? 0) - (Panels.right ?? 0),
-    height: -(Panels.top ?? 0) - (Panels.bottom ?? 0)
-  });
+function onResize(first = false) {
+  resizeHandler(
+    {
+      x: Panels.left ?? 0,
+      y: Panels.top ?? 0,
+      width: -(Panels.left ?? 0) - (Panels.right ?? 0),
+      height: -(Panels.top ?? 0) - (Panels.bottom ?? 0)
+    },
+    first
+  );
 }
 
-function setSize(dir: DIR, v: number) {
+function setSize(dir: DIR, v: number, first = false) {
   Panels[dir] = v;
-  onResize();
+  onResize(first);
 }
 
 export const panel: Action<
@@ -66,11 +71,11 @@ export const panel: Action<
     node.style[sizeKey] = sizeStr;
     node.style.setProperty("--panel-size", sizeStr);
   }
-  function set(size: number) {
+  function set(size: number, first = false) {
     Panels[dir] = size;
-    setSize(dir, size);
+    setSize(dir, size, first);
   }
-  set(startSize);
+  set(startSize, true);
   setDisplaySize();
 
   const grabber = new Grabber({
