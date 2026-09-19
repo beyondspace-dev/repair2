@@ -2,7 +2,7 @@
   import { hoverHighlight } from "../../lib/highlight";
   import Icon from "../../assets/icons/Icon.svelte";
   import { getVscode, openVscode } from "../../lib/vscode";
-  import { tippy } from "../../lib/tippy";
+  import { tippy } from "../../lib/tippy/tippy";
   import type { PluginRendererInfo } from "@shared/plugin.types";
   import { rightclick } from "../../lib/editUtils/contextMenu/contextUtils";
   import { ipc } from "../../lib/ipc";

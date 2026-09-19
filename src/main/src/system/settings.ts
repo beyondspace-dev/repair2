@@ -1,11 +1,32 @@
 import { screen } from "electron";
 import type { MainApp } from "../app/mainApp";
-import { logger } from "../logs/logger";
 import { Store } from "./store";
-import { SettingFields, type SettingId, type SettingValueMap } from "@shared/setting/settingFields";
+import { SettingFields } from "@shared/setting/settingFields";
+import type { SettingValueMap, SettingId } from "@shared/setting/settings";
 import { join } from "path";
+import { DefaultInternalSettings } from "@shared/setting/internalSettings";
 
-const SettingFieldMap = new Map(SettingFields.map((s) => [s.id, s]));
+function createDefaultSettingMap() {
+  const result: Partial<{
+    -readonly [k in SettingId]: SettingValueMap[k] | ((app: MainApp) => SettingValueMap[k]);
+  }> = {
+    ...DefaultInternalSettings
+  };
+  SettingFields.forEach((f) => {
+    if ("default" in f) result[f.id] = f.default as any;
+    else if (f.id === "projectPath")
+      result[f.id] = (app) =>
+        join(app.system.app.getPath("userData"), app.isDev ? "dev_project" : "project");
+    else if (f.id === "anchorDisplay") result[f.id] = () => screen.getPrimaryDisplay().id;
+    else if (f.id === "startOnBoot") result[f.id] = (app) => app.system.boot.getAutoStartOpt();
+    else result[f.id] = null;
+  });
+
+  return result as {
+    [k in keyof SettingValueMap]: SettingValueMap[k] | ((app: MainApp) => SettingValueMap[k]);
+  };
+}
+const defaultSettings = createDefaultSettingMap();
 
 export class Settings {
   constructor(private readonly app: MainApp) {}
@@ -13,8 +34,8 @@ export class Settings {
   async getAll(forceUpdate: boolean = false) {
     const settings = await this.app.store.get(Store.SETTING_KEY, forceUpdate, false);
     return Object.fromEntries(
-      SettingFields.map((f) => {
-        return [f.id, this.processSettingValue(f.id, settings[f.id])];
+      (Object.keys(defaultSettings) as SettingId[]).map((id) => {
+        return [id, this.processSettingValue(id, settings[id])];
       })
     ) as SettingValueMap;
   }
@@ -48,23 +69,9 @@ export class Settings {
     return value === undefined ? this.getDefaultValue(id) : value;
   }
 
-  private getDefaultValue<K extends SettingId>(id: K): SettingValueMap[K];
   private getDefaultValue(id: SettingId) {
-    const field = SettingFieldMap.get(id);
-    if (!field) {
-      logger.error("Unknown setting field:", id);
-      return;
-    }
-
-    if ("default" in field) return field.default;
-    if (id === "projectPath")
-      return join(
-        this.app.system.app.getPath("userData"),
-        this.app.isDev ? "dev_project" : "project"
-      );
-    if (id === "anchorDisplay") return screen.getPrimaryDisplay().id;
-    if (id === "startOnBoot") return this.app.system.boot.getAutoStartOpt();
-    else return null;
+    const ds = defaultSettings[id];
+    return typeof ds === "function" ? ds(this.app) : ds;
   }
   private afterSetSetting<K extends SettingId>(key: K, value: SettingValueMap[K]) {
     if (key === "anchorDisplay") this.app.controllers.window.updateMainWindowArea();

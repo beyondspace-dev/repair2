@@ -4,11 +4,10 @@
   import Plugins from "./plugins/Plugins.svelte";
   import BigIcons from "../assets/icons/BigIcons.svelte";
   import Edit from "./edits/Edit.svelte";
-  import Logs from "./log/Logs.svelte";
-  import { tippySingleton } from "../lib/tippy";
-  import { sidebar } from "./resizer/sidebarSize";
-  import { getSidebarWidth, setActualSidebarWidth, SIDEBAR_WIDTH_MIN } from "../nodes/viewport";
+  import { tippySingleton } from "../lib/tippy/tippy";
   import Settings from "./setting/Settings.svelte";
+  import { panel } from "./panel/panel";
+  import { setSetting, settings } from "../lib/settings.svelte";
 
   type Tab = keyof typeof tabs;
   let currentTab = $state<Tab>("edit");
@@ -23,28 +22,24 @@
     variables: "Variables",
     resources: "Resources",
     plugins: "Plugins",
-    logs: "Logs",
     settings: "Settings"
   } as const;
 
   const tabButtons = [
     ["edit", "variables", "resources", "plugins"],
     // ["logs", "settings"]
-    ["logs"] //temporary...
+    []
   ] as const satisfies [(keyof typeof tabs)[], (keyof typeof tabs)[]];
-
-  let tempWidth = $state(getSidebarWidth());
 </script>
 
 <div
   class="side-bar"
-  use:sidebar={{
-    actualSetter: (w) => setActualSidebarWidth(w),
-    movingSetter: (w) => (tempWidth = Math.max(SIDEBAR_WIDTH_MIN, w)),
-    onMoveEnd: () => (tempWidth = getSidebarWidth()),
-    currentWidth: getSidebarWidth
+  use:panel={{
+    dir: "left",
+    startSize: settings.sidebarWidth,
+    minSize: 310,
+    onResize: (s) => setSetting("sidebarWidth", s)
   }}
-  style={`width: ${tempWidth}px;`}
 >
   <div class="tabs" use:tippySingleton={{ duration: 100, delay: [400, 0], placement: "right" }}>
     {#each tabButtons as btnIds, i}
@@ -74,8 +69,6 @@
       <Resources />
     {:else if currentTab === "plugins"}
       <Plugins />
-    {:else if currentTab === "logs"}
-      <Logs />
     {:else if currentTab === "settings"}
       <Settings />
     {/if}
@@ -85,19 +78,14 @@
 <style>
   .side-bar {
     height: 100%;
-    z-index: var(--sidebar-z);
-    color: #fff;
     padding: 0;
     box-sizing: border-box;
     font-family: "Pretend";
     user-select: none;
     display: flex;
     flex-direction: row;
-    background-color: var(--darkgray);
+
     flex: 0 0 auto;
-    position: absolute;
-    left: 0;
-    top: 0;
   }
   .tabs {
     display: flex;

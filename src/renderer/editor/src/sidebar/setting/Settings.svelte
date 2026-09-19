@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { SettingFields, type SettingValueMap } from "@shared/setting/settingFields";
+  import type { SettingValueMap } from "@shared/setting/settings";
+  import { SettingFields } from "@shared/setting/settingFields";
   import { ipc } from "../../lib/ipc";
 
   let settings = $state<SettingValueMap | null>(null);

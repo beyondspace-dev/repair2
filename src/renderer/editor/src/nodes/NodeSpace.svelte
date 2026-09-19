@@ -8,7 +8,7 @@
     moveViewport,
     posFromViewport,
     getOriginalPos,
-    setViewportEl
+    type ScreenData
   } from "./viewport";
   import Sequence from "./Sequence.svelte";
   import { grabbing, GrabKeys } from "../lib/stores";
@@ -25,6 +25,7 @@
   import event from "../lib/actions/eventAction";
   import { isFocusHandled } from "../lib/editUtils/dataAction";
   import { getAllInBoundsNodes } from "./geometry";
+  import { get } from "svelte/store";
 
   const myReadyGrab = GrabKeys.viewport;
   const myGrab = GrabKeys.viewportReady;
@@ -126,13 +127,20 @@
     if (!viewportEl) return;
     const tempPos = posFromViewport(0, 0);
     viewportEl.style.transform = `translate(${tempPos.x}px, ${tempPos.y}px) scale(${rInfo.ratio})`;
-  });
+  }, 1);
 
+  let screenData: ScreenData = $state(get(viewport.screen));
   function onMoved() {
     if (!viewportEl) return;
     frameUpdater.draw();
   }
-  const unsubs = [viewport.screen.subscribe(onMoved), viewport.pos.subscribe(onMoved)];
+  const unsubs = [
+    viewport.screen.subscribe((sd) => {
+      screenData = sd;
+      onMoved();
+    }),
+    viewport.pos.subscribe(onMoved)
+  ];
 
   onMount(() => {
     frameUpdater.draw();
@@ -160,10 +168,11 @@
   class="node-space"
   class:grabbing={realGrabbing}
   class:ready-to-grab={readyToGrab}
+  style={`width: ${screenData.width}px; height: ${screenData.height}px;` +
+    `transform: translate(${screenData.x}px, ${screenData.y}px);`}
   onpointerdown={pointerdown}
   use:event={["wheel", wheel, { passive: true }]}
   use:spaceRightclick={{ type: "project" }}
-  use:setViewportEl
 >
   <Background />
   {#if renderWithWebGL}
@@ -191,12 +200,10 @@
 
 <style>
   .node-space {
-    height: 100%;
-    right: 0;
     position: absolute;
     background-color: #eeeff0;
     overflow: hidden;
-    contain: strict style;
+    contain: style;
   }
   .node-space :global(*) {
     user-select: none;

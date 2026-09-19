@@ -12,7 +12,7 @@ export function setupStoreIpc(app: MainApp) {
   ipc.handle("settings:get", (evt, key) => {
     return app.settings.get(key);
   });
-  ipc.handle("settings:set", (evt, key, value) => {
+  ipc.handle("settings:set", (evt, [key, value]) => {
     return app.settings.set(key, value);
   });
   ipc.handle("settings:get-all", () => app.settings.getAll());

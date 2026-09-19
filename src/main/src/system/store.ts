@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { logger } from "../logs/logger";
 import { toKebabCase } from "@shared/stringUtils";
@@ -47,6 +47,7 @@ export class Store {
   async #setData(k: string, value: any) {
     this.#stores.set(k, value);
     try {
+      await mkdir(this.#storePath, { recursive: true });
       await writeFile(join(this.#storePath, `${k}.json`), JSON.stringify(value, null, 2), "utf8");
     } catch (err: any) {
       logger.source("store").error("An error occurred while storing data: ", err);

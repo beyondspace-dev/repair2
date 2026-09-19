@@ -1,5 +1,5 @@
 :root {
-  --sidebar-z: 100;
+  --panels-z: 100;
   --modal-z: 110;
   --toast-z: 120;
   --titlebar-z: 150;

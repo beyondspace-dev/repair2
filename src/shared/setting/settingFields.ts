@@ -39,7 +39,7 @@ export const SettingFields = [
 
 type SettingFieldUnion = (typeof SettingFields)[number];
 
-export type SettingValue<F extends SettingField> =
+type SettingValue<F extends SettingField> =
   | (F extends StringField
       ? string
       : F extends SpecialField
@@ -53,8 +53,8 @@ export type SettingValue<F extends SettingField> =
               : never)
   | (F["nullable"] extends true ? null : never);
 
-export type SettingValueMap = {
-  [k in SettingFieldUnion["id"]]: SettingValue<Extract<SettingFieldUnion, { id: k }>>;
+export type SettingFieldValueMap = {
+  readonly [k in SettingFieldUnion["id"]]: SettingValue<Extract<SettingFieldUnion, { id: k }>>;
 };
 
-export type SettingId = SettingFieldUnion["id"];
+export type SettingFieldId = SettingFieldUnion["id"];

@@ -3,7 +3,14 @@ import { grabbing } from "./stores";
 import { rInfo } from "../nodes/viewport";
 import FrameUpdater from "./frameUpdater";
 
-type MoveHandler = (moveData: { dx: number; dy: number; px: number; py: number }) => void;
+type MoveHandler = (moveData: {
+  dx: number;
+  dy: number;
+  px: number;
+  py: number;
+  ox: number;
+  oy: number;
+}) => void;
 type MoveStartHandler = (moveData: { px: number; py: number }) => void;
 type MoveEndHandler = (actuallyMoved: boolean) => void;
 
@@ -47,6 +54,7 @@ export default class Grabber {
     const myGrab = Symbol();
 
     let prvMouse: { x: number; y: number };
+    let startMouse: { x: number; y: number };
     let actuallyMoved = false;
 
     this.pointerdown = (evt) => {
@@ -59,6 +67,7 @@ export default class Grabber {
       this.container.classList.add("grabbing");
 
       prvMouse = { x: evt.clientX, y: evt.clientY };
+      startMouse = prvMouse;
       if (onMoveStart) onMoveStart({ px: prvMouse.x, py: prvMouse.y });
 
       this.setMoveEvents();
@@ -74,11 +83,14 @@ export default class Grabber {
       evt.preventDefault();
       actuallyMoved = true;
       const currentMouse = { x: evt.clientX, y: evt.clientY };
+      const r = 1 / (inNodeSpace ? rInfo.ratio : 1);
       onMoved({
-        dx: (currentMouse.x - prvMouse.x) / (inNodeSpace ? rInfo.ratio : 1),
-        dy: (currentMouse.y - prvMouse.y) / (inNodeSpace ? rInfo.ratio : 1),
+        dx: (currentMouse.x - prvMouse.x) * r,
+        dy: (currentMouse.y - prvMouse.y) * r,
         px: currentMouse.x,
-        py: currentMouse.y
+        py: currentMouse.y,
+        ox: (startMouse.x - currentMouse.x) * r,
+        oy: (startMouse.y - currentMouse.y) * r
       });
       prvMouse = currentMouse;
     };

@@ -51,7 +51,7 @@
     width: 320px;
     height: 100%;
     overflow-y: scroll;
-    position: fixed;
+    position: absolute;
     right: 0;
     pointer-events: none;
     box-sizing: border-box;

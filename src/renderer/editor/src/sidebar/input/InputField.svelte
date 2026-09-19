@@ -11,7 +11,7 @@
   import TransitionInput from "./TransitionInput.svelte";
   import Icon from "../../assets/icons/Icon.svelte";
   import Select from "./Select.svelte";
-  import { tippy, type TippyActionParam } from "../../lib/tippy";
+  import { tippy, type TippyActionParam } from "../../lib/tippy/tippy";
 
   type SeriesOption = {
     binding: ArrayFieldBinding<any>;

@@ -2,6 +2,9 @@ import type { Action } from "svelte/action";
 import type { CreateSingletonProps } from "tippy.js";
 import tippyjs, { createSingleton, type Props } from "tippy.js";
 
+import "tippy.js/dist/tippy.css";
+import "./tippy.css";
+
 export type TippyActionParam = Partial<Props> | undefined;
 
 export const tippy: Action<HTMLElement, TippyActionParam> = (node, opt) => {

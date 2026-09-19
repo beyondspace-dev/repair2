@@ -17,7 +17,7 @@ import type {
 import type { GlobalKeyEvent } from "./globalKeyEvent.types";
 import type { EditorMenuAction } from "./editorMenu";
 import type { ShowToastOptions } from "./toast.types";
-import type { SettingId, SettingValueMap } from "./setting/settingFields";
+import type { SettingId, SettingValueMap } from "./setting/settings";
 
 export type IpcSocketIncomeArgs = [channel: string, data: unknown, url?: string];
 
@@ -27,6 +27,10 @@ export type IpcPluginRuntimeCallPayload = {
   methodName: string;
   args: unknown[];
 };
+
+export type IpcSettingKeyValueTuple = {
+  [k in SettingId]: [key: k, value: SettingValueMap[k]];
+}[SettingId];
 
 export type RendererToMainInvokeMap = {
   "request-version": {
@@ -64,7 +68,7 @@ export type RendererToMainInvokeMap = {
     };
   }[SettingId];
   "settings:set": {
-    args: { [k in SettingId]: [key: k, value: SettingValueMap[k]] }[SettingId];
+    args: [IpcSettingKeyValueTuple];
     result: boolean;
   };
   "update-data": {

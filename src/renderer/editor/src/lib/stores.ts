@@ -40,7 +40,7 @@ const fu = new FrameUpdater(() => {
 
   nodeReloadHandlers.forEach((cb) => cb(movedNodes, false));
   movedNodes.clear();
-});
+}, 2);
 
 export function reloadNode(id: string) {
   if (gonnaReloadAll) return;

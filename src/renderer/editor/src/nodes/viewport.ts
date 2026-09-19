@@ -7,6 +7,8 @@ import { getAllNodeBounds } from "./geometry";
 import { registerMenuAction } from "../titleBar/menuActions";
 import type { Action } from "svelte/action";
 import { getTitleBarRect, TITLEBAR_HEIGHT_OFFSET } from "../titleBar/index.svelte";
+import { setPanelResizeHandler } from "../sidebar/panel/panel";
+import { registerLoad } from "../lib/editorLoad";
 
 export const rInfo = {
   ratio: 0,
@@ -21,7 +23,14 @@ let screenRect: {
   pixelHeight: number;
 };
 
-interface ScreenData {
+let viewportOffset = {
+  x: 0,
+  y: 0,
+  width: 0,
+  height: 0
+};
+
+export interface ScreenData {
   width: number;
   height: number;
   x: number;
@@ -42,33 +51,16 @@ export const viewport = {
   pos: writable({ x: 0, y: 0 })
 };
 
-let viewportEl: HTMLElement;
-export function setViewportEl(node: HTMLElement) {
-  viewportEl = node;
-  applyViewportWidth();
-}
-function applyViewportWidth() {
-  const screen = get(viewport.screen);
-  if (!viewportEl || !screen) return;
-  viewportEl.style.width = `${screen.width}px`;
-}
-
-const fu = new FrameUpdater(calcRatio);
+let afterFirstLoad: (() => void) | null = registerLoad();
+const fu = new FrameUpdater(() => {
+  calcRatio();
+  if (afterFirstLoad) {
+    afterFirstLoad();
+    afterFirstLoad = null;
+  }
+});
 
 export function recalcViewport() {
-  fu.draw();
-}
-
-export const SIDEBAR_WIDTH_MIN = 310;
-let SIDEBAR_WIDTH = 340;
-export function getSidebarWidth() {
-  return SIDEBAR_WIDTH;
-}
-export function setActualSidebarWidth(sidebarWidth = 0) {
-  const prev = SIDEBAR_WIDTH;
-  SIDEBAR_WIDTH = Math.min(Math.max(SIDEBAR_WIDTH_MIN, sidebarWidth), screenRect.width - 90);
-  const dw = SIDEBAR_WIDTH - prev;
-  moveViewport(dw / 2, 0);
   fu.draw();
 }
 
@@ -91,20 +83,29 @@ export const observingViewport: Action = (target) => {
   observer.observe(target);
 };
 
+setPanelResizeHandler((o) => {
+  const dw = (o.width - viewportOffset.width) / 2 + (o.x - viewportOffset.x);
+  const dh = (o.height - viewportOffset.height) / 2 + (o.y - viewportOffset.y);
+  viewportOffset = o;
+  moveViewport(dw, dh);
+  fu.draw();
+});
+
 function calcRatio() {
   if (!screenRect) return;
 
-  const viewportWidth = screenRect.width - SIDEBAR_WIDTH;
-  const pw = screenRect.pixelWidth;
-  const pwr = pw / screenRect.width;
+  const viewportWidth = screenRect.width + viewportOffset.width;
+  const viewportHeight = screenRect.height + viewportOffset.height;
+  const pwr = screenRect.pixelWidth / screenRect.width;
+  const phr = screenRect.pixelHeight / screenRect.height;
   const titlebarRect = getTitleBarRect();
   const screenObj = {
     width: viewportWidth,
-    height: screenRect.height,
-    x: SIDEBAR_WIDTH,
-    y: titlebarRect.height + titlebarRect.y + TITLEBAR_HEIGHT_OFFSET,
+    height: viewportHeight,
+    x: viewportOffset.x,
+    y: titlebarRect.height + titlebarRect.y + TITLEBAR_HEIGHT_OFFSET + viewportOffset.y,
     pixelWidth: viewportWidth * pwr,
-    pixelHeight: screenRect.pixelHeight
+    pixelHeight: viewportHeight * phr
   };
 
   rInfo.ratio = Math.pow(10, get(viewport.size));
@@ -113,7 +114,6 @@ function calcRatio() {
   viewport.screen.set(screenObj);
 
   document.body.style.setProperty("--viewport-ratio", `${rInfo.ratio}`);
-  applyViewportWidth();
 }
 
 function posFromAnchor(len: number, anchor: number, pos: number) {

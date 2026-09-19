@@ -101,6 +101,12 @@ const EditorMenu = [
     key: "V",
     items: [
       {
+        label: "로그 패널 토글",
+        action: "log-toggle",
+        shortcut: "Ctrl+L",
+        editorAction: true
+      },
+      {
         label: "확대",
         action: "zoom-in",
         shortcut: "Ctrl+=",

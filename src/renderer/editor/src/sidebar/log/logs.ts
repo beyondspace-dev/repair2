@@ -1,5 +1,5 @@
 import type { Action } from "svelte/action";
-import { Logs, subscribeLog } from "../../lib/logs/logStore";
+import { Logs, subscribeLog, updateLogs } from "../../lib/logs/logStore";
 import { createLogElement } from "./logUI";
 
 const logs: Action<HTMLElement> = (node) => {
@@ -26,10 +26,11 @@ const logs: Action<HTMLElement> = (node) => {
     scrollToBottom();
   });
 
-  node.append(...Logs.values().map(createLogElement));
-
-  calcScrollHeight();
-  scrollToBottom();
+  updateLogs().then(() => {
+    node.append(...Logs.values().map(createLogElement));
+    calcScrollHeight();
+    scrollToBottom();
+  });
 
   return {
     destroy: unsub
