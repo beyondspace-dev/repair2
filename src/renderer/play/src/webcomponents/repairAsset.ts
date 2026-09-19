@@ -17,10 +17,12 @@ export default class RepairAsset extends HTMLElement {
   setResourceElement() {
     const prevResourceElement = this.resourceElement;
     this.resource = getResourceByTitle(this.attr("src"));
-    if (!this.resource) {
-      this.resourceElement = null;
+    if (prevResourceElement !== this.resourceElement) {
       this.amplifier?.disconnect();
       delete this.amplifier;
+    }
+    if (!this.resource) {
+      this.resourceElement = null;
       return;
     }
     this.resourceElement = genElement(

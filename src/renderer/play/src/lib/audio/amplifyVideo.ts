@@ -16,10 +16,10 @@ export default function amplifyVideo(vidEl: HTMLVideoElement, gain: number) {
       return result.gain.gain.value;
     },
     disconnect() {
-      if (this.disconnected) return;
-      this.disconnected = true;
-      this.source.disconnect();
-      this.gain.disconnect();
+      if (result.disconnected) return;
+      result.disconnected = true;
+      result.source.disconnect();
+      result.gain.disconnect();
     }
   };
   result.source.connect(result.gain);
