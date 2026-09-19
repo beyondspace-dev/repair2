@@ -14,6 +14,7 @@ import { getEventChannel } from "../project/listener";
 import { subscribePluginMount, type PluginMountInfo } from "../lib/plugin/pluginMount";
 import type { Types } from "@shared/projectData/types";
 import type * as SDK from "@fainthit/repair2-plugin-sdk";
+import { compileFunction, compileRegex } from "../lib/compileScript";
 
 function genEl(element: Types.Element, registerUnsubscriber: (id: string, cb: () => void) => void) {
   if (element.type === "empty") {
@@ -33,7 +34,12 @@ function genEl(element: Types.Element, registerUnsubscriber: (id: string, cb: ()
     const valueFunc =
       element.payload.valueFunction &&
       typeof element.payload.valueFunction === "string" &&
-      new Function("value", element.payload.valueFunction);
+      compileFunction<[string], string>(
+        "Value Function",
+        element.payload.valueFunction,
+        (s) => s,
+        "value"
+      );
 
     let allowedRegex: RegExp | null;
     if (!element.payload.allowedType || element.payload.allowedType === "any") allowedRegex = null;
@@ -41,11 +47,7 @@ function genEl(element: Types.Element, registerUnsubscriber: (id: string, cb: ()
       element.payload.allowedType === "regex" &&
       typeof element.payload.allowedRegex === "string"
     ) {
-      try {
-        allowedRegex = new RegExp(element.payload.allowedRegex, "g");
-      } catch (error) {
-        console.error("Cutom RegExp Error", error);
-      }
+      allowedRegex = compileRegex("Custom Allowed RegExp", element.payload.allowedRegex, "g");
     } else
       allowedRegex =
         element.payload.allowedType in regexMap

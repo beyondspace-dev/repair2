@@ -1,35 +1,35 @@
 import type { Types } from "@shared/projectData/types";
 import { enToKo, koToEn } from "../lib/enKoConvert";
+import { compileFunction, compileRegex } from "../lib/compileScript";
 
-export function process(vp: Types.ValueProcess | undefined, string: string = ""): string {
-  if (vp === undefined) return string;
+type CompileRequired = "jsFunction" | "replaceAllRegex" | "replaceAll" | "removeAll";
 
-  if (vp.type === "replaceAll")
-    return string.replaceAll(vp.payload.from ?? "", vp.payload.to ?? "");
-  if (vp.type === "removeAll") return string.replaceAll(vp.payload.removing ?? "", "");
-  if (vp.type === "replaceAllRegex") {
-    try {
-      return string.replace(new RegExp(vp.payload.regex ?? "", "g"), vp.payload.to ?? "");
-    } catch (error) {
-      console.error("Custom RegExp Error", error);
-      return string;
-    }
-  }
-  if (vp.type === "toLowerCase") return string.toLowerCase();
-  if (vp.type === "toUpperCase") return string.toUpperCase();
-  if (vp.type === "trim") return string.trim();
-  if (vp.type === "length") return String(string.length);
-  if (vp.type === "enToKo") return enToKo(string);
-  if (vp.type === "koToEn") return koToEn(string);
+const processMap: Record<
+  Exclude<Types.ValueProcess["type"], CompileRequired | "">,
+  (str: string) => string
+> = {
+  toLowerCase: (s) => s.toLowerCase(),
+  toUpperCase: (s) => s.toUpperCase(),
+  trim: (s) => s.trim(),
+  length: (s) => String(s.length),
+  enToKo: (s) => enToKo(s),
+  koToEn: (s) => koToEn(s)
+};
+const pass = <T>(s: T) => s;
+
+export function compileValueProcess(vp: Types.ValueProcess | undefined): (str: string) => string {
+  if (!vp || !vp.type) return pass;
   if (vp.type === "jsFunction") {
-    try {
-      return new Function(
-        "value",
-        typeof vp.payload.scriptData === "string" ? vp.payload.scriptData : ""
-      )(string);
-    } catch {
-      return string;
-    }
+    return compileFunction("Value process JS function", vp.payload.scriptData, pass, "value");
   }
-  return string;
+  if (vp.type === "removeAll") return (str) => str.replaceAll(vp.payload.removing ?? "", "");
+  if (vp.type === "replaceAll")
+    return (str) => str.replaceAll(vp.payload.from ?? "", vp.payload.to ?? "");
+  if (vp.type === "replaceAllRegex") {
+    const r = compileRegex("Value process replaceAll regex", vp.payload.regex, "g");
+    return (str) => str.replace(r, vp.payload.to ?? "");
+  }
+  return processMap[vp.type] ?? pass;
 }
+
+export type CompiledProcess = ReturnType<typeof compileValueProcess>;

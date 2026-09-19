@@ -5,6 +5,7 @@ import type { Project } from "./projectInstance";
 import type { Value } from "./value";
 import type { ValidPluginPointer } from "../lib/plugin/types";
 import type { Resource } from "./resource";
+import { compileValueProcess, type CompiledProcess } from "./valueProcess";
 
 type RefMap = {
   resources: Resource;
@@ -14,7 +15,7 @@ type RefMap = {
   components: Types.Component;
   elements: Types.Element;
   listeners: Types.Listener;
-  valueProcesses: Types.ValueProcess;
+  valueProcesses: CompiledProcess;
   pluginPointers: ValidPluginPointer;
   values: Value;
 };
@@ -41,6 +42,7 @@ function getRefObj(
     if (!pp || !pp.name) return;
     return pp as ValidPluginPointer;
   }
+  if (type === "valueProcesses") return compileValueProcess(project.data.valueProcesses.get(id));
 
   return project.data[type].get(id);
 }
