@@ -1,8 +1,7 @@
-import { getRef } from "../project/refs";
+import { getRef } from "../../project/refs";
+import { ctx } from "./_audioContext";
 
 const MIN_VOL = 0.000001;
-
-const ctx = new AudioContext();
 
 const audioChannels: Map<string, RepairAudio> = new Map();
 

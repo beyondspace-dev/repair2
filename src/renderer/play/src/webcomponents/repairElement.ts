@@ -2,7 +2,7 @@ import { setVar } from "../lib/variables";
 import { genElement } from "../lib/resources";
 import { subscribe } from "../lib/variables";
 import Dragger from "../lib/dragger";
-import amplifyVideo from "../lib/amplifyVideo";
+import amplifyVideo from "../lib/audio/amplifyVideo";
 import RepairInput from "./repairInput";
 import { disposePluginContext } from "../lib/plugin/pluginContext";
 import { reportPluginException } from "../lib/plugin/pluginReporter";
@@ -95,8 +95,10 @@ function genEl(element: Types.Element, registerUnsubscriber: (id: string, cb: ()
 
     el.currentTime = 0;
     const vol = (element.payload.volume ?? 100) / 100;
-    if (vol > 1) amplifyVideo(el, vol);
-    else el.volume = vol;
+    if (vol > 1) {
+      const amp = amplifyVideo(el, vol);
+      registerUnsubscriber("amplifier", amp.disconnect);
+    } else el.volume = vol;
     el.loop = !!element.payload.loop;
     el.muted = false;
 

@@ -19,7 +19,13 @@ import {
   mqttDisconnect
 } from "../../lib/communication";
 import { emitRepairEvent } from "../../lib/event";
-import { playAudio, pauseAudio, resumeAudio, changeAudioVolume, resetAudio } from "../../lib/audio";
+import {
+  playAudio,
+  pauseAudio,
+  resumeAudio,
+  changeAudioVolume,
+  resetAudio
+} from "../../lib/audio/audio";
 import { delay } from "../../lib/delay";
 import { getProject } from "..";
 import { sendChanges, sendTotalInfo } from "../../lib/runtimeMonitor";

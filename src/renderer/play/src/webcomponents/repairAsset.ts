@@ -1,5 +1,5 @@
 import { genElement, getResourceByTitle } from "../lib/resources";
-import amplifyVideo, { type Amplifier } from "../lib/amplifyVideo";
+import amplifyVideo, { type Amplifier } from "../lib/audio/amplifyVideo";
 import type { Resource } from "../project/resource";
 
 export default class RepairAsset extends HTMLElement {
@@ -19,6 +19,7 @@ export default class RepairAsset extends HTMLElement {
     this.resource = getResourceByTitle(this.attr("src"));
     if (!this.resource) {
       this.resourceElement = null;
+      this.amplifier?.disconnect();
       delete this.amplifier;
       return;
     }
@@ -70,6 +71,10 @@ export default class RepairAsset extends HTMLElement {
   connectedCallback() {
     this.setResourceElement();
     this.render();
+  }
+  disconnectedCallback() {
+    this.amplifier?.disconnect();
+    delete this.amplifier;
   }
 }
 
