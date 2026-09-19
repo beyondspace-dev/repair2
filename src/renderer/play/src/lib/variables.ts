@@ -5,17 +5,30 @@ import type { Types } from "@shared/projectData/types";
 
 type VarSubscriber = (v: string | null) => void;
 
-interface RuntimeVariableData {
-  id: string;
-  name: string | null;
-  value: any;
-  defaultValue: string | null;
-  subscriptions: Set<VarSubscriber>;
-  set(v: string | null): void;
-  subscribe(cb: VarSubscriber): () => void;
+function createRuntimeVariable(v: Types.Variable, id: string) {
+  return {
+    id: id,
+    name: v.name,
+    value: v.defaultValue,
+    defaultValue: v.defaultValue ?? null,
+    subscriptions: new Set<VarSubscriber>(),
+    set(v: string | null) {
+      this.value = v;
+      this.subscriptions.forEach((c) => c(v));
+
+      sendChanges("variable", "changed", id, v);
+    },
+    subscribe(cb: VarSubscriber) {
+      this.subscriptions.add(cb);
+      return () => this.subscriptions.delete(cb);
+    }
+  };
 }
 
+type RuntimeVariableData = ReturnType<typeof createRuntimeVariable>;
+
 const variables: Map<string, RuntimeVariableData> = new Map();
+const variablesByName: Map<string, RuntimeVariableData> = new Map();
 export function getVariables() {
   return variables;
 }
@@ -25,24 +38,11 @@ export function getVariable(id: string) {
 
 export function registerVariables(variableMap: Map<string, Types.Variable>) {
   variables.clear();
-  variableMap.forEach((v, k) => {
-    variables.set(k, {
-      id: k,
-      name: v.name,
-      value: v.defaultValue,
-      defaultValue: v.defaultValue ?? null,
-      subscriptions: new Set(),
-      set(v: string | null) {
-        this.value = v;
-        this.subscriptions.forEach((c) => c(v));
-
-        sendChanges("variable", "changed", k, v);
-      },
-      subscribe(cb: VarSubscriber) {
-        this.subscriptions.add(cb);
-        return () => this.subscriptions.delete(cb);
-      }
-    });
+  variablesByName.clear();
+  variableMap.forEach((v, id) => {
+    const runtimeVar = createRuntimeVariable(v, id);
+    variables.set(runtimeVar.id, runtimeVar);
+    if (runtimeVar.name) variablesByName.set(runtimeVar.name, runtimeVar);
   });
 }
 
@@ -63,12 +63,12 @@ export function subscribe(id: string, callback: VarSubscriber) {
 }
 
 function getVariableByName(variableName: string) {
-  return variables.values().find((variable) => variable.name === variableName) ?? null;
+  return variablesByName.get(variableName) ?? null;
 }
 
 registerUtils("variables", {
   get(variableName) {
-    return getVariableByName(variableName)?.value;
+    return getVariableByName(variableName)?.value ?? null;
   },
   set(variableName, value) {
     return getVariableByName(variableName)?.set(value);
