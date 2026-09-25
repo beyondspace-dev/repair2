@@ -1,7 +1,7 @@
 import { createComponent } from "../../factories/component";
 import { createPluginPointer } from "../../factories/pluginPointer";
 import { owns } from "../../factories/factory";
-import { nullDefault, oneOf, type TypePayloadUnion } from "./union.types";
+import { arrayOf, nullDefault, oneOf, type TypePayloadUnion } from "./union.types";
 
 export const StepPayloadTemplate = {
   Component: {
@@ -17,8 +17,8 @@ export const StepPayloadTemplate = {
   },
   Preload: {
     $types: true,
-    add: { resourceArr: [] },
-    release: { resourceArr: [] },
+    add: { resourceArr: arrayOf<string>() },
+    release: { resourceArr: arrayOf<string>() },
     releaseAll: null
   },
   Audio: {
@@ -55,7 +55,7 @@ export const StepPayloadTemplate = {
     },
     Mqtt: {
       $types: true,
-      connect: { url: nullDefault<string>(), topics: [] },
+      connect: { url: nullDefault<string>(), topics: arrayOf<string>() },
       publish: { topic: nullDefault<string>(), payload: nullDefault<string>() },
       disconnect: null
     }

@@ -1,0 +1,5668 @@
+{
+  "factories": {
+    "resource": {
+      "result": {
+        "id": "<nanoid>",
+        "src": null,
+        "alias": null
+      }
+    },
+    "variable": {
+      "result": {
+        "id": "<nanoid>",
+        "name": null,
+        "defaultValue": null
+      }
+    },
+    "pluginPointer": {
+      "result": {
+        "name": null,
+        "exportName": "default",
+        "payloads": {}
+      }
+    },
+    "position": {
+      "result": {
+        "distance": null,
+        "origin": "start",
+        "relative": false
+      }
+    },
+    "position/override": {
+      "result": {
+        "distance": 10,
+        "origin": "center",
+        "relative": false
+      }
+    },
+    "coord": {
+      "result": {
+        "x": {
+          "distance": null,
+          "origin": "start",
+          "relative": false
+        },
+        "y": {
+          "distance": null,
+          "origin": "start",
+          "relative": false
+        }
+      }
+    },
+    "coord/partialNested": {
+      "result": {
+        "x": {
+          "distance": 5,
+          "origin": "start",
+          "relative": false
+        },
+        "y": {
+          "distance": null,
+          "origin": "start",
+          "relative": false
+        }
+      }
+    },
+    "transition": {
+      "result": {
+        "duration": 400,
+        "easing": "linear",
+        "delay": 0,
+        "plugin": "owned-0"
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    },
+    "transition/override": {
+      "result": {
+        "duration": 100,
+        "easing": "linear",
+        "delay": 0,
+        "plugin": "plugin-x"
+      }
+    },
+    "component": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "elements": [],
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "zIndex": null,
+        "unbreakable": false,
+        "visible": true,
+        "style": null,
+        "frame": "owned-0",
+        "introTransition": {
+          "duration": 400,
+          "easing": "linear",
+          "delay": 0,
+          "plugin": "owned-1"
+        },
+        "outroTransition": {
+          "duration": 400,
+          "easing": "linear",
+          "delay": 0,
+          "plugin": "owned-2"
+        }
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-1",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-2",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    },
+    "component/override": {
+      "result": {
+        "id": "comp",
+        "alias": null,
+        "elements": [
+          "el-1"
+        ],
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "end",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "zIndex": null,
+        "unbreakable": false,
+        "visible": true,
+        "style": null,
+        "frame": "frame-1",
+        "introTransition": {
+          "duration": 400,
+          "easing": "easeIn",
+          "delay": 0,
+          "plugin": "owned-0"
+        },
+        "outroTransition": {
+          "duration": 400,
+          "easing": "linear",
+          "delay": 0,
+          "plugin": "owned-1"
+        }
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-1",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    },
+    "viewport": {
+      "result": {
+        "size": 0,
+        "pos": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "config": {
+      "result": {
+        "title": "REPAIR v2",
+        "width": null,
+        "height": null,
+        "sizeRatio": 1,
+        "filter": null,
+        "style": null,
+        "editorShortcut": "E",
+        "editorPassword": null,
+        "screenConfig": {
+          "type": "fullscreen",
+          "payload": null
+        },
+        "transparent": false,
+        "devMode": false,
+        "alwaysOnTop": false,
+        "suppressGlobalKeys": false,
+        "runtimePlugins": []
+      }
+    },
+    "dragOption/disabled": {
+      "result": {
+        "use": false
+      }
+    },
+    "dragOption/enabled": {
+      "result": {
+        "use": true,
+        "returnOnRelease": false,
+        "returnDuration": 0,
+        "threshold": 0,
+        "snapOn": "drag",
+        "snapDuration": 100,
+        "moveEasing": "easeOutSine",
+        "hotspots": [
+          {
+            "x": {
+              "distance": 1,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          }
+        ]
+      }
+    },
+    "value": {
+      "result": {
+        "baseType": "string",
+        "baseValue": null,
+        "process": []
+      }
+    },
+    "node/entry": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "startup",
+        "payload": null
+      }
+    },
+    "node/sequence": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "sequence",
+        "folded": false,
+        "inputColor": "#000",
+        "steps": [],
+        "output": null,
+        "concurrency": "allow"
+      }
+    },
+    "node/branch": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "branch",
+        "valueA": "owned-0",
+        "valueB": "owned-1",
+        "operator": "equals",
+        "scriptData": null,
+        "trueOutput": null,
+        "falseOutput": null,
+        "disableAfterTrue": false,
+        "disableAfterFalse": false
+      },
+      "owned": [
+        {
+          "type": "values",
+          "id": "owned-0",
+          "data": {
+            "baseType": "string",
+            "baseValue": null,
+            "process": []
+          }
+        },
+        {
+          "type": "values",
+          "id": "owned-1",
+          "data": {
+            "baseType": "string",
+            "baseValue": null,
+            "process": []
+          }
+        }
+      ]
+    },
+    "node/variableSet": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "variableSet",
+        "folded": false,
+        "inputColor": "#000",
+        "variable": null,
+        "value": "owned-0",
+        "output": null
+      },
+      "owned": [
+        {
+          "type": "values",
+          "id": "owned-0",
+          "data": {
+            "baseType": "string",
+            "baseValue": null,
+            "process": []
+          }
+        }
+      ]
+    },
+    "node/default": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "sequence",
+        "folded": false,
+        "inputColor": "#000",
+        "steps": [],
+        "output": null,
+        "concurrency": "allow"
+      }
+    },
+    "node/unknownType": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "unknown",
+        "folded": false,
+        "inputColor": "#000",
+        "steps": [
+          "s"
+        ],
+        "output": null,
+        "concurrency": "allow"
+      }
+    },
+    "node/nullType": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": null,
+        "folded": false,
+        "inputColor": "#000",
+        "steps": [],
+        "output": null,
+        "concurrency": "allow"
+      }
+    },
+    "node/entryWithPayload": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "shortcut",
+        "payload": {
+          "ctrlKey": true,
+          "shiftKey": true,
+          "altKey": false,
+          "metaKey": false,
+          "pressingTime": 0,
+          "key": "K"
+        }
+      }
+    },
+    "value/variable": {
+      "result": {
+        "baseType": "variable",
+        "baseValue": "var-1",
+        "process": []
+      }
+    },
+    "value/customBaseType": {
+      "result": {
+        "baseType": "number",
+        "baseValue": "3",
+        "process": []
+      }
+    },
+    "step/nullType": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "",
+        "payload": null
+      }
+    },
+    "step/groupType": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio",
+        "payload": null
+      }
+    },
+    "step/payloadOverrides": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.play",
+        "payload": {
+          "resourceId": "res",
+          "channel": "default",
+          "volume": 100,
+          "loop": true
+        }
+      }
+    },
+    "step/arrayOverride": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Preload.add",
+        "payload": {
+          "resourceArr": [
+            "a",
+            "b"
+          ]
+        }
+      }
+    },
+    "step/openPayload": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.reset",
+        "payload": {
+          "any": {
+            "deep": 1
+          }
+        }
+      }
+    },
+    "listener/primitivePayload": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "input",
+        "payload": "text"
+      }
+    },
+    "element/dragOption": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": true,
+          "returnOnRelease": false,
+          "returnDuration": 0,
+          "threshold": 0,
+          "snapOn": "drag",
+          "snapDuration": 100,
+          "moveEasing": "easeOutSine",
+          "extra": 1,
+          "hotspots": [
+            {
+              "x": {
+                "distance": null,
+                "origin": "start",
+                "relative": false
+              },
+              "y": {
+                "distance": null,
+                "origin": "start",
+                "relative": false
+              }
+            }
+          ]
+        },
+        "type": "empty",
+        "payload": {
+          "content": null,
+          "isHtml": false
+        }
+      }
+    },
+    "element/default": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "empty",
+        "payload": {
+          "content": null,
+          "isHtml": false
+        }
+      }
+    },
+    "element/empty": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "empty",
+        "payload": {
+          "content": null,
+          "isHtml": false
+        }
+      }
+    },
+    "element/image": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "image",
+        "payload": {
+          "resourceId": null,
+          "removePreload": true
+        }
+      }
+    },
+    "element/video": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "video",
+        "payload": {
+          "resourceId": null,
+          "removePreload": true,
+          "loop": false,
+          "volume": 100
+        }
+      }
+    },
+    "element/input": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "input",
+        "payload": {
+          "variableId": null,
+          "placeholder": null,
+          "autofocus": false,
+          "maxLength": null,
+          "allowedType": "any",
+          "allowedRegex": null,
+          "valueFunction": null,
+          "isTextarea": false
+        }
+      }
+    },
+    "element/advancedInput": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "advancedInput",
+        "payload": {
+          "variableId": null,
+          "maxLength": null,
+          "securityText": null
+        }
+      }
+    },
+    "element/plugin": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "width": null,
+        "height": null,
+        "style": null,
+        "childStyle": null,
+        "className": null,
+        "pos": {
+          "x": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          },
+          "y": {
+            "distance": null,
+            "origin": "start",
+            "relative": false
+          }
+        },
+        "absolute": false,
+        "fullscreen": false,
+        "listeners": [],
+        "dragOption": {
+          "use": false
+        },
+        "type": "plugin",
+        "payload": {
+          "plugin": "owned-0"
+        }
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    },
+    "entry/default": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "startup",
+        "payload": null
+      }
+    },
+    "entry/startup": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "startup",
+        "payload": null
+      }
+    },
+    "entry/Communication.Socket.ondata": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "Communication.Socket.ondata",
+        "payload": {
+          "channel": null,
+          "data": null
+        }
+      }
+    },
+    "entry/Communication.Socket.connect": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "Communication.Socket.connect",
+        "payload": null
+      }
+    },
+    "entry/Communication.serialData": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "Communication.serialData",
+        "payload": {
+          "whenDataIs": null
+        }
+      }
+    },
+    "entry/Communication.Mqtt.ondata": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "Communication.Mqtt.ondata",
+        "payload": {
+          "topic": null,
+          "data": null
+        }
+      }
+    },
+    "entry/Communication.Mqtt.connect": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "Communication.Mqtt.connect",
+        "payload": null
+      }
+    },
+    "entry/shortcut": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "shortcut",
+        "payload": {
+          "ctrlKey": true,
+          "shiftKey": true,
+          "altKey": false,
+          "metaKey": false,
+          "pressingTime": 0,
+          "key": null
+        }
+      }
+    },
+    "entry/event": {
+      "result": {
+        "id": "<nanoid>",
+        "alias": null,
+        "nodePos": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "entry",
+        "output": null,
+        "standbyMode": false,
+        "type": "event",
+        "payload": {
+          "channel": null
+        }
+      }
+    },
+    "listener/default": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "custom",
+        "payload": {
+          "channel": null
+        }
+      }
+    },
+    "listener/custom": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "custom",
+        "payload": {
+          "channel": null
+        }
+      }
+    },
+    "listener/Mouse.click": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "Mouse.click",
+        "payload": null
+      }
+    },
+    "listener/Mouse.down": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "Mouse.down",
+        "payload": null
+      }
+    },
+    "listener/Mouse.up": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "Mouse.up",
+        "payload": null
+      }
+    },
+    "listener/input": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "input",
+        "payload": null
+      }
+    },
+    "listener/keyPress": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "keyPress",
+        "payload": {
+          "key": null
+        }
+      }
+    },
+    "listener/videoEnd": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "videoEnd",
+        "payload": null
+      }
+    },
+    "listener/jsFunction": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "jsFunction",
+        "payload": {
+          "channel": null,
+          "scriptData": null
+        }
+      }
+    },
+    "listener/Drag.released": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "Drag.released",
+        "payload": {
+          "hotspotIndexes": null
+        }
+      }
+    },
+    "listener/Drag.return": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "Drag.return",
+        "payload": null
+      }
+    },
+    "listener/plugin": {
+      "result": {
+        "id": "<nanoid>",
+        "repeatCount": 1,
+        "repeatInterval": 0,
+        "once": false,
+        "global": false,
+        "useCapture": false,
+        "output": null,
+        "type": "plugin",
+        "payload": {
+          "plugin": "owned-0",
+          "channel": null
+        }
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    },
+    "screenConfig/default": {
+      "result": {
+        "type": "fullscreen",
+        "payload": null
+      }
+    },
+    "screenConfig/fullscreen": {
+      "result": {
+        "type": "fullscreen",
+        "payload": null
+      }
+    },
+    "screenConfig/fullMultiScreen": {
+      "result": {
+        "type": "fullMultiScreen",
+        "payload": null
+      }
+    },
+    "screenConfig/windowMode": {
+      "result": {
+        "type": "windowMode",
+        "payload": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "step/default": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "",
+        "payload": null
+      }
+    },
+    "step/Component.create": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Component.create",
+        "payload": {
+          "componentId": "owned-3",
+          "recreate": "allow"
+        }
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-1",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-2",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "components",
+          "id": "owned-3",
+          "data": {
+            "id": "<nanoid>",
+            "alias": null,
+            "elements": [],
+            "pos": {
+              "x": {
+                "distance": null,
+                "origin": "start",
+                "relative": false
+              },
+              "y": {
+                "distance": null,
+                "origin": "start",
+                "relative": false
+              }
+            },
+            "zIndex": null,
+            "unbreakable": false,
+            "visible": true,
+            "style": null,
+            "frame": "owned-0",
+            "introTransition": {
+              "duration": 400,
+              "easing": "linear",
+              "delay": 0,
+              "plugin": "owned-1"
+            },
+            "outroTransition": {
+              "duration": 400,
+              "easing": "linear",
+              "delay": 0,
+              "plugin": "owned-2"
+            }
+          }
+        }
+      ]
+    },
+    "step/Component.remove": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Component.remove",
+        "payload": {
+          "componentAlias": null,
+          "ignoreUnbreakable": true
+        }
+      }
+    },
+    "step/Component.clear": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Component.clear",
+        "payload": {
+          "ignoreUnbreakable": false
+        }
+      }
+    },
+    "step/Component.modify": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Component.modify",
+        "payload": {
+          "componentAlias": null,
+          "modifyKey": null,
+          "modifyValue": null
+        }
+      }
+    },
+    "step/Preload.add": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Preload.add",
+        "payload": {
+          "resourceArr": []
+        }
+      }
+    },
+    "step/Preload.release": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Preload.release",
+        "payload": {
+          "resourceArr": []
+        }
+      }
+    },
+    "step/Preload.releaseAll": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Preload.releaseAll",
+        "payload": null
+      }
+    },
+    "step/Audio.play": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.play",
+        "payload": {
+          "resourceId": null,
+          "channel": "default",
+          "volume": 100,
+          "loop": false
+        }
+      }
+    },
+    "step/Audio.pause": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.pause",
+        "payload": {
+          "channel": "default"
+        }
+      }
+    },
+    "step/Audio.resume": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.resume",
+        "payload": {
+          "channel": "default"
+        }
+      }
+    },
+    "step/Audio.changeVolume": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.changeVolume",
+        "payload": {
+          "channel": "default",
+          "volume": 100,
+          "duration": 0
+        }
+      }
+    },
+    "step/Audio.reset": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Audio.reset",
+        "payload": {}
+      }
+    },
+    "step/Communication.Serial.open": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Serial.open",
+        "payload": {
+          "portAlias": null,
+          "port": null,
+          "baudRate": 9600
+        }
+      }
+    },
+    "step/Communication.Serial.send": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Serial.send",
+        "payload": {
+          "data": null
+        }
+      }
+    },
+    "step/Communication.Serial.close": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Serial.close",
+        "payload": null
+      }
+    },
+    "step/Communication.Socket.connect": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Socket.connect",
+        "payload": {
+          "url": null
+        }
+      }
+    },
+    "step/Communication.Socket.connectService": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Socket.connectService",
+        "payload": {
+          "type": null,
+          "name": null
+        }
+      }
+    },
+    "step/Communication.Socket.send": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Socket.send",
+        "payload": {
+          "channel": null,
+          "data": [
+            null
+          ]
+        }
+      }
+    },
+    "step/Communication.Socket.disconnect": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Socket.disconnect",
+        "payload": null
+      }
+    },
+    "step/Communication.Mqtt.connect": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Mqtt.connect",
+        "payload": {
+          "url": null,
+          "topics": []
+        }
+      }
+    },
+    "step/Communication.Mqtt.publish": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Mqtt.publish",
+        "payload": {
+          "topic": null,
+          "payload": null
+        }
+      }
+    },
+    "step/Communication.Mqtt.disconnect": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Communication.Mqtt.disconnect",
+        "payload": null
+      }
+    },
+    "step/delay": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "delay",
+        "payload": {
+          "delayMs": 0
+        }
+      }
+    },
+    "step/Others.customReset": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.customReset",
+        "payload": {
+          "audios": true,
+          "variables": true,
+          "components": true,
+          "steps": true,
+          "preloads": true,
+          "entries": true,
+          "runtimePlugins": true
+        }
+      }
+    },
+    "step/Others.setVariable": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.setVariable",
+        "payload": {
+          "variableId": null,
+          "value": null
+        }
+      }
+    },
+    "step/Others.resetAllVariables": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.resetAllVariables",
+        "payload": null
+      }
+    },
+    "step/Others.executePlugin": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.executePlugin",
+        "payload": {
+          "plugin": "owned-0",
+          "waitTillEnd": false
+        }
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    },
+    "step/Others.runtimePluginStep": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.runtimePluginStep",
+        "payload": {
+          "pluginName": null,
+          "step": null,
+          "payloads": {},
+          "waitTillEnd": false
+        }
+      }
+    },
+    "step/Others.eventEmit": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.eventEmit",
+        "payload": {
+          "channel": null,
+          "data": null
+        }
+      }
+    },
+    "step/Others.script": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.script",
+        "payload": {
+          "code": null
+        }
+      }
+    },
+    "step/Others.log": {
+      "result": {
+        "id": "<nanoid>",
+        "title": null,
+        "type": "Others.log",
+        "payload": {
+          "content": null
+        }
+      }
+    },
+    "valueProcess/default": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "",
+        "payload": null
+      }
+    },
+    "valueProcess/trim": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "trim",
+        "payload": null
+      }
+    },
+    "valueProcess/replaceAll": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "replaceAll",
+        "payload": {
+          "from": "",
+          "to": ""
+        }
+      }
+    },
+    "valueProcess/removeAll": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "removeAll",
+        "payload": {
+          "removing": ""
+        }
+      }
+    },
+    "valueProcess/replaceAllRegex": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "replaceAllRegex",
+        "payload": {
+          "regex": "",
+          "to": ""
+        }
+      }
+    },
+    "valueProcess/toLowerCase": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "toLowerCase",
+        "payload": null
+      }
+    },
+    "valueProcess/toUpperCase": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "toUpperCase",
+        "payload": null
+      }
+    },
+    "valueProcess/length": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "length",
+        "payload": null
+      }
+    },
+    "valueProcess/koToEn": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "koToEn",
+        "payload": null
+      }
+    },
+    "valueProcess/enToKo": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "enToKo",
+        "payload": null
+      }
+    },
+    "valueProcess/jsFunction": {
+      "result": {
+        "id": "<nanoid>",
+        "type": "jsFunction",
+        "payload": {
+          "scriptData": null
+        }
+      }
+    },
+    "project": {
+      "result": {
+        "version": 2,
+        "appVersion": "golden-test",
+        "config": {
+          "title": "REPAIR v2",
+          "width": null,
+          "height": null,
+          "sizeRatio": 1,
+          "filter": null,
+          "style": null,
+          "editorShortcut": "E",
+          "editorPassword": null,
+          "screenConfig": {
+            "type": "fullscreen",
+            "payload": null
+          },
+          "transparent": false,
+          "devMode": false,
+          "alwaysOnTop": false,
+          "suppressGlobalKeys": false,
+          "runtimePlugins": []
+        },
+        "viewport": {
+          "size": 0,
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "resources": {},
+        "variables": {},
+        "nodes": {},
+        "steps": {},
+        "components": {},
+        "elements": {},
+        "listeners": {},
+        "valueProcesses": {},
+        "pluginPointers": {},
+        "values": {},
+        "updatedAt": 0
+      }
+    },
+    "project/records": {
+      "result": {
+        "version": 2,
+        "appVersion": "golden-test",
+        "config": {
+          "title": "REPAIR v2",
+          "width": null,
+          "height": null,
+          "sizeRatio": 1,
+          "filter": null,
+          "style": null,
+          "editorShortcut": "E",
+          "editorPassword": null,
+          "screenConfig": {
+            "type": "fullscreen",
+            "payload": null
+          },
+          "transparent": false,
+          "devMode": false,
+          "alwaysOnTop": false,
+          "suppressGlobalKeys": false,
+          "runtimePlugins": []
+        },
+        "viewport": {
+          "size": 0,
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "resources": {},
+        "variables": {},
+        "nodes": {
+          "node-key": {
+            "id": "node-key",
+            "alias": null,
+            "nodePos": {
+              "x": 0,
+              "y": 0
+            },
+            "nodeType": "branch",
+            "valueA": "a",
+            "valueB": "b",
+            "operator": "equals",
+            "scriptData": null,
+            "trueOutput": null,
+            "falseOutput": null,
+            "disableAfterTrue": false,
+            "disableAfterFalse": false
+          }
+        },
+        "steps": {
+          "step-key": {
+            "id": "step-key",
+            "title": null,
+            "type": "Audio.play",
+            "payload": {
+              "resourceId": null,
+              "channel": "default",
+              "volume": 100,
+              "loop": false
+            }
+          }
+        },
+        "components": {
+          "comp-key": {
+            "id": "comp-key",
+            "alias": "c",
+            "elements": [],
+            "pos": {
+              "x": {
+                "distance": null,
+                "origin": "start",
+                "relative": false
+              },
+              "y": {
+                "distance": null,
+                "origin": "start",
+                "relative": false
+              }
+            },
+            "zIndex": null,
+            "unbreakable": false,
+            "visible": true,
+            "style": null,
+            "frame": "owned-0",
+            "introTransition": {
+              "duration": 400,
+              "easing": "linear",
+              "delay": 0,
+              "plugin": "owned-1"
+            },
+            "outroTransition": {
+              "duration": 400,
+              "easing": "linear",
+              "delay": 0,
+              "plugin": "owned-2"
+            }
+          }
+        },
+        "elements": {},
+        "listeners": {},
+        "valueProcesses": {},
+        "pluginPointers": {
+          "pp-key": {
+            "name": "p",
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        "values": {
+          "value-key": {
+            "baseType": "variable",
+            "baseValue": null,
+            "process": []
+          }
+        },
+        "updatedAt": 0
+      },
+      "owned": [
+        {
+          "type": "pluginPointers",
+          "id": "owned-0",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-1",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "owned-2",
+          "data": {
+            "name": null,
+            "exportName": "default",
+            "payloads": {}
+          }
+        }
+      ]
+    }
+  },
+  "relations": {
+    "records": {
+      "resources": {
+        "res-1": {
+          "id": "res-1",
+          "src": "a.png",
+          "alias": null
+        },
+        "res-2": {
+          "id": "res-2",
+          "src": "b.mp3",
+          "alias": null
+        }
+      },
+      "variables": {
+        "var-1": {
+          "id": "var-1",
+          "name": "v1",
+          "defaultValue": null
+        },
+        "var-2": {
+          "id": "var-2",
+          "name": "v2",
+          "defaultValue": null
+        }
+      },
+      "nodes": {
+        "node-entry": {
+          "id": "node-entry",
+          "alias": null,
+          "nodePos": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeType": "entry",
+          "output": "node-seq",
+          "standbyMode": false,
+          "type": "startup",
+          "payload": null
+        },
+        "node-seq": {
+          "id": "node-seq",
+          "alias": null,
+          "nodePos": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeType": "sequence",
+          "folded": false,
+          "inputColor": "#000",
+          "steps": [
+            "step-create",
+            "step-preload",
+            "step-release",
+            "step-audio",
+            "step-setvar",
+            "step-plugin",
+            "step-delay"
+          ],
+          "output": "node-branch",
+          "concurrency": "allow"
+        },
+        "node-branch": {
+          "id": "node-branch",
+          "alias": null,
+          "nodePos": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeType": "branch",
+          "valueA": "value-var",
+          "valueB": "value-str",
+          "operator": "equals",
+          "scriptData": null,
+          "trueOutput": "node-varset",
+          "falseOutput": "node-entry",
+          "disableAfterTrue": false,
+          "disableAfterFalse": false
+        },
+        "node-varset": {
+          "id": "node-varset",
+          "alias": null,
+          "nodePos": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeType": "variableSet",
+          "folded": false,
+          "inputColor": "#000",
+          "variable": "var-1",
+          "value": "values:owned-6",
+          "output": null
+        }
+      },
+      "steps": {
+        "step-create": {
+          "id": "step-create",
+          "title": null,
+          "type": "Component.create",
+          "payload": {
+            "componentId": "comp-1",
+            "recreate": "allow"
+          }
+        },
+        "step-preload": {
+          "id": "step-preload",
+          "title": null,
+          "type": "Preload.add",
+          "payload": {
+            "resourceArr": [
+              "res-1",
+              "res-2"
+            ]
+          }
+        },
+        "step-release": {
+          "id": "step-release",
+          "title": null,
+          "type": "Preload.release",
+          "payload": {
+            "resourceArr": [
+              "res-1"
+            ]
+          }
+        },
+        "step-audio": {
+          "id": "step-audio",
+          "title": null,
+          "type": "Audio.play",
+          "payload": {
+            "resourceId": "res-2",
+            "channel": "default",
+            "volume": 100,
+            "loop": false
+          }
+        },
+        "step-setvar": {
+          "id": "step-setvar",
+          "title": null,
+          "type": "Others.setVariable",
+          "payload": {
+            "variableId": "var-2",
+            "value": null
+          }
+        },
+        "step-plugin": {
+          "id": "step-plugin",
+          "title": null,
+          "type": "Others.executePlugin",
+          "payload": {
+            "plugin": "pluginPointers:owned-5",
+            "waitTillEnd": false
+          }
+        },
+        "step-delay": {
+          "id": "step-delay",
+          "title": null,
+          "type": "delay",
+          "payload": {
+            "delayMs": 0
+          }
+        }
+      },
+      "components": {
+        "comp-1": {
+          "id": "comp-1",
+          "alias": null,
+          "elements": [
+            "el-empty",
+            "el-input",
+            "el-adv",
+            "el-image",
+            "el-video",
+            "el-plugin"
+          ],
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "zIndex": null,
+          "unbreakable": false,
+          "visible": true,
+          "style": null,
+          "frame": "pluginPointers:owned-2",
+          "introTransition": {
+            "duration": 400,
+            "easing": "linear",
+            "delay": 0,
+            "plugin": "pluginPointers:owned-3"
+          },
+          "outroTransition": {
+            "duration": 400,
+            "easing": "linear",
+            "delay": 0,
+            "plugin": "pluginPointers:owned-4"
+          }
+        }
+      },
+      "elements": {
+        "el-empty": {
+          "id": "el-empty",
+          "alias": null,
+          "width": null,
+          "height": null,
+          "style": null,
+          "childStyle": null,
+          "className": null,
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "absolute": false,
+          "fullscreen": false,
+          "listeners": [
+            "lis-custom",
+            "lis-plugin"
+          ],
+          "dragOption": {
+            "use": false
+          },
+          "type": "empty",
+          "payload": {
+            "content": null,
+            "isHtml": false
+          }
+        },
+        "el-input": {
+          "id": "el-input",
+          "alias": null,
+          "width": null,
+          "height": null,
+          "style": null,
+          "childStyle": null,
+          "className": null,
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "absolute": false,
+          "fullscreen": false,
+          "listeners": [],
+          "dragOption": {
+            "use": false
+          },
+          "type": "input",
+          "payload": {
+            "variableId": "var-1",
+            "placeholder": null,
+            "autofocus": false,
+            "maxLength": null,
+            "allowedType": "any",
+            "allowedRegex": null,
+            "valueFunction": null,
+            "isTextarea": false
+          }
+        },
+        "el-adv": {
+          "id": "el-adv",
+          "alias": null,
+          "width": null,
+          "height": null,
+          "style": null,
+          "childStyle": null,
+          "className": null,
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "absolute": false,
+          "fullscreen": false,
+          "listeners": [],
+          "dragOption": {
+            "use": false
+          },
+          "type": "advancedInput",
+          "payload": {
+            "variableId": "var-2",
+            "maxLength": null,
+            "securityText": null
+          }
+        },
+        "el-image": {
+          "id": "el-image",
+          "alias": null,
+          "width": null,
+          "height": null,
+          "style": null,
+          "childStyle": null,
+          "className": null,
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "absolute": false,
+          "fullscreen": false,
+          "listeners": [],
+          "dragOption": {
+            "use": false
+          },
+          "type": "image",
+          "payload": {
+            "resourceId": "res-1",
+            "removePreload": true
+          }
+        },
+        "el-video": {
+          "id": "el-video",
+          "alias": null,
+          "width": null,
+          "height": null,
+          "style": null,
+          "childStyle": null,
+          "className": null,
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "absolute": false,
+          "fullscreen": false,
+          "listeners": [],
+          "dragOption": {
+            "use": false
+          },
+          "type": "video",
+          "payload": {
+            "resourceId": "res-2",
+            "removePreload": true,
+            "loop": false,
+            "volume": 100
+          }
+        },
+        "el-plugin": {
+          "id": "el-plugin",
+          "alias": null,
+          "width": null,
+          "height": null,
+          "style": null,
+          "childStyle": null,
+          "className": null,
+          "pos": {
+            "x": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            },
+            "y": {
+              "distance": null,
+              "origin": "start",
+              "relative": false
+            }
+          },
+          "absolute": false,
+          "fullscreen": false,
+          "listeners": [],
+          "dragOption": {
+            "use": false
+          },
+          "type": "plugin",
+          "payload": {
+            "plugin": "pluginPointers:owned-1"
+          }
+        }
+      },
+      "listeners": {
+        "lis-custom": {
+          "id": "lis-custom",
+          "repeatCount": 1,
+          "repeatInterval": 0,
+          "once": false,
+          "global": false,
+          "useCapture": false,
+          "output": "node-seq",
+          "type": "custom",
+          "payload": {
+            "channel": null
+          }
+        },
+        "lis-plugin": {
+          "id": "lis-plugin",
+          "repeatCount": 1,
+          "repeatInterval": 0,
+          "once": false,
+          "global": false,
+          "useCapture": false,
+          "output": "node-entry",
+          "type": "plugin",
+          "payload": {
+            "plugin": "pluginPointers:owned-0",
+            "channel": null
+          }
+        }
+      },
+      "valueProcesses": {
+        "vp-1": {
+          "id": "vp-1",
+          "type": "trim",
+          "payload": null
+        },
+        "vp-2": {
+          "id": "vp-2",
+          "type": "toLowerCase",
+          "payload": null
+        }
+      },
+      "pluginPointers": {
+        "plugin-runtime-1": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        },
+        "pluginPointers:owned-0": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        },
+        "pluginPointers:owned-1": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        },
+        "pluginPointers:owned-2": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        },
+        "pluginPointers:owned-3": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        },
+        "pluginPointers:owned-4": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        },
+        "pluginPointers:owned-5": {
+          "name": null,
+          "exportName": "default",
+          "payloads": {}
+        }
+      },
+      "values": {
+        "value-var": {
+          "baseType": "variable",
+          "baseValue": "var-1",
+          "process": [
+            "vp-1",
+            "vp-2"
+          ]
+        },
+        "value-str": {
+          "baseType": "string",
+          "baseValue": "var-2",
+          "process": []
+        },
+        "values:owned-6": {
+          "baseType": "string",
+          "baseValue": null,
+          "process": []
+        }
+      }
+    },
+    "config": {
+      "title": "REPAIR v2",
+      "width": null,
+      "height": null,
+      "sizeRatio": 1,
+      "filter": null,
+      "style": null,
+      "editorShortcut": "E",
+      "editorPassword": null,
+      "screenConfig": {
+        "type": "fullscreen",
+        "payload": null
+      },
+      "transparent": false,
+      "devMode": false,
+      "alwaysOnTop": false,
+      "suppressGlobalKeys": false,
+      "runtimePlugins": [
+        "plugin-runtime-1"
+      ]
+    },
+    "relationIds": {
+      "config": [
+        {
+          "type": "pluginPointers",
+          "id": "plugin-runtime-1",
+          "owned": false,
+          "path": [
+            "runtimePlugins"
+          ],
+          "kind": 1
+        }
+      ],
+      "nodes:node-entry": [
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "path": [
+            "output"
+          ],
+          "kind": 1
+        }
+      ],
+      "nodes:node-entry#onlyOwns": [],
+      "nodes:node-seq": [
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "path": [
+            "steps"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "path": [
+            "output"
+          ],
+          "kind": 1
+        }
+      ],
+      "nodes:node-seq#onlyOwns": [
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "nodes:node-branch": [
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "path": [
+            "valueA"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "path": [
+            "valueB"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "path": [
+            "trueOutput"
+          ],
+          "kind": 1
+        },
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "path": [
+            "falseOutput"
+          ],
+          "kind": 1
+        }
+      ],
+      "nodes:node-branch#onlyOwns": [
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "nodes:node-varset": [
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "path": [
+            "value"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "path": [
+            "variable"
+          ],
+          "kind": 1
+        }
+      ],
+      "nodes:node-varset#onlyOwns": [
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "components:comp-1": [
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "path": [
+            "elements"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "path": [
+            "elements"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "path": [
+            "elements"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "path": [
+            "elements"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "path": [
+            "elements"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "path": [
+            "elements"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "path": [
+            "frame"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "path": [
+            "introTransition",
+            "plugin"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "path": [
+            "outroTransition",
+            "plugin"
+          ],
+          "kind": 0
+        }
+      ],
+      "components:comp-1#onlyOwns": [
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "elements:el-empty": [
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "path": [
+            "listeners"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "path": [
+            "listeners"
+          ],
+          "kind": 0
+        }
+      ],
+      "elements:el-empty#onlyOwns": [
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "elements:el-input": [
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "path": [
+            "payload",
+            "variableId"
+          ],
+          "kind": 1
+        }
+      ],
+      "elements:el-input#onlyOwns": [],
+      "elements:el-adv": [
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "variableId"
+          ],
+          "kind": 1
+        }
+      ],
+      "elements:el-adv#onlyOwns": [],
+      "elements:el-image": [
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceId"
+          ],
+          "kind": 1
+        }
+      ],
+      "elements:el-image#onlyOwns": [],
+      "elements:el-video": [
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceId"
+          ],
+          "kind": 1
+        }
+      ],
+      "elements:el-video#onlyOwns": [],
+      "elements:el-plugin": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "path": [
+            "payload",
+            "plugin"
+          ],
+          "kind": 0
+        }
+      ],
+      "elements:el-plugin#onlyOwns": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "listeners:lis-custom": [
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "path": [
+            "output"
+          ],
+          "kind": 1
+        }
+      ],
+      "listeners:lis-custom#onlyOwns": [],
+      "listeners:lis-plugin": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "path": [
+            "payload",
+            "plugin"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "path": [
+            "output"
+          ],
+          "kind": 1
+        }
+      ],
+      "listeners:lis-plugin#onlyOwns": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "steps:step-create": [
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "path": [
+            "payload",
+            "componentId"
+          ],
+          "kind": 0
+        }
+      ],
+      "steps:step-create#onlyOwns": [
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "steps:step-preload": [
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceArr"
+          ],
+          "kind": 1
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceArr"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-preload#onlyOwns": [],
+      "steps:step-release": [
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceArr"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-release#onlyOwns": [],
+      "steps:step-audio": [
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceId"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-audio#onlyOwns": [],
+      "steps:step-setvar": [
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "variableId"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-setvar#onlyOwns": [],
+      "steps:step-plugin": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "path": [
+            "payload",
+            "plugin"
+          ],
+          "kind": 0
+        }
+      ],
+      "steps:step-plugin#onlyOwns": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "steps:step-delay": [],
+      "steps:step-delay#onlyOwns": [],
+      "values:value-var": [
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "path": [
+            "baseValue"
+          ],
+          "kind": 1
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "path": [
+            "process"
+          ],
+          "kind": 0
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "path": [
+            "process"
+          ],
+          "kind": 0
+        }
+      ],
+      "values:value-var#onlyOwns": [
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "kind": 0
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "values:value-str": [],
+      "values:value-str#onlyOwns": [],
+      "values:values:owned-6": [],
+      "values:values:owned-6#onlyOwns": []
+    },
+    "walks": {
+      "nodes:node-entry": [
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-entry",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "steps",
+            "id": "step-create",
+            "path": [
+              "payload",
+              "componentId"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "listeners",
+            "id": "lis-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-input",
+            "path": [
+              "payload",
+              "variableId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-adv",
+            "path": [
+              "payload",
+              "variableId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-image",
+            "path": [
+              "payload",
+              "resourceId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-video",
+            "path": [
+              "payload",
+              "resourceId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "elements",
+            "id": "el-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "frame"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "introTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "outroTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "steps",
+            "id": "step-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueA"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueB"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "trueOutput"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "value"
+            ],
+            "kind": 0
+          }
+        }
+      ],
+      "nodes:node-entry#onlyOwns": [
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "level": 0,
+          "via": null
+        }
+      ],
+      "nodes:node-seq": [
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-create",
+            "path": [
+              "payload",
+              "componentId"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "listeners",
+            "id": "lis-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "listeners",
+            "id": "lis-plugin",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-input",
+            "path": [
+              "payload",
+              "variableId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-adv",
+            "path": [
+              "payload",
+              "variableId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-image",
+            "path": [
+              "payload",
+              "resourceId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-video",
+            "path": [
+              "payload",
+              "resourceId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "frame"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "introTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "outroTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueA"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueB"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "trueOutput"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "value"
+            ],
+            "kind": 0
+          }
+        }
+      ],
+      "nodes:node-seq#onlyOwns": [
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-create",
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "listeners",
+            "id": "lis-plugin",
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "elements",
+            "id": "el-plugin",
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-plugin",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        }
+      ],
+      "nodes:node-branch": [
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueA"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "baseValue"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueB"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "trueOutput"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "value"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "falseOutput"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-entry",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "steps",
+            "id": "step-create",
+            "path": [
+              "payload",
+              "componentId"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "level": 7,
+          "via": {
+            "type": "listeners",
+            "id": "lis-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "level": 6,
+          "via": {
+            "type": "elements",
+            "id": "el-adv",
+            "path": [
+              "payload",
+              "variableId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "level": 6,
+          "via": {
+            "type": "elements",
+            "id": "el-image",
+            "path": [
+              "payload",
+              "resourceId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "level": 6,
+          "via": {
+            "type": "elements",
+            "id": "el-video",
+            "path": [
+              "payload",
+              "resourceId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "elements",
+            "id": "el-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "frame"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "introTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "outroTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "steps",
+            "id": "step-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        }
+      ],
+      "nodes:node-branch#onlyOwns": [
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "kind": 0
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "kind": 0
+          }
+        }
+      ],
+      "nodes:node-varset": [
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "value"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "variable"
+            ],
+            "kind": 1
+          }
+        }
+      ],
+      "nodes:node-varset#onlyOwns": [
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "kind": 0
+          }
+        }
+      ],
+      "components:comp-1": [
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "elements",
+          "id": "el-empty",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-custom",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 3,
+          "via": {
+            "type": "listeners",
+            "id": "lis-custom",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "steps",
+            "id": "step-preload",
+            "path": [
+              "payload",
+              "resourceArr"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "steps",
+            "id": "step-preload",
+            "path": [
+              "payload",
+              "resourceArr"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "steps",
+            "id": "step-setvar",
+            "path": [
+              "payload",
+              "variableId"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "steps",
+            "id": "step-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "steps"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "level": 4,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "path": [
+              "output"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-var",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueA"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "variables",
+          "id": "var-1",
+          "owned": false,
+          "level": 6,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "baseValue"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-1",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "valueProcesses",
+          "id": "vp-2",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "values",
+            "id": "value-var",
+            "path": [
+              "process"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "values",
+          "id": "value-str",
+          "owned": true,
+          "level": 5,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "valueB"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-varset",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "trueOutput"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 6,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "value"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "level": 5,
+          "via": {
+            "type": "nodes",
+            "id": "node-branch",
+            "path": [
+              "falseOutput"
+            ],
+            "kind": 1
+          }
+        },
+        {
+          "type": "listeners",
+          "id": "lis-plugin",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "elements",
+            "id": "el-empty",
+            "path": [
+              "listeners"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-0",
+          "owned": true,
+          "level": 3,
+          "via": {
+            "type": "listeners",
+            "id": "lis-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-input",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-adv",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-image",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-video",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "elements",
+          "id": "el-plugin",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "elements"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-1",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "elements",
+            "id": "el-plugin",
+            "path": [
+              "payload",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-2",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "frame"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-3",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "introTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        },
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-4",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "components",
+            "id": "comp-1",
+            "path": [
+              "outroTransition",
+              "plugin"
+            ],
+            "kind": 0
+          }
+        }
+      ],
+      "nodes:node-entry#maxLevel2": [
+        {
+          "type": "nodes",
+          "id": "node-entry",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-entry",
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "nodes",
+          "id": "node-branch",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 1
+          }
+        }
+      ],
+      "nodes:node-seq#includes": [
+        {
+          "type": "nodes",
+          "id": "node-seq",
+          "owned": false,
+          "level": 0,
+          "via": null
+        },
+        {
+          "type": "steps",
+          "id": "step-create",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-create",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-preload",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-preload",
+            "kind": 1
+          }
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "level": 2,
+          "via": {
+            "type": "steps",
+            "id": "step-preload",
+            "kind": 1
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-release",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-audio",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-setvar",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-plugin",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        },
+        {
+          "type": "steps",
+          "id": "step-delay",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-seq",
+            "kind": 0
+          }
+        }
+      ]
+    }
+  }
+}
