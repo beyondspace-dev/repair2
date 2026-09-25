@@ -7,9 +7,9 @@ import {
   type Shape,
   type VariantCase,
   type VariantCases,
-  type VariantDescriptor
+  type VariantDescriptor,
+  type RegisterOwned
 } from "./descriptor";
-import type { RegisterOwned } from "../../factories/factory";
 import type { CaseName } from "./infer.types";
 
 /** Builds a discriminant hierarchy. e.g. `Component: group({ create: {...} })` → `"Component.create"` */
@@ -137,7 +137,7 @@ export function resolveFlatCase(descriptor: VariantDescriptor, value: unknown): 
   return descriptor.open;
 }
 
-/** Value created by an existing factory function */
+/** Value created by a custom create function */
 export function custom<T>(
   create: (overrides: Record<string, unknown> | undefined, registerOwned?: RegisterOwned) => T
 ): CustomDescriptor<T> {

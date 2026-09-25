@@ -4,7 +4,7 @@ import { custom } from "./core";
 
 /**
  * Its shape depends on `use` (an optional boolean) and it keeps unknown keys, which is too irregular for the DSL,
- * so the existing factory logic is used as a custom descriptor.
+ * so it is created by a custom descriptor.
  */
 export function createDragOption(overrides: Partial<Types.DragOption> = {}): Types.DragOption {
   if (!overrides.use) return { use: false };

@@ -8,6 +8,7 @@ import {
   ElementDefinition,
   ListenerDefinition,
   NodeDefinition,
+  ProjectDefinition,
   PluginPointerDefinition,
   PositionDefinition,
   ResourceDefinition,
@@ -22,7 +23,7 @@ import {
   field,
   type InferData
 } from "@shared/projectData/definitions";
-import type { RegisterOwned } from "@shared/projectData/factories/factory";
+import type { RegisterOwned } from "@shared/projectData/definitions";
 import type { Types } from "@shared/projectData/types";
 
 declare const registerOwned: RegisterOwned;
@@ -46,7 +47,8 @@ export type TypeEquality = [
   Expect<Equal<InferData<typeof ConfigDefinition>, Types.ProjectConfig>>,
   Expect<Equal<InferData<typeof StepDefinition>, Types.Step>>,
   Expect<Equal<InferData<typeof ValueDefinition>, Types.Value>>,
-  Expect<Equal<InferData<typeof NodeDefinition>, Types.Node>>
+  Expect<Equal<InferData<typeof NodeDefinition>, Types.Node>>,
+  Expect<Equal<InferData<typeof ProjectDefinition>, Types.Data>>
 ];
 
 TransitionDefinition.create({ plugin: "existing-plugin" });

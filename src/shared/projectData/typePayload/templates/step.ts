@@ -1,12 +1,9 @@
-import { createComponent } from "../../factories/component";
-import { createPluginPointer } from "../../factories/pluginPointer";
-import { owns } from "../../factories/factory";
-import { arrayOf, nullDefault, oneOf, type TypePayloadUnion } from "./union.types";
+import { arrayOf, nullDefault, oneOf, owned, type TypePayloadUnion } from "./union.types";
 
 export const StepPayloadTemplate = {
   Component: {
     $types: true,
-    create: { componentId: owns(createComponent), recreate: oneOf<"ignore" | "allow">("allow") },
+    create: { componentId: owned(), recreate: oneOf<"ignore" | "allow">("allow") },
     remove: { componentAlias: nullDefault<string>(), ignoreUnbreakable: true },
     clear: { ignoreUnbreakable: false },
     modify: {
@@ -74,7 +71,7 @@ export const StepPayloadTemplate = {
     },
     setVariable: { variableId: nullDefault<string>(), value: null },
     resetAllVariables: null,
-    executePlugin: { plugin: owns(createPluginPointer), waitTillEnd: false },
+    executePlugin: { plugin: owned(), waitTillEnd: false },
     runtimePluginStep: {
       pluginName: nullDefault<string>(),
       step: nullDefault<string>(),

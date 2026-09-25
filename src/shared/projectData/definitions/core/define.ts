@@ -1,10 +1,10 @@
 import type { RecordKey, RecordValue } from "../../../constants";
-import type { RegisterOwned } from "../../factories/factory";
-import type { RelationTree } from "../../relation/map";
+import type { RelationTree } from "../../relation/types";
 import {
   DEFINITION,
   isCustomDescriptor,
   isNestedDescriptor,
+  isRecordsDescriptor,
   isRelationDescriptor,
   isValueDescriptor,
   isVariantDescriptor,
@@ -13,6 +13,7 @@ import {
   type DataDefinition,
   type RelationDescriptor,
   type Shape,
+  type RegisterOwned,
   type ValueDescriptor,
   type VariantDescriptor
 } from "./descriptor";
@@ -106,6 +107,27 @@ function resolveDescriptor(
     return descriptor.create(isRecord(override) ? override : undefined, registerOwned);
   }
 
+  if (isRecordsDescriptor(descriptor)) {
+    if (!isRecord(override)) return {};
+    const { definition } = descriptor;
+    const create = definition.create as (
+      overrides: unknown,
+      registerOwned?: RegisterOwned
+    ) => unknown;
+    return Object.fromEntries(
+      Object.entries(override).map(([key, item]) => {
+        const itemOverride = isRecord(item) ? item : {};
+        return [
+          key,
+          create(
+            definition.idKey ? { ...itemOverride, [definition.idKey]: key } : itemOverride,
+            registerOwned
+          )
+        ];
+      })
+    );
+  }
+
   if (isRelationDescriptor(descriptor) && descriptor.creates) {
     return createOwned(descriptor, override, registerOwned);
   }
@@ -115,7 +137,7 @@ function resolveDescriptor(
 }
 
 /**
- * Creation rule for regular (non-payload) fields (same as resolveFactoryValue in factories/factory.ts).
+ * Creation rule for regular (non-payload) fields.
  * An override is used as is, regardless of its shape.
  */
 export function createFromShape(
@@ -155,19 +177,30 @@ function createVariant(
   }
 
   const value = overrides?.[key] ?? descriptor.default;
-  const payloadOverride = overrides?.[descriptor.payloadKey] ?? undefined;
   result[key] = value;
+  result[descriptor.payloadKey] = createVariantPayload(
+    descriptor,
+    value,
+    overrides?.[descriptor.payloadKey] ?? undefined,
+    registerOwned
+  );
+}
+
+/** Creates the payload for a discriminant of a payload-mode variant. null for an unknown discriminant. */
+export function createVariantPayload(
+  descriptor: VariantDescriptor,
+  value: unknown,
+  override?: unknown,
+  registerOwned?: RegisterOwned
+): unknown {
   const caseShape = lookupVariantCase(descriptor, value);
-  result[descriptor.payloadKey] =
-    caseShape === undefined
-      ? null
-      : caseShape === null
-        ? clonePayloadValue(null, payloadOverride)
-        : createPayloadShape(caseShape, payloadOverride, registerOwned);
+  if (caseShape === undefined) return null;
+  if (caseShape === null) return clonePayloadValue(null, override);
+  return createPayloadShape(caseShape, override, registerOwned);
 }
 
 /**
- * Creation rule for payload fields (same as cloneTemplate in typePayload/create.ts).
+ * Creation rule for payload fields.
  * - Primitive slots only accept non-object overrides.
  * - An array override replaces the whole array.
  * - A shape without fields clones a record override as is (open object).
@@ -192,6 +225,8 @@ function createPayloadShape(
       throw new Error("A payload shape cannot contain a variant.");
     } else if (isNestedDescriptor(descriptor)) {
       result[key] = createPayloadShape(descriptor.definition.shape, itemOverride, registerOwned);
+    } else if (isRecordsDescriptor(descriptor)) {
+      throw new Error("A payload shape cannot contain records.");
     } else if (isCustomDescriptor(descriptor)) {
       result[key] = descriptor.create(
         isRecord(itemOverride) ? itemOverride : undefined,

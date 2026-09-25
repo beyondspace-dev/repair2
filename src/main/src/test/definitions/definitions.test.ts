@@ -1,23 +1,32 @@
 /**
- * Checks that create() of the new definitions matches the legacy factories at the JSON level (including key order).
+ * Runtime checks for ProjectData definitions: create forms, payload variants, validation and metadata.
  *
  * Run: npx tsx --tsconfig src/main/tsconfig.json src/main/src/test/definitions/definitions.test.ts
  */
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
-import { dirname } from "node:path";
-import { collectFactoryGolden } from "../dataFactories/golden.test";
-import { createOwnedRecorder, normalizeGeneratedIds } from "../dataFactories/goldenFixtures";
+import { createOwnedRecorder, normalizeGeneratedIds } from "./goldenFixtures";
 
 type AnyRecord = Record<string, any>;
 
-const GOLDEN_PATH = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../dataFactories/goldenSnapshot.json"
-);
 type CreateLike = (overrides?: any, registerOwned?: any) => unknown;
+
+/** Lists every leaf type string of a payload template in declaration order. */
+function listTemplateTypes(template: unknown, prefix = ""): string[] {
+  if (typeof template !== "object" || template === null) return [];
+  const result: string[] = [];
+  for (const [key, item] of Object.entries(template)) {
+    if (key === "$types") continue;
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (typeof item === "object" && item !== null && (item as AnyRecord).$types === true) {
+      result.push(...listTemplateTypes(item, path));
+    } else {
+      result.push(path);
+    }
+  }
+  return result;
+}
 
 function runCase(name: string, fn: () => void) {
   try {
@@ -35,114 +44,13 @@ function capture(create: CreateLike, overrides?: unknown) {
   return JSON.stringify({ result, owned: log });
 }
 
-function assertSameOutput(name: string, legacy: CreateLike, next: CreateLike, cases: unknown[]) {
-  runCase(`${name} create() matches legacy factory`, () => {
-    for (const overrides of [undefined, {}, ...cases]) {
-      assert.equal(capture(next, overrides), capture(legacy, overrides), JSON.stringify(overrides));
-    }
-  });
-}
-
 export async function runDefinitionTest() {
   (globalThis as any).__APP_VERSION__ = "definition-test";
-  const f = await import("@shared/projectData/factories");
-  const { createViewportData } = await import("@shared/projectData/factories/viewport");
   const d = await import("@shared/projectData/definitions");
-  const { RelationMap } = await import("@shared/projectData/relation");
+  const { PayloadVariants } = await import("@shared/projectData/typePayload");
   const { PayloadTemplates } = await import("@shared/projectData/typePayload/templates");
 
-  assertSameOutput("Position", f.createPosition, d.PositionDefinition.create as CreateLike, [
-    { distance: 10, origin: "center" },
-    { relative: true, extra: 1 },
-    { distance: null }
-  ]);
-  assertSameOutput("Coord", f.createCoord, d.CoordDefinition.create as CreateLike, [
-    { x: { distance: 5 } },
-    { x: "wrong-shape", y: { origin: "end" } },
-    { x: null }
-  ]);
-  assertSameOutput("Variable", f.createVariable, d.VariableDefinition.create as CreateLike, [
-    { id: "var-1", name: "v" },
-    { defaultValue: "x" }
-  ]);
-  assertSameOutput("Resource", f.createResource, d.ResourceDefinition.create as CreateLike, [
-    { id: "res-1", src: "a.png" }
-  ]);
-  assertSameOutput(
-    "PluginPointer",
-    f.createPluginPointer as CreateLike,
-    d.PluginPointerDefinition.create as CreateLike,
-    [{ name: "p", payloads: { a: "b" } }, { exportName: null }]
-  );
-  assertSameOutput(
-    "Transition",
-    f.createTransition as CreateLike,
-    d.TransitionDefinition.create as CreateLike,
-    [{ plugin: "plugin-x", duration: 100 }, { plugin: null }, { easing: "easeIn" }]
-  );
-  assertSameOutput("Viewport", createViewportData, d.ViewportDefinition.create as CreateLike, [
-    { size: 3, pos: { x: 1, y: 2 } }
-  ]);
-  assertSameOutput(
-    "Component",
-    f.createComponent as CreateLike,
-    d.ComponentDefinition.create as CreateLike,
-    [
-      {
-        id: "comp",
-        elements: ["el-1"],
-        pos: { x: { origin: "end" } },
-        frame: "frame-1",
-        introTransition: { easing: "easeIn", plugin: "intro" }
-      },
-      { frame: 123, outroTransition: "wrong-shape" }
-    ]
-  );
-
-  runCase("definitions reproduce every legacy golden factory case", () => {
-    const create = (definition: { create: unknown }) => definition.create as CreateLike;
-    const adapter = {
-      createResource: create(d.ResourceDefinition),
-      createVariable: create(d.VariableDefinition),
-      createPluginPointer: create(d.PluginPointerDefinition),
-      createPosition: create(d.PositionDefinition),
-      createCoord: create(d.CoordDefinition),
-      createTransition: create(d.TransitionDefinition),
-      createComponent: create(d.ComponentDefinition),
-      createConfig: create(d.ConfigDefinition),
-      createScreenConfig: create(d.ScreenConfigDefinition),
-      createDragOption: d.createDragOption,
-      createValue: create(d.ValueDefinition),
-      createNode: create(d.NodeDefinition),
-      createEntry: (o: AnyRecord = {}, r?: unknown) =>
-        create(d.NodeDefinition)({ ...o, nodeType: "entry" }, r),
-      createElement: create(d.ElementDefinition),
-      createListener: create(d.ListenerDefinition),
-      createStep: create(d.StepDefinition),
-      createValueProcess: create(d.ValueProcessDefinition),
-      createProject: () => null
-    };
-    const actual = JSON.parse(
-      JSON.stringify(collectFactoryGolden(adapter as never, PayloadTemplates as AnyRecord))
-    );
-    const expected = JSON.parse(readFileSync(GOLDEN_PATH, "utf8")).factories;
-    let compared = 0;
-    for (const key of Object.keys(expected)) {
-      if (key.startsWith("project")) continue;
-      assert.equal(JSON.stringify(actual[key]), JSON.stringify(expected[key]), key);
-      compared++;
-    }
-    console.log(`  compared ${compared} golden cases`);
-  });
-
-  runCase("generated relation trees match manual RelationMap", () => {
-    for (const [key, definition] of Object.entries(d.ProjectDefinitions)) {
-      assert.deepEqual(definition.relations, (RelationMap as AnyRecord)[key] ?? {}, key);
-    }
-    assert.deepEqual(d.ConfigDefinition.relations, RelationMap.config);
-  });
-
-  runCase("create(판별 값, overrides, registerOwned) equals the object form", () => {
+  runCase("create(discriminant, overrides, registerOwned) equals the object form", () => {
     const pairs: [string, string, unknown, AnyRecord][] = [
       [
         "step",
@@ -179,6 +87,34 @@ export async function runDefinitionTest() {
     }
   });
 
+  runCase("createVariantPayload creates the payload of a case", () => {
+    const createPayload = (name: keyof typeof PayloadVariants, type: string, ...rest: unknown[]) =>
+      d.createVariantPayload(PayloadVariants[name], type, ...(rest as [unknown, never]));
+    assert.deepEqual(createPayload("step", "Audio.play", { volume: 3 }), {
+      resourceId: null,
+      channel: "default",
+      volume: 3,
+      loop: false
+    });
+    assert.equal(createPayload("step", "Audio"), null);
+    assert.equal(createPayload("listener", "input"), null);
+    const { log, registerOwned } = createOwnedRecorder();
+    assert.deepEqual(createPayload("element", "plugin", undefined, registerOwned), {
+      plugin: "owned-0"
+    });
+    assert.equal(log[0].type, "pluginPointers");
+  });
+
+  runCase("payload templates list the same types as the definitions", () => {
+    for (const [name, variant] of Object.entries(PayloadVariants)) {
+      assert.deepEqual(
+        d.listVariantCases(variant.cases).map(([type]) => type),
+        listTemplateTypes((PayloadTemplates as AnyRecord)[name]),
+        name
+      );
+    }
+  });
+
   runCase("shape validation", () => {
     assert.throws(
       () =>
@@ -208,7 +144,7 @@ export async function runDefinitionTest() {
     assert.notEqual(a.id, b.id);
   });
 
-  runCase("owned relation without registerOwned throws like legacy factory", () => {
+  runCase("owned relation without registerOwned throws", () => {
     assert.throws(
       () => (d.TransitionDefinition.create as CreateLike)(),
       /registerOwned is required to create an owned pluginPointers record/

@@ -5,7 +5,7 @@ import {
   type RelationCaseMap,
   type RelationLeaf,
   type RelationTree
-} from "../../relation/map";
+} from "../../relation/types";
 import {
   DESCRIPTOR,
   isNestedDescriptor,

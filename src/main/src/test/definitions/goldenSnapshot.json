@@ -2622,15 +2622,6 @@
       ],
       "nodes:node-varset": [
         {
-          "type": "values",
-          "id": "values:owned-6",
-          "owned": true,
-          "path": [
-            "value"
-          ],
-          "kind": 0
-        },
-        {
           "type": "variables",
           "id": "var-1",
           "owned": false,
@@ -2638,6 +2629,15 @@
             "variable"
           ],
           "kind": 1
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "path": [
+            "value"
+          ],
+          "kind": 0
         }
       ],
       "nodes:node-varset#onlyOwns": [
@@ -2648,6 +2648,110 @@
           "kind": 0
         }
       ],
+      "steps:step-create": [
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "path": [
+            "payload",
+            "componentId"
+          ],
+          "kind": 0
+        }
+      ],
+      "steps:step-create#onlyOwns": [
+        {
+          "type": "components",
+          "id": "comp-1",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "steps:step-preload": [
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceArr"
+          ],
+          "kind": 1
+        },
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceArr"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-preload#onlyOwns": [],
+      "steps:step-release": [
+        {
+          "type": "resources",
+          "id": "res-1",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceArr"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-release#onlyOwns": [],
+      "steps:step-audio": [
+        {
+          "type": "resources",
+          "id": "res-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "resourceId"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-audio#onlyOwns": [],
+      "steps:step-setvar": [
+        {
+          "type": "variables",
+          "id": "var-2",
+          "owned": false,
+          "path": [
+            "payload",
+            "variableId"
+          ],
+          "kind": 1
+        }
+      ],
+      "steps:step-setvar#onlyOwns": [],
+      "steps:step-plugin": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "path": [
+            "payload",
+            "plugin"
+          ],
+          "kind": 0
+        }
+      ],
+      "steps:step-plugin#onlyOwns": [
+        {
+          "type": "pluginPointers",
+          "id": "pluginPointers:owned-5",
+          "owned": true,
+          "kind": 0
+        }
+      ],
+      "steps:step-delay": [],
+      "steps:step-delay#onlyOwns": [],
       "components:comp-1": [
         {
           "type": "elements",
@@ -2936,110 +3040,6 @@
           "kind": 0
         }
       ],
-      "steps:step-create": [
-        {
-          "type": "components",
-          "id": "comp-1",
-          "owned": true,
-          "path": [
-            "payload",
-            "componentId"
-          ],
-          "kind": 0
-        }
-      ],
-      "steps:step-create#onlyOwns": [
-        {
-          "type": "components",
-          "id": "comp-1",
-          "owned": true,
-          "kind": 0
-        }
-      ],
-      "steps:step-preload": [
-        {
-          "type": "resources",
-          "id": "res-1",
-          "owned": false,
-          "path": [
-            "payload",
-            "resourceArr"
-          ],
-          "kind": 1
-        },
-        {
-          "type": "resources",
-          "id": "res-2",
-          "owned": false,
-          "path": [
-            "payload",
-            "resourceArr"
-          ],
-          "kind": 1
-        }
-      ],
-      "steps:step-preload#onlyOwns": [],
-      "steps:step-release": [
-        {
-          "type": "resources",
-          "id": "res-1",
-          "owned": false,
-          "path": [
-            "payload",
-            "resourceArr"
-          ],
-          "kind": 1
-        }
-      ],
-      "steps:step-release#onlyOwns": [],
-      "steps:step-audio": [
-        {
-          "type": "resources",
-          "id": "res-2",
-          "owned": false,
-          "path": [
-            "payload",
-            "resourceId"
-          ],
-          "kind": 1
-        }
-      ],
-      "steps:step-audio#onlyOwns": [],
-      "steps:step-setvar": [
-        {
-          "type": "variables",
-          "id": "var-2",
-          "owned": false,
-          "path": [
-            "payload",
-            "variableId"
-          ],
-          "kind": 1
-        }
-      ],
-      "steps:step-setvar#onlyOwns": [],
-      "steps:step-plugin": [
-        {
-          "type": "pluginPointers",
-          "id": "pluginPointers:owned-5",
-          "owned": true,
-          "path": [
-            "payload",
-            "plugin"
-          ],
-          "kind": 0
-        }
-      ],
-      "steps:step-plugin#onlyOwns": [
-        {
-          "type": "pluginPointers",
-          "id": "pluginPointers:owned-5",
-          "owned": true,
-          "kind": 0
-        }
-      ],
-      "steps:step-delay": [],
-      "steps:step-delay#onlyOwns": [],
       "values:value-var": [
         {
           "type": "variables",
@@ -4895,20 +4895,6 @@
           "via": null
         },
         {
-          "type": "values",
-          "id": "values:owned-6",
-          "owned": true,
-          "level": 1,
-          "via": {
-            "type": "nodes",
-            "id": "node-varset",
-            "path": [
-              "value"
-            ],
-            "kind": 0
-          }
-        },
-        {
           "type": "variables",
           "id": "var-1",
           "owned": false,
@@ -4920,6 +4906,20 @@
               "variable"
             ],
             "kind": 1
+          }
+        },
+        {
+          "type": "values",
+          "id": "values:owned-6",
+          "owned": true,
+          "level": 1,
+          "via": {
+            "type": "nodes",
+            "id": "node-varset",
+            "path": [
+              "value"
+            ],
+            "kind": 0
           }
         }
       ],

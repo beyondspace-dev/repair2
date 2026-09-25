@@ -1,5 +1,17 @@
 import type { RecordKey } from "@shared/constants";
-import type { RegisterOwned } from "@shared/projectData/factories/factory";
+import {
+  ComponentDefinition,
+  ElementDefinition,
+  ListenerDefinition,
+  NodeDefinition,
+  PluginPointerDefinition,
+  ProjectDefinition,
+  ResourceDefinition,
+  StepDefinition,
+  ValueProcessDefinition,
+  VariableDefinition,
+  type RegisterOwned
+} from "@shared/projectData/definitions";
 import type { RuntimeProjectData, Types } from "@shared/projectData/types";
 
 type AnyRecord = Record<string, any>;
@@ -40,31 +52,14 @@ export function createOwnedRecorder(prefix = "owned") {
   return { log, registerOwned };
 }
 
-/** Lists every leaf type string of a PayloadTemplates entry in declaration order. */
-export function listTemplateTypes(template: unknown, prefix = ""): string[] {
-  if (!isRecord(template)) return [];
-  const result: string[] = [];
-  for (const key in template) {
-    if (key === "$types") continue;
-    const path = prefix ? `${prefix}.${key}` : key;
-    const item = template[key];
-    if (isRecord(item) && item.$types === true) {
-      result.push(...listTemplateTypes(item, path));
-    } else {
-      result.push(path);
-    }
-  }
-  return result;
-}
-
-type Factories = typeof import("@shared/projectData/factories");
-
 /**
  * Deterministic fixture project covering every relation kind (OWN/REF, ID/ID_ARRAY, variant case, nested).
  */
-export function createRelationFixture(f: Factories): RuntimeProjectData {
+export function createRelationFixture(): RuntimeProjectData {
   const project: RuntimeProjectData = {
-    ...(f.createProject({ updatedAt: 0 } as Partial<Types.Data>) as unknown as RuntimeProjectData),
+    ...(ProjectDefinition.create({
+      updatedAt: 0
+    } as Partial<Types.Data>) as unknown as RuntimeProjectData),
     resources: new Map(),
     variables: new Map(),
     nodes: new Map(),
@@ -93,16 +88,22 @@ export function createRelationFixture(f: Factories): RuntimeProjectData {
     return data.id;
   };
 
-  add("resources", f.createResource({ id: "res-1", src: "a.png" }));
-  add("resources", f.createResource({ id: "res-2", src: "b.mp3" }));
-  add("variables", f.createVariable({ id: "var-1", name: "v1" }));
-  add("variables", f.createVariable({ id: "var-2", name: "v2" }));
+  add("resources", ResourceDefinition.create({ id: "res-1", src: "a.png" }));
+  add("resources", ResourceDefinition.create({ id: "res-2", src: "b.mp3" }));
+  add("variables", VariableDefinition.create({ id: "var-1", name: "v1" }));
+  add("variables", VariableDefinition.create({ id: "var-2", name: "v2" }));
 
   project.config.runtimePlugins = ["plugin-runtime-1"];
-  project.pluginPointers.set("plugin-runtime-1", f.createPluginPointer(undefined, registerOwned));
+  project.pluginPointers.set(
+    "plugin-runtime-1",
+    PluginPointerDefinition.create(undefined, registerOwned)
+  );
 
-  add("valueProcesses", f.createValueProcess({ id: "vp-1", type: "trim" }, registerOwned));
-  add("valueProcesses", f.createValueProcess({ id: "vp-2", type: "toLowerCase" }, registerOwned));
+  add("valueProcesses", ValueProcessDefinition.create({ id: "vp-1", type: "trim" }, registerOwned));
+  add(
+    "valueProcesses",
+    ValueProcessDefinition.create({ id: "vp-2", type: "toLowerCase" }, registerOwned)
+  );
   project.values.set("value-var", {
     baseType: "variable",
     baseValue: "var-1",
@@ -113,60 +114,72 @@ export function createRelationFixture(f: Factories): RuntimeProjectData {
   const listenerIds = [
     add(
       "listeners",
-      f.createListener({ id: "lis-custom", type: "custom", output: "node-seq" }, registerOwned)
+      ListenerDefinition.create(
+        { id: "lis-custom", type: "custom", output: "node-seq" },
+        registerOwned
+      )
     ),
     add(
       "listeners",
-      f.createListener({ id: "lis-plugin", type: "plugin", output: "node-entry" }, registerOwned)
+      ListenerDefinition.create(
+        { id: "lis-plugin", type: "plugin", output: "node-entry" },
+        registerOwned
+      )
     )
   ];
 
   const elementIds = [
-    add("elements", f.createElement({ id: "el-empty", listeners: listenerIds }, registerOwned)),
     add(
       "elements",
-      f.createElement(
+      ElementDefinition.create({ id: "el-empty", listeners: listenerIds }, registerOwned)
+    ),
+    add(
+      "elements",
+      ElementDefinition.create(
         { id: "el-input", type: "input", payload: { variableId: "var-1" } } as any,
         registerOwned
       )
     ),
     add(
       "elements",
-      f.createElement(
+      ElementDefinition.create(
         { id: "el-adv", type: "advancedInput", payload: { variableId: "var-2" } } as any,
         registerOwned
       )
     ),
     add(
       "elements",
-      f.createElement(
+      ElementDefinition.create(
         { id: "el-image", type: "image", payload: { resourceId: "res-1" } } as any,
         registerOwned
       )
     ),
     add(
       "elements",
-      f.createElement(
+      ElementDefinition.create(
         { id: "el-video", type: "video", payload: { resourceId: "res-2" } } as any,
         registerOwned
       )
     ),
-    add("elements", f.createElement({ id: "el-plugin", type: "plugin" }, registerOwned))
+    add("elements", ElementDefinition.create({ id: "el-plugin", type: "plugin" }, registerOwned))
   ];
 
-  add("components", f.createComponent({ id: "comp-1", elements: elementIds }, registerOwned));
+  add(
+    "components",
+    ComponentDefinition.create({ id: "comp-1", elements: elementIds }, registerOwned)
+  );
 
   const stepIds = [
     add(
       "steps",
-      f.createStep(
+      StepDefinition.create(
         { id: "step-create", type: "Component.create", payload: { componentId: "comp-1" } } as any,
         registerOwned
       )
     ),
     add(
       "steps",
-      f.createStep(
+      StepDefinition.create(
         {
           id: "step-preload",
           type: "Preload.add",
@@ -177,51 +190,54 @@ export function createRelationFixture(f: Factories): RuntimeProjectData {
     ),
     add(
       "steps",
-      f.createStep(
+      StepDefinition.create(
         { id: "step-release", type: "Preload.release", payload: { resourceArr: ["res-1"] } } as any,
         registerOwned
       )
     ),
     add(
       "steps",
-      f.createStep(
+      StepDefinition.create(
         { id: "step-audio", type: "Audio.play", payload: { resourceId: "res-2" } } as any,
         registerOwned
       )
     ),
     add(
       "steps",
-      f.createStep(
+      StepDefinition.create(
         { id: "step-setvar", type: "Others.setVariable", payload: { variableId: "var-2" } } as any,
         registerOwned
       )
     ),
-    add("steps", f.createStep({ id: "step-plugin", type: "Others.executePlugin" }, registerOwned)),
-    add("steps", f.createStep({ id: "step-delay", type: "delay" }, registerOwned))
+    add(
+      "steps",
+      StepDefinition.create({ id: "step-plugin", type: "Others.executePlugin" }, registerOwned)
+    ),
+    add("steps", StepDefinition.create({ id: "step-delay", type: "delay" }, registerOwned))
   ];
 
   add(
     "nodes",
-    f.createNode(
-      { id: "node-entry", nodeType: "entry", output: "node-seq" } as Partial<Types.Node>,
+    NodeDefinition.create(
+      { id: "node-entry", nodeType: "entry", output: "node-seq" } as never,
       registerOwned
     )
   );
   add(
     "nodes",
-    f.createNode(
+    NodeDefinition.create(
       {
         id: "node-seq",
         nodeType: "sequence",
         steps: stepIds,
         output: "node-branch"
-      } as Partial<Types.Node>,
+      } as never,
       registerOwned
     )
   );
   add(
     "nodes",
-    f.createNode(
+    NodeDefinition.create(
       {
         id: "node-branch",
         nodeType: "branch",
@@ -229,19 +245,19 @@ export function createRelationFixture(f: Factories): RuntimeProjectData {
         valueB: "value-str",
         trueOutput: "node-varset",
         falseOutput: "node-entry"
-      } as Partial<Types.Node>,
+      } as never,
       registerOwned
     )
   );
   add(
     "nodes",
-    f.createNode(
+    NodeDefinition.create(
       {
         id: "node-varset",
         nodeType: "variableSet",
         variable: "var-1",
         output: null
-      } as Partial<Types.Node>,
+      } as never,
       registerOwned
     )
   );

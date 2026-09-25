@@ -1,16 +1,17 @@
 import type { Prettify } from "../../../utils.types";
-import type { RegisterOwned } from "../../factories/factory";
 import type {
   AnyDataDefinition,
   CustomDescriptor,
   DataDefinition,
   GroupDescriptor,
   NestedDescriptor,
+  RecordsDescriptor,
   RelationDescriptor,
   Shape,
   ValueDescriptor,
   VariantCases,
-  VariantDescriptor
+  VariantDescriptor,
+  RegisterOwned
 } from "./descriptor";
 
 export type ShapeOf<D> = D extends DataDefinition<infer S> ? S : never;
@@ -36,13 +37,15 @@ type VariantKeyOf<S> = {
 export type InferDescriptor<D> =
   D extends ValueDescriptor<infer T, boolean>
     ? T
-    : D extends NestedDescriptor<infer ND>
-      ? InferData<ND>
-      : D extends RelationDescriptor<any, any, any, infer T, any>
-        ? T
-        : D extends CustomDescriptor<infer T>
+    : D extends RecordsDescriptor<infer RD>
+      ? Record<string, InferData<RD>>
+      : D extends NestedDescriptor<infer ND>
+        ? InferData<ND>
+        : D extends RelationDescriptor<any, any, any, infer T, any>
           ? T
-          : never;
+          : D extends CustomDescriptor<infer T>
+            ? T
+            : never;
 
 type CommonPart<S> = {
   -readonly [K in Exclude<keyof S, VariantKeyOf<S>>]: InferDescriptor<S[K]>;
@@ -69,7 +72,7 @@ type VariantMembers<K extends PropertyKey, V> =
         | (Open extends Shape ? { [k in K]: string } & InferShape<Open> : never)
     : never;
 
-/** A payload shape without fields is an open object that clones any value. Inferred as unknown, like the legacy types. */
+/** A payload shape without fields is an open object that clones any value, so it is inferred as unknown. */
 type PayloadShape<S extends Shape> = [keyof S] extends [never] ? unknown : InferShape<S>;
 
 export type InferShape<S extends Shape> = [VariantKeyOf<S>] extends [never]
@@ -100,7 +103,9 @@ export type OwnRequirements<S extends Shape> = {
 type PlainOverrides<S extends Shape, Strict extends boolean> = {
   [K in Exclude<keyof S, VariantKeyOf<S>>]?: S[K] extends NestedDescriptor<infer ND>
     ? Overrides<ShapeOf<ND>, Strict>
-    : InferDescriptor<S[K]>;
+    : S[K] extends RecordsDescriptor<infer RD>
+      ? Record<string, CreateOverrides<ShapeOf<RD>>>
+      : InferDescriptor<S[K]>;
 } & (Strict extends true ? OwnRequirements<S> : unknown);
 
 /** Case shape for discriminant N. undefined for the empty discriminant ("") or an unknown value */
@@ -153,7 +158,7 @@ export type CreateOverrides<S extends Shape> = Overrides<S, false>;
 type TopVariant<S> = S[VariantKeyOf<S> & keyof S];
 
 /** Values accepted as the discriminant */
-type CaseNames<S> =
+export type CaseNames<S> =
   TopVariant<S> extends VariantDescriptor<infer C, infer P, infer Open, any>
     ? CaseName<C> | (P extends string ? "" : never) | (Open extends Shape ? string : never)
     : never;

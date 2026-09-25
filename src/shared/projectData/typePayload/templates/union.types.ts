@@ -1,5 +1,4 @@
 import type { Prettify } from "../../../utils.types";
-import type { Owning } from "../../factories/factory";
 
 type TemplateKey<T> = Exclude<keyof T, "$types"> & string;
 
@@ -14,7 +13,7 @@ type PayloadFromTemplate<T> =
       ? U | null
       : T extends OneOf<infer U>
         ? U
-        : T extends Owning
+        : T extends Owned
           ? string
           : T extends string
             ? string | null
@@ -61,3 +60,9 @@ type ArrayOf<T> = {
 };
 /** Empty array default. With a plain `[]`, the element type is inferred as never. */
 export const arrayOf = <T>() => [] as unknown as ArrayOf<T>;
+
+type Owned = {
+  readonly __owned: true;
+};
+/** Owned relation slot (typed as a record ID string). Templates are only used for types and the type name tree. */
+export const owned = () => null as unknown as Owned;

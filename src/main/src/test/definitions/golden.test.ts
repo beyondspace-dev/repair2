@@ -2,7 +2,7 @@
  * Locks ProjectData factory / relation behavior with a golden snapshot.
  * Stored JSON (including key order) and relation traversal results must stay identical.
  *
- * Run: npx tsx --tsconfig src/main/tsconfig.json src/main/src/test/dataFactories/golden.test.ts
+ * Run: npx tsx --tsconfig src/main/tsconfig.json src/main/src/test/definitions/golden.test.ts
  * Update: append --update to the command above (only for intended changes)
  */
 import assert from "node:assert/strict";
@@ -10,17 +10,36 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { RecordKey } from "@shared/constants";
-import { createViewportData } from "@shared/projectData/factories/viewport";
+import {
+  ComponentDefinition,
+  ConfigDefinition,
+  CoordDefinition,
+  ElementDefinition,
+  ListenerDefinition,
+  NodeDefinition,
+  PluginPointerDefinition,
+  PositionDefinition,
+  ProjectDefinition,
+  ResourceDefinition,
+  ScreenConfigDefinition,
+  StepDefinition,
+  TransitionDefinition,
+  ValueDefinition,
+  ValueProcessDefinition,
+  VariableDefinition,
+  ViewportDefinition,
+  createDragOption,
+  listVariantCases,
+  type VariantDescriptor
+} from "@shared/projectData/definitions";
 import type { Types } from "@shared/projectData/types";
 import {
   createOwnedRecorder,
   createRelationFixture,
-  listTemplateTypes,
   normalizeGeneratedIds
 } from "./goldenFixtures";
 
 type AnyRecord = Record<string, any>;
-type Factories = typeof import("@shared/projectData/factories");
 
 const SNAPSHOT_PATH = resolve(dirname(fileURLToPath(import.meta.url)), "goldenSnapshot.json");
 
@@ -32,25 +51,30 @@ function capture(
   return log.length > 0 ? { result, owned: log } : { result };
 }
 
-export function collectFactoryGolden(f: Factories, templates: AnyRecord) {
+/** `variants`: payload variant per type-payload name (PayloadVariants from typePayload) */
+export function collectFactoryGolden(variants: Record<string, VariantDescriptor>) {
   const cases: Record<string, unknown> = {};
 
-  cases["resource"] = capture(() => f.createResource());
-  cases["variable"] = capture(() => f.createVariable());
-  cases["pluginPointer"] = capture(() => f.createPluginPointer(undefined, undefined as never));
-  cases["position"] = capture(() => f.createPosition());
-  cases["position/override"] = capture(() => f.createPosition({ distance: 10, origin: "center" }));
-  cases["coord"] = capture(() => f.createCoord());
+  cases["resource"] = capture(() => ResourceDefinition.create());
+  cases["variable"] = capture(() => VariableDefinition.create());
+  cases["pluginPointer"] = capture(() =>
+    PluginPointerDefinition.create(undefined, undefined as never)
+  );
+  cases["position"] = capture(() => PositionDefinition.create());
+  cases["position/override"] = capture(() =>
+    PositionDefinition.create({ distance: 10, origin: "center" })
+  );
+  cases["coord"] = capture(() => CoordDefinition.create());
   cases["coord/partialNested"] = capture(() =>
-    f.createCoord({ x: { distance: 5 } } as Partial<Types.Coord>)
+    CoordDefinition.create({ x: { distance: 5 } } as Partial<Types.Coord>)
   );
-  cases["transition"] = capture((r) => f.createTransition(undefined, r));
+  cases["transition"] = capture((r) => TransitionDefinition.create(undefined, r));
   cases["transition/override"] = capture(() =>
-    f.createTransition({ plugin: "plugin-x", duration: 100 })
+    TransitionDefinition.create({ plugin: "plugin-x", duration: 100 })
   );
-  cases["component"] = capture((r) => f.createComponent(undefined, r));
+  cases["component"] = capture((r) => ComponentDefinition.create(undefined, r));
   cases["component/override"] = capture((r) =>
-    f.createComponent(
+    ComponentDefinition.create(
       {
         id: "comp",
         elements: ["el-1"],
@@ -61,37 +85,35 @@ export function collectFactoryGolden(f: Factories, templates: AnyRecord) {
       r
     )
   );
-  cases["viewport"] = capture(() => createViewportData());
-  cases["config"] = capture(() => f.createConfig());
-  cases["dragOption/disabled"] = capture(() => f.createDragOption());
+  cases["viewport"] = capture(() => ViewportDefinition.create());
+  cases["config"] = capture(() => ConfigDefinition.create());
+  cases["dragOption/disabled"] = capture(() => createDragOption());
   cases["dragOption/enabled"] = capture(() =>
-    f.createDragOption({ use: true, hotspots: [{ x: { distance: 1 } } as any] })
+    createDragOption({ use: true, hotspots: [{ x: { distance: 1 } } as any] })
   );
-  cases["value"] = capture((r) => f.createValue(undefined, r));
+  cases["value"] = capture((r) => ValueDefinition.create(undefined, r));
 
   for (const nodeType of ["entry", "sequence", "branch", "variableSet"] as const) {
-    cases[`node/${nodeType}`] = capture((r) =>
-      f.createNode({ nodeType } as Partial<Types.Node>, r)
-    );
+    cases[`node/${nodeType}`] = capture((r) => NodeDefinition.create({ nodeType } as never, r));
   }
-  cases["node/default"] = capture((r) => f.createNode(undefined, r));
+  cases["node/default"] = capture((r) => NodeDefinition.create(undefined, r));
   cases["node/unknownType"] = capture((r) =>
-    f.createNode({ nodeType: "unknown", steps: ["s"] } as any, r)
+    NodeDefinition.create({ nodeType: "unknown", steps: ["s"] } as any, r)
   );
-  cases["node/nullType"] = capture((r) => f.createNode({ nodeType: null } as any, r));
+  cases["node/nullType"] = capture((r) => NodeDefinition.create({ nodeType: null } as any, r));
   cases["node/entryWithPayload"] = capture((r) =>
-    f.createNode({ nodeType: "entry", type: "shortcut", payload: { key: "K" } } as any, r)
+    NodeDefinition.create({ nodeType: "entry", type: "shortcut", payload: { key: "K" } } as any, r)
   );
   cases["value/variable"] = capture((r) =>
-    f.createValue({ baseType: "variable", baseValue: "var-1" } as any, r)
+    ValueDefinition.create({ baseType: "variable", baseValue: "var-1" } as any, r)
   );
   cases["value/customBaseType"] = capture((r) =>
-    f.createValue({ baseType: "number", baseValue: "3" } as any, r)
+    ValueDefinition.create({ baseType: "number", baseValue: "3" } as any, r)
   );
-  cases["step/nullType"] = capture((r) => f.createStep({ type: null } as any, r));
-  cases["step/groupType"] = capture((r) => f.createStep({ type: "Audio" } as any, r));
+  cases["step/nullType"] = capture((r) => StepDefinition.create({ type: null } as any, r));
+  cases["step/groupType"] = capture((r) => StepDefinition.create({ type: "Audio" } as any, r));
   cases["step/payloadOverrides"] = capture((r) =>
-    f.createStep(
+    StepDefinition.create(
       {
         type: "Audio.play",
         payload: { resourceId: "res", channel: null, volume: { x: 1 }, loop: true, extra: 1 }
@@ -100,36 +122,38 @@ export function collectFactoryGolden(f: Factories, templates: AnyRecord) {
     )
   );
   cases["step/arrayOverride"] = capture((r) =>
-    f.createStep({ type: "Preload.add", payload: { resourceArr: ["a", "b"] } } as any, r)
+    StepDefinition.create({ type: "Preload.add", payload: { resourceArr: ["a", "b"] } } as any, r)
   );
   cases["step/openPayload"] = capture((r) =>
-    f.createStep({ type: "Audio.reset", payload: { any: { deep: 1 } } } as any, r)
+    StepDefinition.create({ type: "Audio.reset", payload: { any: { deep: 1 } } } as any, r)
   );
   cases["listener/primitivePayload"] = capture((r) =>
-    f.createListener({ type: "input", payload: "text" } as any, r)
+    ListenerDefinition.create({ type: "input", payload: "text" } as any, r)
   );
   cases["element/dragOption"] = capture((r) =>
-    f.createElement({ dragOption: { use: true, extra: 1, hotspots: [{}] } } as any, r)
+    ElementDefinition.create({ dragOption: { use: true, extra: 1, hotspots: [{}] } } as any, r)
   );
 
   const variantFactories: [string, (o: AnyRecord, r: any) => unknown][] = [
-    ["element", (o, r) => f.createElement(o as any, r)],
-    ["entry", (o, r) => f.createEntry(o as any, r)],
-    ["listener", (o, r) => f.createListener(o as any, r)],
-    ["screenConfig", (o, r) => f.createScreenConfig(o as any, r)],
-    ["step", (o, r) => f.createStep(o as any, r)],
-    ["valueProcess", (o, r) => f.createValueProcess(o as any, r)]
+    ["element", (o, r) => ElementDefinition.create(o as any, r)],
+    ["entry", (o, r) => NodeDefinition.create({ ...o, nodeType: "entry" } as any, r)],
+    ["listener", (o, r) => ListenerDefinition.create(o as any, r)],
+    ["screenConfig", (o, r) => ScreenConfigDefinition.create(o as any, r)],
+    ["step", (o, r) => StepDefinition.create(o as any, r)],
+    ["valueProcess", (o, r) => ValueProcessDefinition.create(o as any, r)]
   ];
   for (const [name, create] of variantFactories) {
     cases[`${name}/default`] = capture((r) => create({}, r));
-    for (const type of listTemplateTypes(templates[name])) {
+    for (const [type] of listVariantCases(variants[name].cases)) {
       cases[`${name}/${type}`] = capture((r) => create({ type }, r));
     }
   }
 
-  cases["project"] = capture((r) => f.createProject({ updatedAt: 0 } as Partial<Types.Data>, r));
+  cases["project"] = capture((r) =>
+    ProjectDefinition.create({ updatedAt: 0 } as Partial<Types.Data>, r)
+  );
   cases["project/records"] = capture((r) =>
-    f.createProject(
+    ProjectDefinition.create(
       {
         updatedAt: 0,
         components: { "comp-key": { alias: "c" } },
@@ -147,11 +171,13 @@ export function collectFactoryGolden(f: Factories, templates: AnyRecord) {
 
 type RelationFns = typeof import("@shared/projectData/relation");
 
-export function collectRelationGolden(f: Factories, relation: RelationFns) {
-  const project = createRelationFixture(f);
+export function collectRelationGolden(relation: RelationFns) {
+  const project = createRelationFixture();
   const records: Record<string, unknown> = {};
   const relationIds: Record<string, unknown[]> = {};
-  const recordKeys = Object.keys(relation.RelationMap).filter((k) => k !== "config");
+  const recordKeys = Object.entries(relation.RelationMap)
+    .filter(([key, tree]) => key !== "config" && tree && Object.keys(tree).length > 0)
+    .map(([key]) => key);
 
   const allRecordKeys: RecordKey[] = [
     "resources",
@@ -216,14 +242,13 @@ export function collectRelationGolden(f: Factories, relation: RelationFns) {
 
 export async function runGoldenTest(update = false) {
   (globalThis as any).__APP_VERSION__ = "golden-test";
-  const f = await import("@shared/projectData/factories");
-  const { PayloadTemplates } = await import("@shared/projectData/typePayload/templates");
+  const { PayloadVariants } = await import("@shared/projectData/typePayload");
   const relation = await import("@shared/projectData/relation");
 
   const actual = JSON.parse(
     JSON.stringify({
-      factories: collectFactoryGolden(f, PayloadTemplates as AnyRecord),
-      relations: collectRelationGolden(f, relation)
+      factories: collectFactoryGolden(PayloadVariants),
+      relations: collectRelationGolden(relation)
     })
   );
   const serialized = JSON.stringify(actual, null, 2) + "\n";

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { nanoid } from "nanoid";
   import { forEachRelationId } from "@shared/projectData/relation";
-  import { createPayload } from "@shared/projectData/typePayload/create";
+  import { createVariantPayload } from "@shared/projectData/definitions";
+  import { PayloadVariants, type TypePayloadMap } from "@shared/projectData/typePayload";
   import { PayloadTemplates } from "@shared/projectData/typePayload/templates";
-  import type { TypePayloadMap } from "@shared/projectData/typePayload";
   import type { RecordKey } from "@shared/constants";
   import type { FieldBinding } from "../../project/mutator";
   import { getMutator } from "../../project/store";
@@ -84,11 +84,16 @@
         );
       }
 
-      const payload = createPayload(typeName, nextType as never, undefined, (type, data) => {
-        const id = "id" in data && typeof data.id === "string" ? data.id : nanoid();
-        mutator.add(type, id, data);
-        return id;
-      });
+      const payload = createVariantPayload(
+        PayloadVariants[typeName],
+        nextType,
+        undefined,
+        (type, data) => {
+          const id = "id" in data && typeof data.id === "string" ? data.id : nanoid();
+          mutator.add(type, id, data);
+          return id;
+        }
+      );
       const nextValue = { ...value, type: nextType, payload };
       binding.set(nextValue);
 

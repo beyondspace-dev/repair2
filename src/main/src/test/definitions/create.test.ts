@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Types } from "@shared/projectData/types";
-import type { RegisterOwned } from "@shared/projectData/factories/factory";
+import type { RegisterOwned } from "@shared/projectData/definitions";
 
 type AnyRecord = Record<string, any>;
 
@@ -12,8 +12,9 @@ function assertRecord(value: unknown, message?: string): asserts value is AnyRec
   assert.equal(Array.isArray(value), false, message);
 }
 
-function override<T extends object>(value: unknown): Partial<T> {
-  return value as Partial<T>;
+/** Bypasses type checking to pass intentionally invalid or partial input. */
+function override<T extends object>(value: unknown): never {
+  return value as Partial<T> as never;
 }
 
 const unusedRegisterOwned: RegisterOwned = () => "unused-owned-id";
@@ -28,25 +29,24 @@ function runCase(name: string, fn: () => void) {
   }
 }
 
-export async function runDataFactoryTest() {
-  (globalThis as any).__APP_VERSION__ = "data-factory-test";
+export async function runCreateTest() {
+  (globalThis as any).__APP_VERSION__ = "create-test";
 
   const {
-    createComponent,
-    createBranch,
-    createConfig,
-    createElement,
-    createListener,
-    createProject,
-    createResource,
-    createStep,
-    createTransition,
-    createValueProcess,
-    createVariableSet
-  } = await import("@shared/projectData/factories");
+    ComponentDefinition,
+    ConfigDefinition,
+    ElementDefinition,
+    ListenerDefinition,
+    NodeDefinition,
+    ProjectDefinition,
+    ResourceDefinition,
+    StepDefinition,
+    TransitionDefinition,
+    ValueProcessDefinition
+  } = await import("@shared/projectData/definitions");
 
-  runCase("plain factory fills missing fields and preserves explicit values", () => {
-    const resource = createResource({ id: "resource-1", src: "image.png" });
+  runCase("plain definition fills missing fields and preserves explicit values", () => {
+    const resource = ResourceDefinition.create({ id: "resource-1", src: "image.png" });
 
     assert.deepEqual(resource, {
       id: "resource-1",
@@ -55,8 +55,8 @@ export async function runDataFactoryTest() {
     });
   });
 
-  runCase("nested typePayload factory fills nested payload defaults", () => {
-    const config = createConfig(
+  runCase("nested payload variant fills payload defaults", () => {
+    const config = ConfigDefinition.create(
       override<Types.ProjectConfig>({
         screenConfig: {
           type: "windowMode",
@@ -71,8 +71,8 @@ export async function runDataFactoryTest() {
     });
   });
 
-  runCase("typePayload factory matches payload to override type", () => {
-    const step = createStep(
+  runCase("payload variant matches payload to override type", () => {
+    const step = StepDefinition.create(
       override<Types.Step>({
         type: "Audio.play",
         payload: { resourceId: "audio-1", loop: true }
@@ -90,7 +90,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("empty type always produces null payload and ignores payload override", () => {
-    const step = createStep(
+    const step = StepDefinition.create(
       override<Types.Step>({
         type: "",
         payload: { delayMs: 999 }
@@ -103,7 +103,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("unknown type does not throw and falls back to null payload", () => {
-    const step = createStep(
+    const step = StepDefinition.create(
       override<Types.Step>({
         type: "Unknown.Type",
         payload: { any: "thing" }
@@ -115,25 +115,28 @@ export async function runDataFactoryTest() {
     assert.equal((step as AnyRecord).payload, null);
   });
 
-  runCase("payload for another type is ignored when selected type has different template", () => {
-    const step = createStep(
-      override<Types.Step>({
-        type: "delay",
-        payload: {
-          resourceId: "audio-1",
-          channel: "bgm",
-          delayMs: 250
-        }
-      }),
-      unusedRegisterOwned
-    );
+  runCase(
+    "payload for another type is ignored when the selected type has a different payload shape",
+    () => {
+      const step = StepDefinition.create(
+        override<Types.Step>({
+          type: "delay",
+          payload: {
+            resourceId: "audio-1",
+            channel: "bgm",
+            delayMs: 250
+          }
+        }),
+        unusedRegisterOwned
+      );
 
-    assert.equal(step.type, "delay");
-    assert.deepEqual(step.payload, { delayMs: 250 });
-  });
+      assert.equal(step.type, "delay");
+      assert.deepEqual(step.payload, { delayMs: 250 });
+    }
+  );
 
   runCase("type object path returns null payload instead of partial invalid payload", () => {
-    const step = createStep(
+    const step = StepDefinition.create(
       override<Types.Step>({
         type: "Audio",
         payload: { play: true }
@@ -146,7 +149,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("null payload override means use default payload", () => {
-    const listener = createListener(
+    const listener = ListenerDefinition.create(
       override<Types.Listener>({
         type: "keyPress",
         payload: null
@@ -158,8 +161,8 @@ export async function runDataFactoryTest() {
     assert.deepEqual(listener.payload, { key: null });
   });
 
-  runCase("wrong-shaped payload does not replace object template", () => {
-    const listener = createListener(
+  runCase("wrong-shaped payload does not replace the payload shape", () => {
+    const listener = ListenerDefinition.create(
       override<Types.Listener>({
         type: "keyPress",
         payload: "K"
@@ -171,8 +174,8 @@ export async function runDataFactoryTest() {
     assert.deepEqual(listener.payload, { key: null });
   });
 
-  runCase("primitive payload template can accept primitive override", () => {
-    const listener = createListener(
+  runCase("null payload case accepts a primitive override", () => {
+    const listener = ListenerDefinition.create(
       override<Types.Listener>({
         type: "input",
         payload: "typed text"
@@ -184,8 +187,8 @@ export async function runDataFactoryTest() {
     assert.equal(listener.payload, "typed text");
   });
 
-  runCase("recordOf injects record key as id and record key wins over inner id", () => {
-    const project = createProject(
+  runCase("record map injects record key as id and record key wins over inner id", () => {
+    const project = ProjectDefinition.create(
       override<Types.Data>({
         resources: {
           "resource-key": {
@@ -203,8 +206,8 @@ export async function runDataFactoryTest() {
     });
   });
 
-  runCase("recordOf normalizes nested typePayload records", () => {
-    const project = createProject(
+  runCase("record map normalizes nested payload variant records", () => {
+    const project = ProjectDefinition.create(
       override<Types.Data>({
         listeners: {
           "listener-1": {
@@ -238,7 +241,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("non-record record override becomes an empty record", () => {
-    const project = createProject(
+    const project = ProjectDefinition.create(
       override<Types.Data>({
         resources: null
       })
@@ -248,7 +251,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("bad record item still becomes a default object with injected id", () => {
-    const project = createProject(
+    const project = ProjectDefinition.create(
       override<Types.Data>({
         resources: {
           "resource-1": null
@@ -264,7 +267,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("nested non-record override falls back to nested defaults", () => {
-    const project = createProject(
+    const project = ProjectDefinition.create(
       override<Types.Data>({
         config: "bad config"
       })
@@ -277,9 +280,9 @@ export async function runDataFactoryTest() {
     });
   });
 
-  runCase("component nested factories normalize partial nested objects", () => {
+  runCase("component nested definitions normalize partial nested objects", () => {
     let ownedIndex = 0;
-    const component = createComponent(
+    const component = ComponentDefinition.create(
       override<Types.Component>({
         id: "component-1",
         pos: { x: { distance: 20 } },
@@ -302,7 +305,7 @@ export async function runDataFactoryTest() {
     assert.equal(component.outroTransition.plugin, "owned-3");
   });
 
-  runCase("node factories register owned value records", () => {
+  runCase("nodes register owned value records", () => {
     const registered: Array<{ type: string; data: unknown; id: string }> = [];
     const registerOwned: RegisterOwned = (type, data) => {
       const id = `owned-value-${registered.length + 1}`;
@@ -310,8 +313,8 @@ export async function runDataFactoryTest() {
       return id;
     };
 
-    const branch = createBranch(undefined, registerOwned);
-    const variableSet = createVariableSet(undefined, registerOwned);
+    const branch = NodeDefinition.create("branch", undefined, registerOwned);
+    const variableSet = NodeDefinition.create("variableSet", undefined, registerOwned);
 
     assert.equal(branch.valueA, "owned-value-1");
     assert.equal(branch.valueB, "owned-value-2");
@@ -326,10 +329,10 @@ export async function runDataFactoryTest() {
     );
   });
 
-  runCase("owned factory uses the ID returned by registerOwned", () => {
+  runCase("owned relation uses the ID returned by registerOwned", () => {
     let registeredType: string | undefined;
     let registeredData: unknown;
-    const transition = createTransition(undefined, (type, data) => {
+    const transition = TransitionDefinition.create(undefined, (type, data) => {
       registeredType = type;
       registeredData = data;
       return "plugin-pointer-1";
@@ -344,10 +347,10 @@ export async function runDataFactoryTest() {
     assert.equal(transition.plugin, "plugin-pointer-1");
   });
 
-  runCase("owned factory falls back to data.id when registerOwned returns nothing", () => {
+  runCase("owned relation falls back to data.id when registerOwned returns nothing", () => {
     let componentId: string | undefined;
     let pluginIndex = 0;
-    const step = createStep({ type: "Component.create" }, (type, data) => {
+    const step = StepDefinition.create({ type: "Component.create" }, (type, data) => {
       if (type === "pluginPointers") return `plugin-${++pluginIndex}`;
       if (type === "components") componentId = (data as Types.Component).id;
     });
@@ -356,18 +359,21 @@ export async function runDataFactoryTest() {
     assert.equal(step.payload.componentId, componentId);
   });
 
-  runCase("owned factory throws when registration cannot provide an ID", () => {
-    assert.throws(() => createTransition(undefined, () => undefined), /has no string id/);
+  runCase("owned relation throws when registration cannot provide an ID", () => {
+    assert.throws(
+      () => TransitionDefinition.create(undefined, () => undefined),
+      /has no string id/
+    );
   });
 
-  runCase("owned factory throws when registerOwned is missing at runtime", () => {
-    const unsafeCreate = createTransition as unknown as () => Types.Transition;
+  runCase("owned relation throws when registerOwned is missing at runtime", () => {
+    const unsafeCreate = TransitionDefinition.create as unknown as () => Types.Transition;
     assert.throws(() => unsafeCreate(), /registerOwned is required/);
   });
 
   runCase("dragOption union handles disabled and enabled shapes", () => {
-    const disabled = createElement({ dragOption: { use: false } });
-    const enabled = createElement(
+    const disabled = ElementDefinition.create({ dragOption: { use: false } });
+    const enabled = ElementDefinition.create(
       override<Types.Element>({
         dragOption: {
           use: true,
@@ -389,7 +395,7 @@ export async function runDataFactoryTest() {
   });
 
   runCase("valueProcess type payload defaults are filled", () => {
-    const valueProcess = createValueProcess(
+    const valueProcess = ValueProcessDefinition.create(
       override<Types.ValueProcess>({
         id: "vp-1",
         type: "replaceAll",
@@ -405,9 +411,9 @@ export async function runDataFactoryTest() {
     });
   });
 
-  runCase("empty object payload templates preserve arbitrary override fields", () => {
+  runCase("empty payload shapes preserve arbitrary override fields", () => {
     const payloads = { intervalMs: 500, mode: "precise", enabled: true };
-    const step = createStep({
+    const step = StepDefinition.create({
       type: "Others.runtimePluginStep",
       payload: {
         pluginName: "runtime:clock",
@@ -417,12 +423,12 @@ export async function runDataFactoryTest() {
       }
     });
 
-    assert.deepEqual(step.payload.payloads, payloads);
-    assert.notEqual(step.payload.payloads, payloads);
+    assert.deepEqual((step.payload as AnyRecord).payloads, payloads);
+    assert.notEqual((step.payload as AnyRecord).payloads, payloads);
   });
 }
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : null;
 if (invokedPath && resolve(fileURLToPath(import.meta.url)) === invokedPath) {
-  await runDataFactoryTest();
+  await runCreateTest();
 }

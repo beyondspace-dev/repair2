@@ -1,5 +1,7 @@
-import type { RecordKey } from "../../../constants";
-import type { RegisterOwned } from "../../factories/factory";
+import type { RecordKey, RecordValue } from "../../../constants";
+
+/** Registers a created owned record in the project and returns its ID. */
+export type RegisterOwned = <K extends RecordKey>(type: K, data: RecordValue<K>) => string | void;
 
 export const DESCRIPTOR = Symbol("projectData.descriptor");
 export const DEFINITION = Symbol("projectData.definition");
@@ -62,7 +64,7 @@ export interface RelationDescriptor<
 }
 
 /**
- * A value whose structure is not expressed with the DSL. Uses an existing factory function as is.
+ * A value whose structure is not expressed with the DSL. Created by its own create function.
  * Has no relation / property metadata.
  */
 export interface CustomDescriptor<T = unknown> {
@@ -73,6 +75,20 @@ export interface CustomDescriptor<T = unknown> {
   ) => T;
   readonly [INFERRED]?: T;
 }
+
+/**
+ * Record map (`Record<id, T>`). Each entry is created from the definition and receives the map key in idKey.
+ * Used only at the project root and has no relation / property metadata.
+ */
+export interface RecordsDescriptor<D extends RecordDefinitionLike = RecordDefinitionLike> {
+  readonly [DESCRIPTOR]: "records";
+  readonly definition: D;
+}
+
+export type RecordDefinitionLike = DataDefinition<any> & {
+  readonly idKey: string | null;
+  readonly create: (...args: never[]) => unknown;
+};
 
 /** Variant case hierarchy. The stored discriminant has the `Group.case` format. */
 export interface GroupDescriptor<C extends VariantCases = VariantCases> {
@@ -110,6 +126,7 @@ export type AnyDescriptor =
   | NestedDescriptor<any>
   | RelationDescriptor<any, any, any, any, any>
   | CustomDescriptor<any>
+  | RecordsDescriptor<any>
   | VariantDescriptor<any, any, any, any>;
 
 export type Shape = { readonly [key: string]: AnyDescriptor };
@@ -139,6 +156,10 @@ export function isRelationDescriptor(value: unknown): value is RelationDescripto
 
 export function isCustomDescriptor(value: unknown): value is CustomDescriptor {
   return isObject(value) && value[DESCRIPTOR] === "custom";
+}
+
+export function isRecordsDescriptor(value: unknown): value is RecordsDescriptor {
+  return isObject(value) && value[DESCRIPTOR] === "records";
 }
 
 export function isGroupDescriptor(value: unknown): value is GroupDescriptor {
