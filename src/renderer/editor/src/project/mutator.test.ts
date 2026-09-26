@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { convertToRuntime } from "../../../../main/src/project/dataConvert/convertStoreData";
-import type { RegisterOwned } from "@shared/projectData/factories/factory";
+import type { RegisterOwned } from "@shared/projectData/definitions";
 import { clearHistory, redo, undo } from "../lib/editUtils/history";
 import { ipc } from "../lib/ipc";
 import { ProjectMutator } from "./mutator";
@@ -15,8 +15,8 @@ function runCase(name: string, fn: () => void | Promise<void>) {
 
 async function createTestContext() {
   Object.assign(globalThis, { __APP_VERSION__: "project-mutator-test" });
-  const { createProject } = await import("@shared/projectData/factories");
-  const project = new ProjectInstance(convertToRuntime(createProject()));
+  const { ProjectDefinition } = await import("@shared/projectData/definitions");
+  const project = new ProjectInstance(convertToRuntime(ProjectDefinition.create()));
   return { project, mutator: new ProjectMutator(project) };
 }
 
@@ -24,7 +24,7 @@ export async function runProjectMutatorTest() {
   await clearHistory();
 
   await runCase("transaction records owned creation as one undoable change", async () => {
-    const { createBranch } = await import("@shared/projectData/factories");
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
     const { project, mutator } = await createTestContext();
 
     mutator.transaction(() => {
@@ -32,7 +32,7 @@ export async function runProjectMutatorTest() {
         const id = `value-${project.values.size + 1}`;
         return mutator.add(type, id, data);
       };
-      const branch = createBranch({ id: "branch-1" }, registerOwned);
+      const branch = NodeDefinition.create("branch", { id: "branch-1" }, registerOwned);
       mutator.add("nodes", branch.id, branch);
     });
 
@@ -48,9 +48,9 @@ export async function runProjectMutatorTest() {
 
   await clearHistory();
   await runCase("failed transaction rolls every applied patch back", async () => {
-    const { createSequence } = await import("@shared/projectData/factories");
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
     const { project, mutator } = await createTestContext();
-    const sequence = createSequence({ id: "sequence-1", alias: "before" });
+    const sequence = NodeDefinition.create("sequence", { id: "sequence-1", alias: "before" });
     project.setRecord("nodes", sequence.id, sequence);
 
     assert.throws(() =>
@@ -73,9 +73,9 @@ export async function runProjectMutatorTest() {
 
   await clearHistory();
   await runCase("deleteTree removes OWN descendants but retains REF targets", async () => {
-    const { createBranch, createSequence } = await import("@shared/projectData/factories");
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
     const { project, mutator } = await createTestContext();
-    const target = createSequence({ id: "sequence-target" });
+    const target = NodeDefinition.create("sequence", { id: "sequence-target" });
     project.setRecord("nodes", target.id, target);
 
     const registerOwned: RegisterOwned = (type, data) => {
@@ -83,7 +83,11 @@ export async function runProjectMutatorTest() {
       project.setRecord(type, id, data);
       return id;
     };
-    const branch = createBranch({ id: "branch-1", trueOutput: target.id }, registerOwned);
+    const branch = NodeDefinition.create(
+      "branch",
+      { id: "branch-1", trueOutput: target.id },
+      registerOwned
+    );
     project.setRecord("nodes", branch.id, branch);
 
     mutator.deleteTree("nodes", branch.id);
@@ -97,9 +101,9 @@ export async function runProjectMutatorTest() {
 
   await clearHistory();
   await runCase("continuous edit commits once and supports undo and redo", async () => {
-    const { createSequence } = await import("@shared/projectData/factories");
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
     const { project, mutator } = await createTestContext();
-    const sequence = createSequence({ id: "sequence-1", alias: "before" });
+    const sequence = NodeDefinition.create("sequence", { id: "sequence-1", alias: "before" });
     project.setRecord("nodes", sequence.id, sequence);
 
     const originalSend = ipc.send;
@@ -132,20 +136,23 @@ export async function runProjectMutatorTest() {
 
   await clearHistory();
   await runCase("deep OWN deletion restores the complete tree on undo", async () => {
-    const { createComponent, createElement, createListener } =
-      await import("@shared/projectData/factories");
+    const { ComponentDefinition, ElementDefinition, ListenerDefinition } =
+      await import("@shared/projectData/definitions");
     const { project, mutator } = await createTestContext();
     const registerOwned: RegisterOwned = (type, data) => {
       const id = `plugin-${project.pluginPointers.size + 1}`;
       project.setRecord(type, id, data);
       return id;
     };
-    const listener = createListener({ id: "listener-1", type: "plugin" }, registerOwned);
-    const element = createElement(
+    const listener = ListenerDefinition.create({ id: "listener-1", type: "plugin" }, registerOwned);
+    const element = ElementDefinition.create(
       { id: "element-1", type: "plugin", listeners: [listener.id] },
       registerOwned
     );
-    const component = createComponent({ id: "component-1", elements: [element.id] }, registerOwned);
+    const component = ComponentDefinition.create(
+      { id: "component-1", elements: [element.id] },
+      registerOwned
+    );
     project.setRecord("listeners", listener.id, listener);
     project.setRecord("elements", element.id, element);
     project.setRecord("components", component.id, component);
@@ -167,21 +174,22 @@ export async function runProjectMutatorTest() {
   await runCase(
     "disconnectOutputsTo clears every node and listener reference together",
     async () => {
-      const { createBranch, createListener, createSequence } =
-        await import("@shared/projectData/factories");
+      const { NodeDefinition, ListenerDefinition } =
+        await import("@shared/projectData/definitions");
       const { project, mutator } = await createTestContext();
-      const target = createSequence({ id: "target" });
-      const source = createSequence({ id: "source", output: target.id });
+      const target = NodeDefinition.create("sequence", { id: "target" });
+      const source = NodeDefinition.create("sequence", { id: "source", output: target.id });
       const registerOwned: RegisterOwned = (type, data) => {
         const id = `value-${project.values.size + 1}`;
         project.setRecord(type, id, data);
         return id;
       };
-      const branch = createBranch(
+      const branch = NodeDefinition.create(
+        "branch",
         { id: "branch", trueOutput: target.id, falseOutput: target.id },
         registerOwned
       );
-      const listener = createListener({ id: "listener", output: target.id });
+      const listener = ListenerDefinition.create({ id: "listener", output: target.id });
       project.setRecord("nodes", target.id, target);
       project.setRecord("nodes", source.id, source);
       project.setRecord("nodes", branch.id, branch);
@@ -210,10 +218,10 @@ export async function runProjectMutatorTest() {
 
   await clearHistory();
   await runCase("subscriptions notify only the modified record target", async () => {
-    const { createSequence } = await import("@shared/projectData/factories");
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
     const { project, mutator } = await createTestContext();
-    const first = createSequence({ id: "first" });
-    const second = createSequence({ id: "second" });
+    const first = NodeDefinition.create("sequence", { id: "first" });
+    const second = NodeDefinition.create("sequence", { id: "second" });
     project.setRecord("nodes", first.id, first);
     project.setRecord("nodes", second.id, second);
     let firstChanges = 0;
@@ -241,9 +249,9 @@ export async function runProjectMutatorTest() {
   await runCase(
     "record deletion keeps subscriptions without invalidating a missing record",
     async () => {
-      const { createSequence } = await import("@shared/projectData/factories");
+      const { NodeDefinition } = await import("@shared/projectData/definitions");
       const { project, mutator } = await createTestContext();
-      const sequence = createSequence({ id: "sequence-1" });
+      const sequence = NodeDefinition.create("sequence", { id: "sequence-1" });
       project.setRecord("nodes", sequence.id, sequence);
       const operations: string[] = [];
       const unsubscribe = mutator.subscribe(

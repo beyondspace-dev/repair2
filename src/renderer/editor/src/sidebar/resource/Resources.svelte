@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createResource } from "@shared/projectData/factories";
+  import { ResourceDefinition } from "@shared/projectData/definitions";
   import { ipc } from "../../lib/ipc";
   import { getMutator, getProject } from "../../project/store";
   import Resource from "./Resource.svelte";
@@ -26,7 +26,7 @@
     }
     getMutator().transaction(() => {
       for (const src of [...inAssets, ...outAssets]) {
-        const resource = createResource({ src });
+        const resource = ResourceDefinition.create({ src });
         getMutator().add("resources", resource.id, resource);
       }
     });

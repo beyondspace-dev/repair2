@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Easings from "easing-utils";
-  import { createCoord, createDragOption } from "@shared/projectData/factories";
+  import { CoordDefinition, createDragOption } from "@shared/projectData/definitions";
   import type { FieldBinding } from "../../project/mutator";
   import InputField from "./InputField.svelte";
 
@@ -58,7 +58,7 @@
     seriesOption={{
       binding: binding.at("hotspots"),
       label: (idx: number) => `좌표${idx}`,
-      newData: createCoord
+      newData: () => CoordDefinition.create()
     }}
     {previewer}
   />
