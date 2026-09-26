@@ -3,6 +3,12 @@ import { untrack } from "svelte";
 
 import type { RecordKey, RecordValue } from "@shared/constants";
 import type { ProjectConfig } from "@shared/projectData/types";
+import {
+  dataTargetKey,
+  readDataPath,
+  type DataPath,
+  type DataTarget
+} from "@shared/projectData/ref";
 import { deepForEach } from "@shared/projectData/relation";
 import {
   addPatchHistory,
@@ -11,43 +17,39 @@ import {
 } from "../lib/editUtils/history";
 import type { ProjectInstance } from "./project";
 
-export type MutationPath = readonly (string | number)[];
-
-export type MutationTarget = { kind: "record"; type: RecordKey; id: string } | { kind: "config" };
-
 export type ProjectPatch =
   | {
       kind: "set";
-      target: MutationTarget;
-      path: MutationPath;
+      target: DataTarget;
+      path: DataPath;
       before: unknown;
       after: unknown;
     }
   | {
       kind: "splice";
-      target: MutationTarget;
-      path: MutationPath;
+      target: DataTarget;
+      path: DataPath;
       index: number;
       removed: readonly unknown[];
       inserted: readonly unknown[];
     }
   | {
       kind: "move";
-      target: MutationTarget;
-      path: MutationPath;
+      target: DataTarget;
+      path: DataPath;
       from: number;
       to: number;
     }
   | {
       kind: "addRecord" | "deleteRecord";
-      target: Extract<MutationTarget, { kind: "record" }>;
+      target: Extract<DataTarget, { kind: "record" }>;
       data: RecordValue;
     };
 
 export type ProjectChange = {
-  target: MutationTarget;
+  target: DataTarget;
   operation: ProjectPatch["kind"];
-  path: MutationPath;
+  path: DataPath;
   direction: HistoryDirection | "transient";
 };
 
@@ -59,18 +61,18 @@ export interface EditSession<T> {
 }
 
 export interface FieldBinding<T = unknown> {
-  readonly target: MutationTarget;
-  readonly path: MutationPath;
+  readonly target: DataTarget;
+  readonly path: DataPath;
   readonly value: T;
   set(value: T): void;
   setTransient(value: T): void;
   begin(): EditSession<T>;
-  at<U = unknown>(...path: MutationPath): Binding<U>;
+  at<U = unknown>(...path: DataPath): Binding<U>;
 }
 
 export interface ArrayFieldBinding<Item> extends FieldBinding<Item[]> {
   at(index: number): Binding<Item>;
-  at<U = unknown>(...path: MutationPath): Binding<U>;
+  at<U = unknown>(...path: DataPath): Binding<U>;
   splice(index: number, deleteCount: number, ...inserted: Item[]): void;
   move(from: number, to: number): void;
 }
@@ -79,17 +81,7 @@ export type Binding<T> = [T] extends [(infer Item)[]] ? ArrayFieldBinding<Item> 
 
 type ChangeListener = (change: ProjectChange) => unknown;
 
-function targetKey(target: MutationTarget) {
-  return target.kind === "config" ? "config" : `${target.type}:${target.id}`;
-}
-
-function valueAtPath(root: unknown, path: MutationPath): unknown {
-  let value = root;
-  for (const key of path) value = (value as Record<string | number, unknown>)[key];
-  return value;
-}
-
-function replaceAtPath(root: unknown, path: MutationPath, value: unknown): unknown {
+function replaceAtPath(root: unknown, path: DataPath, value: unknown): unknown {
   if (path.length === 0) return value;
   const [key, ...rest] = path;
   const container = Array.isArray(root)
@@ -130,8 +122,8 @@ export class ProjectMutator {
     return new ConfigEditor(this);
   }
 
-  subscribe(target: MutationTarget, listener: ChangeListener): () => void {
-    const key = targetKey(target);
+  subscribe(target: DataTarget, listener: ChangeListener): () => void {
+    const key = dataTargetKey(target);
     let listeners = this.listeners.get(key);
     if (!listeners) this.listeners.set(key, (listeners = new Set()));
     listeners.add(listener);
@@ -141,24 +133,24 @@ export class ProjectMutator {
     };
   }
 
-  read(target: MutationTarget): unknown {
-    this.revisions.get(targetKey(target));
+  read(target: DataTarget): unknown {
+    this.revisions.get(dataTargetKey(target));
     return target.kind === "config"
       ? this.project.config
       : untrack(() => this.project.getUnsafe(target.type, target.id));
   }
 
-  readPath<T>(target: MutationTarget, path: MutationPath): T {
-    return valueAtPath(this.read(target), path) as T;
+  readPath<T>(target: DataTarget, path: DataPath): T {
+    return readDataPath(this.read(target), path) as T;
   }
 
-  set(target: MutationTarget, path: MutationPath, value: unknown): void {
+  set(target: DataTarget, path: DataPath, value: unknown): void {
     const before = this.readPath(target, path);
     if (Object.is(before, value)) return;
     this.perform({ kind: "set", target, path: [...path], before, after: value });
   }
 
-  setTransient(target: MutationTarget, path: MutationPath, value: unknown): void {
+  setTransient(target: DataTarget, path: DataPath, value: unknown): void {
     const before = this.readPath(target, path);
     if (Object.is(before, value)) return;
     this.applyPatch(
@@ -168,7 +160,7 @@ export class ProjectMutator {
     );
   }
 
-  beginSet<T>(target: MutationTarget, path: MutationPath): EditSession<T> {
+  beginSet<T>(target: DataTarget, path: DataPath): EditSession<T> {
     const before = this.readPath<T>(target, path);
     let after = before;
     let finished = false;
@@ -220,8 +212,8 @@ export class ProjectMutator {
   }
 
   splice(
-    target: MutationTarget,
-    path: MutationPath,
+    target: DataTarget,
+    path: DataPath,
     index: number,
     deleteCount: number,
     ...inserted: unknown[]
@@ -240,7 +232,7 @@ export class ProjectMutator {
     });
   }
 
-  move(target: MutationTarget, path: MutationPath, from: number, to: number): void {
+  move(target: DataTarget, path: DataPath, from: number, to: number): void {
     if (from === to) return;
     this.perform({ kind: "move", target, path: [...path], from, to });
   }
@@ -334,7 +326,7 @@ export class ProjectMutator {
       const existing = this.transactionPatches!.at(-1);
       if (
         existing?.kind === "set" &&
-        targetKey(existing.target) === targetKey(patch.target) &&
+        dataTargetKey(existing.target) === dataTargetKey(patch.target) &&
         existing.path.length === patch.path.length &&
         existing.path.every((part, index) => part === patch.path[index])
       ) {
@@ -371,14 +363,14 @@ export class ProjectMutator {
     if (patch.kind === "set") {
       next = replaceAtPath(root, patch.path, direction === "forward" ? patch.after : patch.before);
     } else if (patch.kind === "splice") {
-      const array = valueAtPath(root, patch.path) as unknown[];
+      const array = readDataPath(root, patch.path) as unknown[];
       const replacement = [...array];
       if (direction === "forward")
         replacement.splice(patch.index, patch.removed.length, ...patch.inserted);
       else replacement.splice(patch.index, patch.inserted.length, ...patch.removed);
       next = replaceAtPath(root, patch.path, replacement);
     } else {
-      const array = valueAtPath(root, patch.path) as unknown[];
+      const array = readDataPath(root, patch.path) as unknown[];
       const replacement =
         direction === "forward"
           ? moveItem(array, patch.from, patch.to)
@@ -389,19 +381,19 @@ export class ProjectMutator {
     this.changed(patch, direction, transient);
   }
 
-  private readRaw(target: MutationTarget): unknown {
+  private readRaw(target: DataTarget): unknown {
     return target.kind === "config"
       ? this.project.config
       : this.project.getUnsafe(target.type, target.id);
   }
 
-  private writeRaw(target: MutationTarget, value: unknown) {
+  private writeRaw(target: DataTarget, value: unknown) {
     if (target.kind === "config") this.project.setConfig(value as ProjectConfig);
     else this.project.setRecord(target.type, target.id, value as never);
   }
 
   private changed(patch: ProjectPatch, direction: HistoryDirection, transient: boolean) {
-    const key = targetKey(patch.target);
+    const key = dataTargetKey(patch.target);
     if (patch.target.kind === "config" || this.project.get(patch.target.type, patch.target.id))
       this.revisions.set(key, (this.revisions.get(key) ?? 0) + 1);
     const change: ProjectChange = {
@@ -417,8 +409,8 @@ export class ProjectMutator {
 export class Field<T = unknown> implements FieldBinding<T> {
   constructor(
     private readonly mutator: ProjectMutator,
-    readonly target: MutationTarget,
-    readonly path: MutationPath
+    readonly target: DataTarget,
+    readonly path: DataPath
   ) {}
 
   get value(): T {
@@ -437,7 +429,7 @@ export class Field<T = unknown> implements FieldBinding<T> {
     return this.mutator.beginSet<T>(this.target, this.path);
   }
 
-  at<U = unknown>(...path: MutationPath): Binding<U> {
+  at<U = unknown>(...path: DataPath): Binding<U> {
     return new Field(this.mutator, this.target, [...this.path, ...path]) as unknown as Binding<U>;
   }
 
