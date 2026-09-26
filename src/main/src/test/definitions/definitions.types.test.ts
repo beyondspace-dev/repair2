@@ -3,53 +3,19 @@
  */
 import {
   ComponentDefinition,
-  ConfigDefinition,
-  CoordDefinition,
   ElementDefinition,
   ListenerDefinition,
   NodeDefinition,
-  ProjectDefinition,
   PluginPointerDefinition,
   PositionDefinition,
-  ResourceDefinition,
-  ScreenConfigDefinition,
   StepDefinition,
   TransitionDefinition,
   ValueDefinition,
-  ValueProcessDefinition,
-  VariableDefinition,
-  ViewportDefinition,
-  defineProjectData,
-  field,
-  type InferData
+  ValueProcessDefinition
 } from "@shared/projectData/definitions";
 import type { RegisterOwned } from "@shared/projectData/definitions";
-import type { Types } from "@shared/projectData/types";
 
 declare const registerOwned: RegisterOwned;
-
-type Equal<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
-type Expect<T extends true> = T;
-
-export type TypeEquality = [
-  Expect<Equal<InferData<typeof PositionDefinition>, Types.Position>>,
-  Expect<Equal<InferData<typeof CoordDefinition>, Types.Coord>>,
-  Expect<Equal<InferData<typeof VariableDefinition>, Types.Variable>>,
-  Expect<Equal<InferData<typeof ResourceDefinition>, Types.Resource>>,
-  Expect<Equal<InferData<typeof PluginPointerDefinition>, Types.PluginPointer>>,
-  Expect<Equal<InferData<typeof TransitionDefinition>, Types.Transition>>,
-  Expect<Equal<InferData<typeof ViewportDefinition>, Types.ViewportData>>,
-  Expect<Equal<InferData<typeof ComponentDefinition>, Types.Component>>,
-  Expect<Equal<InferData<typeof ValueProcessDefinition>, Types.ValueProcess>>,
-  Expect<Equal<InferData<typeof ListenerDefinition>, Types.Listener>>,
-  Expect<Equal<InferData<typeof ElementDefinition>, Types.Element>>,
-  Expect<Equal<InferData<typeof ScreenConfigDefinition>, Types.ScreenConfigData>>,
-  Expect<Equal<InferData<typeof ConfigDefinition>, Types.ProjectConfig>>,
-  Expect<Equal<InferData<typeof StepDefinition>, Types.Step>>,
-  Expect<Equal<InferData<typeof ValueDefinition>, Types.Value>>,
-  Expect<Equal<InferData<typeof NodeDefinition>, Types.Node>>,
-  Expect<Equal<InferData<typeof ProjectDefinition>, Types.Data>>
-];
 
 TransitionDefinition.create({ plugin: "existing-plugin" });
 TransitionDefinition.create(undefined, registerOwned);
@@ -147,15 +113,3 @@ const variableValue = ValueDefinition.create("variable", { baseValue: "var-1" })
 export const variableBaseType: "variable" = variableValue.baseType;
 const customValue = ValueDefinition.create("number");
 export const customBaseType: "number" = customValue.baseType;
-
-// @ts-expect-error A missing field is rejected.
-defineProjectData("variables", {
-  id: field.id(),
-  name: field.string(null)
-});
-// @ts-expect-error A field with a different type is rejected.
-defineProjectData("resources", {
-  id: field.id(),
-  src: field.number(null),
-  alias: field.string(null)
-});

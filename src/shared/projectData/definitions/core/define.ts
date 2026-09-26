@@ -13,11 +13,11 @@ import {
   type DataDefinition,
   type RelationDescriptor,
   type Shape,
-  type RegisterOwned,
   type ValueDescriptor,
-  type VariantDescriptor
+  type VariantDescriptor,
+  type RegisterOwned
 } from "./descriptor";
-import type { CreateFn, ShapeCheck } from "./infer.types";
+import type { CreateFn } from "./infer.types";
 import { collectProperties, type PropertyEntry } from "./property";
 import { buildRelationTree } from "./relation";
 import { lookupVariantCase, resolveFlatCase } from "./variant";
@@ -313,13 +313,10 @@ export function defineData<const S extends Shape>(shape: S): Definition<S> {
   return buildDefinition<S>(shape);
 }
 
-/**
- * Defines a project record (a record map value of `Types.Data`).
- * During the migration, the definition is checked against `RecordValue<K>`. (The check is removed in Phase 6)
- */
+/** Defines a project record (a record map value of `Types.Data`). */
 export function defineProjectData<K extends RecordKey, const S extends Shape>(
   recordKey: K,
-  shape: S & ShapeCheck<S, RecordValue<K>>
+  shape: S
 ): ProjectDataDefinition<K, S> {
   const idKey =
     Object.keys(shape).find((key) => {

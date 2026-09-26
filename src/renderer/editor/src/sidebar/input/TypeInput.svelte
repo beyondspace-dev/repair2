@@ -1,9 +1,12 @@
 <script lang="ts">
   import { nanoid } from "nanoid";
   import { forEachRelationId } from "@shared/projectData/relation";
-  import { createVariantPayload } from "@shared/projectData/definitions";
+  import {
+    createVariantPayload,
+    isGroupDescriptor,
+    type VariantCases
+  } from "@shared/projectData/definitions";
   import { PayloadVariants, type TypePayloadMap } from "@shared/projectData/typePayload";
-  import { PayloadTemplates } from "@shared/projectData/typePayload/templates";
   import type { RecordKey } from "@shared/constants";
   import type { FieldBinding } from "../../project/mutator";
   import { getMutator } from "../../project/store";
@@ -27,32 +30,19 @@
 
   let value = $derived(binding.value);
 
-  function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === "object" && value !== null && !Array.isArray(value);
-  }
-
-  function typeKeys(value: unknown): string[] {
-    return isRecord(value) ? Object.keys(value).filter((key) => key !== "$types") : [];
-  }
-
-  function isTypeGroup(value: unknown): value is Record<string, unknown> {
-    return isRecord(value) && value.$types === true;
-  }
-
-  function createTypeOptions(node: unknown, prefix: string[] = []): SelectOption<string>[] {
-    if (!isRecord(node)) return [];
-
-    return typeKeys(node).map((key) => {
-      const child = node[key];
+  /** Builds submenus that follow the variant case hierarchy (groups). */
+  function createTypeOptions(cases: VariantCases, prefix: string[] = []): SelectOption<string>[] {
+    return Object.keys(cases).map((key) => {
+      const child = cases[key];
       const parts = [...prefix, key];
       const path = parts.join(".");
       const label = labelMap[key] ?? labelMap[path] ?? key;
 
-      if (isTypeGroup(child)) {
+      if (isGroupDescriptor(child)) {
         return {
           type: "submenu",
           label,
-          options: createTypeOptions(child, parts)
+          options: createTypeOptions(child.cases, parts)
         };
       }
 
@@ -60,7 +50,7 @@
     });
   }
 
-  let typeOptions = $derived(createTypeOptions(PayloadTemplates[typeName]));
+  let typeOptions = $derived(createTypeOptions(PayloadVariants[typeName].cases));
   let selectedLabel = $derived.by(() => {
     if (!value.type) return undefined;
     const shortType = value.type.split(".").at(-1)!;

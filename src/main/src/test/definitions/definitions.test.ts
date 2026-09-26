@@ -12,22 +12,6 @@ type AnyRecord = Record<string, any>;
 
 type CreateLike = (overrides?: any, registerOwned?: any) => unknown;
 
-/** Lists every leaf type string of a payload template in declaration order. */
-function listTemplateTypes(template: unknown, prefix = ""): string[] {
-  if (typeof template !== "object" || template === null) return [];
-  const result: string[] = [];
-  for (const [key, item] of Object.entries(template)) {
-    if (key === "$types") continue;
-    const path = prefix ? `${prefix}.${key}` : key;
-    if (typeof item === "object" && item !== null && (item as AnyRecord).$types === true) {
-      result.push(...listTemplateTypes(item, path));
-    } else {
-      result.push(path);
-    }
-  }
-  return result;
-}
-
 function runCase(name: string, fn: () => void) {
   try {
     fn();
@@ -48,7 +32,6 @@ export async function runDefinitionTest() {
   (globalThis as any).__APP_VERSION__ = "definition-test";
   const d = await import("@shared/projectData/definitions");
   const { PayloadVariants } = await import("@shared/projectData/typePayload");
-  const { PayloadTemplates } = await import("@shared/projectData/typePayload/templates");
 
   runCase("create(discriminant, overrides, registerOwned) equals the object form", () => {
     const pairs: [string, string, unknown, AnyRecord][] = [
@@ -103,16 +86,6 @@ export async function runDefinitionTest() {
       plugin: "owned-0"
     });
     assert.equal(log[0].type, "pluginPointers");
-  });
-
-  runCase("payload templates list the same types as the definitions", () => {
-    for (const [name, variant] of Object.entries(PayloadVariants)) {
-      assert.deepEqual(
-        d.listVariantCases(variant.cases).map(([type]) => type),
-        listTemplateTypes((PayloadTemplates as AnyRecord)[name]),
-        name
-      );
-    }
   });
 
   runCase("shape validation", () => {

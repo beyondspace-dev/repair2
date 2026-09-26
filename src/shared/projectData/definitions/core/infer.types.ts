@@ -219,26 +219,4 @@ export type CreateFn<S extends Shape> = [VariantKeyOf<S>] extends [never]
   ? DefaultCreateFn<S>
   : DefaultCreateFn<S> & VariantCreateFn<S>;
 
-type MutuallyAssignable<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
-
-type DefinitionMismatch<Actual, Expected> = {
-  missing: Exclude<keyof Expected, keyof Actual>;
-  extra: Exclude<keyof Actual, keyof Expected>;
-  mismatched: {
-    [K in keyof Actual & keyof Expected]: MutuallyAssignable<Actual[K], Expected[K]> extends true
-      ? never
-      : K;
-  }[keyof Actual & keyof Expected];
-};
-
-/**
- * Enforces that a definition matches the existing TypeScript type during the migration.
- * On a mismatch, the shape argument requires a `definitionMismatch` property, which fails compilation at the call site.
- */
-export type ShapeCheck<S extends Shape, Expected> = [Expected] extends [never]
-  ? unknown
-  : MutuallyAssignable<InferShape<S>, Expected> extends true
-    ? unknown
-    : { definitionMismatch: DefinitionMismatch<InferShape<S>, Expected> };
-
 export type { AnyDataDefinition };
