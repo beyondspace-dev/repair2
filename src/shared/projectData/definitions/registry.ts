@@ -1,3 +1,4 @@
+import type { RecordKey } from "../../constants";
 import { ComponentDefinition } from "./component";
 import { ElementDefinition } from "./element";
 import { ListenerDefinition } from "./listener";
@@ -24,4 +25,4 @@ export const ProjectDefinitions = {
   valueProcesses: ValueProcessDefinition,
   pluginPointers: PluginPointerDefinition,
   values: ValueDefinition
-} as const;
+} as const satisfies { readonly [K in RecordKey]: { readonly recordKey: K } };

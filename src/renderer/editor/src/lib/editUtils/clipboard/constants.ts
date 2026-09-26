@@ -1,4 +1,11 @@
-import type { RecordValue, SINGULAR_RECORD_MAP } from "@shared/constants";
+import {
+  PROJECT_RECORDS,
+  type RecordKey,
+  type RecordValue,
+  type SINGULAR_RECORD_MAP
+} from "@shared/constants";
+import { listVariantCases, NodeDefinition } from "@shared/projectData/definitions";
+import { findOwners } from "@shared/projectData/relation";
 import type { Types } from "@shared/projectData/types";
 import type { ExtractResult } from "../extractData";
 import { typedIncludes } from "@shared/utils.types";
@@ -21,12 +28,16 @@ export const CopyMap = {
   listener: { paste: false }
 } as const satisfies Record<string, CopyMapType>;
 
-const CONTEXT_NODE_TYPES = ["sequence", "entry", "branch", "variableSet"] as const;
+type NodeType = Types.Node["nodeType"];
+
+const CONTEXT_NODE_TYPES = listVariantCases(NodeDefinition.shape.nodeType.cases).map(
+  ([nodeType]) => nodeType as NodeType
+);
 
 export const CONTEXT_FOCUS_TYPE_MAP = Object.fromEntries(
   Object.keys(CopyMap).map((t) => [t, typedIncludes(CONTEXT_NODE_TYPES, t) ? "node" : t])
 ) as {
-  [k in keyof typeof CopyMap]: k extends (typeof CONTEXT_NODE_TYPES)[number] ? "node" : k;
+  [k in keyof typeof CopyMap]: k extends NodeType ? "node" : k;
 };
 
 export type Copiable =
@@ -34,7 +45,7 @@ export type Copiable =
       {
         [K in keyof typeof CopyMap]: (typeof CopyMap)[K] extends { copy: false } ? never : K;
       }[keyof typeof CopyMap],
-      (typeof CONTEXT_NODE_TYPES)[number]
+      NodeType
     >
   | "node"
   | "nodes";
@@ -44,7 +55,7 @@ export type Removable =
       {
         [K in keyof typeof CopyMap]: (typeof CopyMap)[K] extends { remove: false } ? never : K;
       }[keyof typeof CopyMap],
-      (typeof CONTEXT_NODE_TYPES)[number]
+      NodeType
     >
   | "node"
   | "nodes";
@@ -75,11 +86,21 @@ type Pastable = {
   [K in keyof typeof CopyMap]: (typeof CopyMap)[K] extends { paste: false } ? never : K;
 }[keyof typeof CopyMap];
 
-export const ClipboardOwnMap = {
+/** Focus type that a pasted record is appended to, the id array field that owns it, and the owner record type */
+function pasteOwner(type: RecordKey): readonly [Pastable, string, RecordKey] {
+  const owners = findOwners(type).filter((owner) => owner.cardinality === "many");
+  if (owners.length !== 1 || owners[0].path.length !== 1) {
+    throw new Error(`Expected a single owning id array for ${type}.`);
+  }
+  const [owner] = owners;
+  return [(owner.case ?? PROJECT_RECORDS[owner.type]) as Pastable, owner.path[0], owner.type];
+}
+
+export const ClipboardOwnMap: Record<Copiable, true | readonly [Pastable, string, RecordKey]> = {
   nodes: true,
   node: true,
-  valueProcess: ["value", "process"],
-  step: ["sequence", "steps"],
-  element: ["component", "elements"],
-  listener: ["element", "listeners"]
-} as const satisfies Record<Copiable, true | [Pastable, string]>;
+  valueProcess: pasteOwner("valueProcesses"),
+  step: pasteOwner("steps"),
+  element: pasteOwner("elements"),
+  listener: pasteOwner("listeners")
+};

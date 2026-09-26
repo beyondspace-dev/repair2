@@ -1,7 +1,7 @@
 import { SvelteMap } from "svelte/reactivity";
 import { untrack } from "svelte";
 
-import type { RecordKey, RecordValue } from "@shared/constants";
+import { PROJECT_RECORDS, type RecordKey, type RecordValue } from "@shared/constants";
 import type { ProjectConfig } from "@shared/projectData/types";
 import {
   dataTargetKey,
@@ -9,7 +9,7 @@ import {
   type DataPath,
   type DataTarget
 } from "@shared/projectData/ref";
-import { deepForEach } from "@shared/projectData/relation";
+import { deepForEach, forEachRelationId, KIND } from "@shared/projectData/relation";
 import {
   addPatchHistory,
   beginPendingHistoryChange,
@@ -273,21 +273,33 @@ export class ProjectMutator {
     });
   }
 
+  /** Clears every REF relation that points to the node. */
   disconnectOutputsTo(nodeId: string): void {
     this.transaction(() => {
-      for (const [id, node] of this.project.nodes) {
-        if (node.nodeType === "branch") {
-          if (node.trueOutput === nodeId)
-            this.set({ kind: "record", type: "nodes", id }, ["trueOutput"], null);
-          if (node.falseOutput === nodeId)
-            this.set({ kind: "record", type: "nodes", id }, ["falseOutput"], null);
-        } else if (node.output === nodeId) {
-          this.set({ kind: "record", type: "nodes", id }, ["output"], null);
+      for (const type of Object.keys(PROJECT_RECORDS) as RecordKey[]) {
+        for (const [id, data] of this.project[type] as Map<string, RecordValue>) {
+          forEachRelationId(
+            type,
+            data as never,
+            ({ id: refId, kind, path }) => {
+              if (refId !== nodeId || kind !== KIND.REF || !path) return;
+              const target: DataTarget = { kind: "record", type, id };
+              const value = this.readPath(target, path);
+              if (Array.isArray(value)) {
+                if (value.includes(nodeId)) {
+                  this.set(
+                    target,
+                    path,
+                    value.filter((item) => item !== nodeId)
+                  );
+                }
+              } else if (value === nodeId) {
+                this.set(target, path, null);
+              }
+            },
+            { includes: ["nodes"], includePath: true }
+          );
         }
-      }
-      for (const [id, listener] of this.project.listeners) {
-        if (listener.output === nodeId)
-          this.set({ kind: "record", type: "listeners", id }, ["output"], null);
       }
     });
   }
