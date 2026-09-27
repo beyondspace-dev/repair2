@@ -1,5 +1,5 @@
 import { reloadNode } from "../lib/stores";
-import { getProject } from "../project/store";
+import { getMutator, getProject } from "../project/store";
 
 interface NodeSize {
   width: number;
@@ -11,6 +11,11 @@ const NodeSizes = new Map<string, NodeSize>();
 export function setNodeSize(id: string, width: number, height: number) {
   NodeSizes.set(id, { width: width, height: height });
   reloadNode(id);
+}
+/** Includes an in-progress drag preview. */
+export function getNodePos(id: string) {
+  if (!getProject().nodes.has(id)) return undefined;
+  return getMutator().record("nodes", id).field("nodePos").peek();
 }
 export function getNodeSize(id: string) {
   return NodeSizes.get(id);
@@ -24,9 +29,8 @@ export function getAllInBoundsNodes(x1: number, y1: number, x2: number, y2: numb
     tx2 = Math.max(x1, x2),
     ty2 = Math.max(y1, y2);
   const inBounds = new Set<string>();
-  const nodesMap = getProject().nodes;
   NodeSizes.entries().forEach(([id, s]) => {
-    const p = nodesMap.get(id)?.nodePos;
+    const p = getNodePos(id);
     if (p && p.x >= tx1 && p.y >= ty1 && p.x + s.width <= tx2 && p.y + s.height <= ty2)
       inBounds.add(id);
   });
@@ -40,9 +44,8 @@ export function getAllNodeBounds() {
     x2: -Infinity,
     y2: -Infinity
   };
-  const nodesMap = getProject().nodes;
   NodeSizes.entries().forEach(([id, s]) => {
-    const p = nodesMap.get(id)?.nodePos;
+    const p = getNodePos(id);
     if (!p) return;
     bounds.x1 = Math.min(p.x, bounds.x1);
     bounds.y1 = Math.min(p.y, bounds.y1);

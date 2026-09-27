@@ -135,6 +135,114 @@ export async function runProjectMutatorTest() {
   });
 
   await clearHistory();
+  await runCase("preview edit stays out of project data until commit", async () => {
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
+    const { project, mutator } = await createTestContext();
+    const sequence = NodeDefinition.create("sequence", {
+      id: "sequence-1",
+      nodePos: { x: 0, y: 0 }
+    });
+    project.setRecord("nodes", sequence.id, sequence);
+    const original = project.getUnsafe("nodes", sequence.id);
+    const directions: string[] = [];
+    const unsubscribe = mutator.subscribe(
+      { kind: "record", type: "nodes", id: sequence.id },
+      (change) => directions.push(change.direction)
+    );
+
+    const editor = mutator.record("nodes", sequence.id);
+    const nodePos = editor.field("nodePos");
+    const session = nodePos.begin({ preview: true });
+    session.update({ x: 10, y: 20 });
+    session.update({ x: 30, y: 40 });
+
+    assert.equal(project.getUnsafe("nodes", sequence.id), original);
+    assert.deepEqual(nodePos.value, { x: 0, y: 0 });
+    assert.deepEqual(nodePos.peek(), { x: 30, y: 40 });
+    assert.equal(nodePos.at<number>("x").peek(), 30);
+    assert.deepEqual(editor.peek().nodePos, { x: 30, y: 40 });
+    assert.deepEqual(directions, ["preview", "preview"]);
+
+    session.commit();
+    assert.deepEqual(nodePos.value, { x: 30, y: 40 });
+    assert.deepEqual(directions, ["preview", "preview", "forward"]);
+    await undo();
+    assert.deepEqual(nodePos.value, { x: 0, y: 0 });
+    await redo();
+    assert.deepEqual(nodePos.value, { x: 30, y: 40 });
+    unsubscribe();
+  });
+
+  await clearHistory();
+  await runCase("cancelled preview leaves no data change or history", async () => {
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
+    const { project, mutator } = await createTestContext();
+    const sequence = NodeDefinition.create("sequence", { id: "sequence-1", alias: "before" });
+    project.setRecord("nodes", sequence.id, sequence);
+    const alias = mutator.record("nodes", sequence.id).field("alias");
+
+    const session = alias.begin({ preview: true });
+    session.update("after");
+    session.cancel();
+    assert.equal(session.active, false);
+    assert.equal(alias.peek(), "before");
+    await undo();
+    assert.equal(alias.value, "before");
+  });
+
+  await clearHistory();
+  await runCase("preview is cancelled when overlapping data changes underneath", async () => {
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
+    const { project, mutator } = await createTestContext();
+    const sequence = NodeDefinition.create("sequence", {
+      id: "sequence-1",
+      alias: "before",
+      nodePos: { x: 0, y: 0 }
+    });
+    project.setRecord("nodes", sequence.id, sequence);
+    const editor = mutator.record("nodes", sequence.id);
+
+    const nodePosSession = editor.field("nodePos").begin({ preview: true });
+    nodePosSession.update({ x: 5, y: 5 });
+    editor.field("alias").set("unrelated");
+    assert.equal(nodePosSession.active, true);
+
+    editor.field("nodePos").set({ x: 1, y: 1 });
+    assert.equal(nodePosSession.active, false);
+    assert.deepEqual(editor.field("nodePos").peek(), { x: 1, y: 1 });
+
+    const deletedSession = editor.field("nodePos").begin({ preview: true });
+    deletedSession.update({ x: 9, y: 9 });
+    mutator.delete("nodes", sequence.id);
+    assert.equal(deletedSession.active, false);
+    deletedSession.commit();
+    assert.equal(project.nodes.has(sequence.id), false);
+  });
+
+  await clearHistory();
+  await runCase("preview commits in a transaction undo together", async () => {
+    const { NodeDefinition } = await import("@shared/projectData/definitions");
+    const { project, mutator } = await createTestContext();
+    const ids = ["first", "second"];
+    for (const id of ids)
+      project.setRecord(
+        "nodes",
+        id,
+        NodeDefinition.create("sequence", { id, nodePos: { x: 0, y: 0 } })
+      );
+
+    const sessions = ids.map((id) => {
+      const session = mutator.record("nodes", id).field("nodePos").begin({ preview: true });
+      session.update({ x: 7, y: 7 });
+      return session;
+    });
+    mutator.transaction(() => sessions.forEach((session) => session.commit()));
+    for (const id of ids) assert.deepEqual(project.getUnsafe("nodes", id).nodePos, { x: 7, y: 7 });
+    await undo();
+    for (const id of ids) assert.deepEqual(project.getUnsafe("nodes", id).nodePos, { x: 0, y: 0 });
+  });
+
+  await clearHistory();
   await runCase("deep OWN deletion restores the complete tree on undo", async () => {
     const { ComponentDefinition, ElementDefinition, ListenerDefinition } =
       await import("@shared/projectData/definitions");

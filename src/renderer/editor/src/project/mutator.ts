@@ -50,8 +50,16 @@ export type ProjectChange = {
   target: DataTarget;
   operation: ProjectPatch["kind"];
   path: DataPath;
-  direction: HistoryDirection | "transient";
+  direction: HistoryDirection | "transient" | "preview";
 };
+
+export interface EditSessionOptions {
+  /**
+   * Keeps updates out of project data until commit. Updates only notify subscribers and are
+   * visible through `peek`, so reactive readers (`value`) keep showing the committed value.
+   */
+  preview?: boolean;
+}
 
 export interface EditSession<T> {
   readonly active: boolean;
@@ -66,7 +74,9 @@ export interface FieldBinding<T = unknown> {
   readonly value: T;
   set(value: T): void;
   setTransient(value: T): void;
-  begin(): EditSession<T>;
+  begin(options?: EditSessionOptions): EditSession<T>;
+  /** Non-reactive read that includes uncommitted preview edits. */
+  peek(): T;
   at<U = unknown>(...path: DataPath): Binding<U>;
 }
 
@@ -80,6 +90,20 @@ export interface ArrayFieldBinding<Item> extends FieldBinding<Item[]> {
 export type Binding<T> = [T] extends [(infer Item)[]] ? ArrayFieldBinding<Item> : FieldBinding<T>;
 
 type ChangeListener = (change: ProjectChange) => unknown;
+
+type PreviewEdit = {
+  readonly path: DataPath;
+  value: unknown;
+  cancel(): void;
+};
+
+function isPathPrefix(prefix: DataPath, path: DataPath): boolean {
+  return prefix.length <= path.length && prefix.every((part, index) => part === path[index]);
+}
+
+function pathsOverlap(a: DataPath, b: DataPath): boolean {
+  return isPathPrefix(a, b) || isPathPrefix(b, a);
+}
 
 function replaceAtPath(root: unknown, path: DataPath, value: unknown): unknown {
   if (path.length === 0) return value;
@@ -106,6 +130,7 @@ export class ProjectMutator {
   private readonly revisions = new SvelteMap<string, number>();
   private readonly listeners = new Map<string, Set<ChangeListener>>();
   private readonly activeSessions = new Set<EditSession<unknown>>();
+  private readonly previews = new Map<string, Set<PreviewEdit>>();
   private transactionDepth = 0;
   private transactionPatches: ProjectPatch[] | null = null;
 
@@ -144,6 +169,21 @@ export class ProjectMutator {
     return readDataPath(this.read(target), path) as T;
   }
 
+  /** Non-reactive read that includes uncommitted preview edits. */
+  peek<T>(target: DataTarget, path: DataPath): T {
+    let value = readDataPath(
+      untrack(() => this.readRaw(target)),
+      path
+    );
+    for (const preview of this.previews.get(dataTargetKey(target)) ?? []) {
+      if (isPathPrefix(preview.path, path))
+        value = readDataPath(preview.value, path.slice(preview.path.length));
+      else if (isPathPrefix(path, preview.path))
+        value = replaceAtPath(value, preview.path.slice(path.length), preview.value);
+    }
+    return value as T;
+  }
+
   set(target: DataTarget, path: DataPath, value: unknown): void {
     const before = this.readPath(target, path);
     if (Object.is(before, value)) return;
@@ -160,7 +200,12 @@ export class ProjectMutator {
     );
   }
 
-  beginSet<T>(target: DataTarget, path: DataPath): EditSession<T> {
+  beginSet<T>(
+    target: DataTarget,
+    path: DataPath,
+    options: EditSessionOptions = {}
+  ): EditSession<T> {
+    if (options.preview) return this.beginPreview<T>(target, path);
     const before = this.readPath<T>(target, path);
     let after = before;
     let finished = false;
@@ -203,6 +248,61 @@ export class ProjectMutator {
         }
       }
     };
+    this.activeSessions.add(session as EditSession<unknown>);
+    return session;
+  }
+
+  private beginPreview<T>(target: DataTarget, path: DataPath): EditSession<T> {
+    const key = dataTargetKey(target);
+    path = [...path];
+    const before = this.readPath<T>(target, path);
+    let after = before;
+    let finished = false;
+    const pendingChange = beginPendingHistoryChange();
+    const notify = () => this.notify(key, { target, operation: "set", path, direction: "preview" });
+
+    const finish = () => {
+      finished = true;
+      this.activeSessions.delete(session as EditSession<unknown>);
+      const previews = this.previews.get(key);
+      previews?.delete(preview);
+      if (previews?.size === 0) this.previews.delete(key);
+    };
+    const session: EditSession<T> = {
+      get active() {
+        return !finished;
+      },
+      update: (value) => {
+        if (finished || Object.is(after, value)) return;
+        after = value;
+        preview.value = value;
+        pendingChange.setDirty(!Object.is(before, after));
+        notify();
+      },
+      commit: () => {
+        if (finished) return;
+        finish();
+        try {
+          if (!Object.is(before, after))
+            this.perform({ kind: "set", target, path: [...path], before, after });
+        } finally {
+          pendingChange.finish();
+        }
+      },
+      cancel: () => {
+        if (finished) return;
+        finish();
+        pendingChange.finish();
+        if (!Object.is(before, after)) notify();
+      }
+    };
+    const preview: PreviewEdit = { path, value: before, cancel: session.cancel };
+
+    for (const existing of this.previews.get(key) ?? [])
+      if (pathsOverlap(existing.path, path)) existing.cancel();
+    let previews = this.previews.get(key);
+    if (!previews) this.previews.set(key, (previews = new Set()));
+    previews.add(preview);
     this.activeSessions.add(session as EditSession<unknown>);
     return session;
   }
@@ -406,14 +506,21 @@ export class ProjectMutator {
 
   private changed(patch: ProjectPatch, direction: HistoryDirection, transient: boolean) {
     const key = dataTargetKey(patch.target);
+    const path = "path" in patch ? patch.path : [];
+    // A preview based on data that has since changed would commit a stale `before`.
+    for (const preview of this.previews.get(key) ?? [])
+      if (pathsOverlap(preview.path, path)) preview.cancel();
     if (patch.target.kind === "config" || this.project.get(patch.target.type, patch.target.id))
       this.revisions.set(key, (this.revisions.get(key) ?? 0) + 1);
-    const change: ProjectChange = {
+    this.notify(key, {
       target: patch.target,
       operation: patch.kind,
-      path: "path" in patch ? patch.path : [],
+      path,
       direction: transient ? "transient" : direction
-    };
+    });
+  }
+
+  private notify(key: string, change: ProjectChange) {
     this.listeners.get(key)?.forEach((listener) => listener(change));
   }
 }
@@ -437,8 +544,12 @@ export class Field<T = unknown> implements FieldBinding<T> {
     this.mutator.setTransient(this.target, this.path, value);
   }
 
-  begin(): EditSession<T> {
-    return this.mutator.beginSet<T>(this.target, this.path);
+  begin(options?: EditSessionOptions): EditSession<T> {
+    return this.mutator.beginSet<T>(this.target, this.path, options);
+  }
+
+  peek(): T {
+    return this.mutator.peek<T>(this.target, this.path);
   }
 
   at<U = unknown>(...path: DataPath): Binding<U> {
