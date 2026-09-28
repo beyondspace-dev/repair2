@@ -118,6 +118,7 @@
   }
   .side-bar-body {
     border-inline: solid var(--w-o6) 1px;
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
     display: flex;
@@ -125,7 +126,7 @@
     overflow: hidden;
     flex: 1 1 auto;
 
-    contain: strict style;
+    contain: size;
   }
   .title {
     font-size: 20px;

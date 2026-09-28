@@ -203,7 +203,7 @@
     position: absolute;
     background-color: #eeeff0;
     overflow: hidden;
-    contain: style;
+    contain: strict;
   }
   .node-space :global(*) {
     user-select: none;

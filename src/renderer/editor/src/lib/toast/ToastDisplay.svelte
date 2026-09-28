@@ -58,7 +58,7 @@
     display: flex;
     flex-direction: column-reverse;
 
-    contain: strict style;
+    contain: strict;
   }
   .wrapper::-webkit-scrollbar {
     display: none;
