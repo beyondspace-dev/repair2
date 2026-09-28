@@ -18,7 +18,7 @@ export const StepDefinition = defineProjectData("steps", {
         modify: {
           componentAlias: field.string(null),
           modifyKey: field.string(null),
-          modifyValue: field.json<string | number | null>(null)
+          modifyValue: field.json<string | number | boolean | null>(null)
         }
       }),
       Preload: group({

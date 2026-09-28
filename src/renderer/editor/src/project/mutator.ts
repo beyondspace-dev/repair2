@@ -68,16 +68,50 @@ export interface EditSession<T> {
   cancel(): void;
 }
 
-export interface FieldBinding<T = unknown> {
-  readonly target: DataTarget;
-  readonly path: DataPath;
+/** Minimal binding for controls that commit a whole value at once (no edit session). */
+export interface ValueBinding<T> {
   readonly value: T;
   set(value: T): void;
+}
+
+export interface FieldBinding<T = unknown> extends ValueBinding<T> {
+  readonly target: DataTarget;
+  readonly path: DataPath;
   setTransient(value: T): void;
   begin(options?: EditSessionOptions): EditSession<T>;
   /** Non-reactive read that includes uncommitted preview edits. */
   peek(): T;
   at<U = unknown>(...path: DataPath): Binding<U>;
+  field<P extends FieldKey<T>>(key: P): FieldResult<T, P>;
+}
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+/**
+ * Only object fields expose typed keys. `any` (legacy, untyped) and primitive bindings expose none,
+ * which keeps e.g. `FieldBinding<number>` assignable where `FieldBinding<number | null>` is expected.
+ */
+type FieldKey<T> =
+  IsAny<T> extends true ? never : [T] extends [object] ? keyof T & (string | number) : never;
+type FieldResult<T, P> = [FieldKey<T>] extends [never] ? unknown : Binding<T[P & keyof T]>;
+
+/** Binding whose value is computed from other data, e.g. a boolean view over an enum field. */
+export function derivedBinding<T>(get: () => T, set: (value: T) => void): ValueBinding<T> {
+  return {
+    get value() {
+      return get();
+    },
+    set
+  };
+}
+
+type TypedPayload = { type: string; payload?: unknown };
+
+/** Narrows a `{ type, payload }` binding to the payload of one variant case. */
+export function payloadOf<T extends TypedPayload, K extends T["type"]>(
+  binding: FieldBinding<T>,
+  _type: K
+): Binding<NonNullable<Extract<T, { type: K }>["payload"]>> {
+  return binding.at("payload");
 }
 
 export interface ArrayFieldBinding<Item> extends FieldBinding<Item[]> {
@@ -87,7 +121,12 @@ export interface ArrayFieldBinding<Item> extends FieldBinding<Item[]> {
   move(from: number, to: number): void;
 }
 
-export type Binding<T> = [T] extends [(infer Item)[]] ? ArrayFieldBinding<Item> : FieldBinding<T>;
+export type Binding<T> =
+  IsAny<T> extends true
+    ? FieldBinding<any>
+    : [T] extends [(infer Item)[]]
+      ? ArrayFieldBinding<Item>
+      : FieldBinding<T>;
 
 type ChangeListener = (change: ProjectChange) => unknown;
 
@@ -225,8 +264,12 @@ export class ProjectMutator {
         finished = true;
         this.activeSessions.delete(session as EditSession<unknown>);
         try {
-          if (!Object.is(before, after))
-            this.recordApplied([{ kind: "set", target, path: [...path], before, after }]);
+          if (!Object.is(before, after)) {
+            const patch: ProjectPatch = { kind: "set", target, path: [...path], before, after };
+            // Already applied transiently; inside a transaction it joins the transaction's history item.
+            if (this.transactionPatches) this.appendTransactionPatch(patch);
+            else this.recordApplied([patch]);
+          }
         } finally {
           pendingChange.finish();
         }
@@ -556,6 +599,10 @@ export class Field<T = unknown> implements FieldBinding<T> {
     return new Field(this.mutator, this.target, [...this.path, ...path]) as unknown as Binding<U>;
   }
 
+  field<P extends FieldKey<T>>(key: P): FieldResult<T, P> {
+    return this.at(key) as FieldResult<T, P>;
+  }
+
   splice(index: number, deleteCount: number, ...inserted: unknown[]) {
     this.mutator.splice(this.target, this.path, index, deleteCount, ...inserted);
   }
@@ -577,18 +624,10 @@ export class RecordEditor<
     this.type = type;
     this.id = id;
   }
-
-  field<P extends keyof T>(key: P): Binding<T[P]> {
-    return this.at<T[P]>(key as string);
-  }
 }
 
 export class ConfigEditor extends Field<ProjectConfig> {
   constructor(mutator: ProjectMutator) {
     super(mutator, { kind: "config" }, []);
-  }
-
-  field<P extends keyof ProjectConfig>(key: P): Binding<ProjectConfig[P]> {
-    return this.at<ProjectConfig[P]>(key as string);
   }
 }

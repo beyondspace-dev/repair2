@@ -1,39 +1,43 @@
 <script lang="ts">
-  import InputField from "../../input/InputField.svelte";
-  import { ComparisonOperatorTypes } from "../../../lib/translate";
   import type { Types } from "@shared/projectData/types";
-  import type { RecordEditor } from "../../../project/mutator";
+  import { ComparisonOperatorTypes } from "../../../lib/translate";
+  import { derivedBinding, type RecordEditor } from "../../../project/mutator";
+  import Section from "../layout/Section.svelte";
+  import TextField from "../fields/TextField.svelte";
+  import TextareaField from "../fields/TextareaField.svelte";
+  import SelectField from "../fields/SelectField.svelte";
+  import CheckboxField from "../fields/CheckboxField.svelte";
+
   const { editor }: { editor: RecordEditor<"nodes", Types.Branch> } = $props();
   let data = $derived(editor.value);
+
+  /** Changing the operator drops the script of the previous one. */
+  const operator = derivedBinding(
+    () => data.operator,
+    (operator: Types.Branch["operator"] | null) => {
+      if (operator) editor.set({ ...data, operator, scriptData: null });
+    }
+  );
 </script>
 
-<InputField label="분기점 이름" binding={editor.field("alias")} />
-<InputField
-  label="비교 연산자"
-  type="select"
-  options={ComparisonOperatorTypes}
-  value={data.operator}
-  oncommit={(operator: Types.Branch["operator"]) => {
-    editor.set({ ...data, operator, scriptData: null });
-  }}
-/>
-{#if data.operator === "jsFunction"}
-  <InputField
-    label="콜백 함수 코드"
-    binding={editor.field("scriptData")}
-    type="textarea"
-    code
-    placeholder="return valueA === valueB"
-    autoResizeOpt={{ minHeight: 50 }}
-  />
-{/if}
-<InputField
-  label="'참' 발동 이후 비활성화"
-  type="checkbox"
-  binding={editor.field("disableAfterTrue")}
-/>
-<InputField
-  label="'거짓' 발동 이후 비활성화"
-  type="checkbox"
-  binding={editor.field("disableAfterFalse")}
-/>
+<Section>
+  <TextField binding={editor.field("alias")} placeholder="분기점 이름" tooltip="분기점 이름" />
+</Section>
+
+<Section title="비교">
+  <SelectField binding={operator} options={ComparisonOperatorTypes} tooltip="비교 연산자" />
+  {#if data.operator === "jsFunction"}
+    <Section title="콜백 함수">
+      <TextareaField
+        binding={editor.field("scriptData")}
+        code
+        placeholder="return valueA === valueB"
+      />
+    </Section>
+  {/if}
+</Section>
+
+<Section title="발동 이후">
+  <CheckboxField binding={editor.field("disableAfterTrue")} label="'참' 발동 이후 비활성화" />
+  <CheckboxField binding={editor.field("disableAfterFalse")} label="'거짓' 발동 이후 비활성화" />
+</Section>

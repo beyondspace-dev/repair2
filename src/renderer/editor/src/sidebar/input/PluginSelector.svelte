@@ -2,8 +2,8 @@
   import type { FieldBinding } from "../../project/mutator";
   import { getMutator } from "../../project/store";
   import { plugins } from "../../lib/plugins.svelte";
+  import SelectField from "../edits/fields/SelectField.svelte";
   import Attributes from "./Attributes.svelte";
-  import InputField from "./InputField.svelte";
 
   let {
     binding,
@@ -21,17 +21,17 @@
 </script>
 
 <div class="plugin-select">
-  <InputField
-    type="select"
-    options={Object.keys(plugins[type] ?? {})}
+  <SelectField
     binding={editor.field("name")}
-    {canUnselect}
+    options={Object.keys(plugins[type] ?? {})}
+    unselectable={canUnselect}
+    tooltip="플러그인"
   />
   {#if plugin.name && plugins[type]?.[plugin.name]}
     {@const currentPlugin = plugins[type][plugin.name]}
     {@const exportKeys = Object.keys(currentPlugin.exports)}
     {#if !(exportKeys.length === 1 && exportKeys[0] === "default")}
-      <InputField type="select" options={exportKeys} binding={editor.field("exportName")} />
+      <SelectField binding={editor.field("exportName")} options={exportKeys} tooltip="export" />
     {/if}
     {#if currentPlugin.exports[plugin.exportName ?? "default"]}
       <Attributes
@@ -47,6 +47,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
   }
 </style>

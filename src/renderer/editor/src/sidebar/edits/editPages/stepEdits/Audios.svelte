@@ -1,43 +1,60 @@
 <script lang="ts">
-  import InputField from "../../../input/InputField.svelte";
-  import type { RecordEditor } from "../../../../project/mutator";
+  import { payloadOf, type RecordEditor } from "../../../../project/mutator";
+  import Row from "../../layout/Row.svelte";
+  import TextField from "../../fields/TextField.svelte";
+  import NumberField from "../../fields/NumberField.svelte";
+  import CheckboxField from "../../fields/CheckboxField.svelte";
+  import ResourceField from "../../fields/ResourceField.svelte";
+  import Section from "../../layout/Section.svelte";
+
   const { editor }: { editor: RecordEditor<"steps"> } = $props();
-  let data = $derived(editor.value);
-  let operation = $derived(data.type.split(".")[1]);
+  let type = $derived(editor.value.type);
 </script>
 
-{#if operation && operation !== "reset"}
-  <InputField label="채널명" binding={editor.at("payload", "channel")} placeholder="default" />
+{#if type === "Audio.play" || type === "Audio.pause" || type === "Audio.resume" || type === "Audio.changeVolume"}
+  <Section title="채널명">
+    <TextField
+      binding={payloadOf(editor, type).field("channel")}
+      prefix="채널"
+      placeholder="default"
+      tooltip="채널명"
+    />
+  </Section>
 {/if}
-{#if operation === "play"}
-  <InputField
-    label="재생할 오디오 자원"
-    binding={editor.at("payload", "resourceId")}
-    type="resource"
-    elType="audio"
-  />
-  <InputField label="반복 재생" binding={editor.at("payload", "loop")} type="checkbox" />
-  <InputField
-    label="음량"
-    binding={editor.at("payload", "volume")}
-    type="number"
-    placeholder="0-100"
-    min="0"
-    max="100"
-  />
-{:else if operation === "changeVolume"}
-  <InputField
-    label="변경할 음량"
-    binding={editor.at("payload", "volume")}
-    type="number"
-    placeholder="0-100"
-    min="0"
-    max="100"
-  />
-  <InputField
-    label="변화 시간(초)"
-    binding={editor.at("payload", "duration")}
-    type="number"
-    min="0"
-  />
+{#if type === "Audio.play"}
+  <Section title="오디오">
+    {@const payload = payloadOf(editor, "Audio.play")}
+    <ResourceField binding={payload.field("resourceId")} type="audio" />
+    <Row>
+      <CheckboxField binding={payload.field("loop")} label="반복 재생" />
+      <NumberField
+        binding={payload.field("volume")}
+        prefix="음량"
+        placeholder="0-100"
+        tooltip="음량"
+        min={0}
+        max={100}
+      />
+    </Row>
+  </Section>
+{:else if type === "Audio.changeVolume"}
+  <Section title="음량">
+    {@const payload = payloadOf(editor, "Audio.changeVolume")}
+    <Row columns="2fr 1fr">
+      <NumberField
+        binding={payload.field("volume")}
+        placeholder="0-100"
+        tooltip="변경할 음량"
+        min={0}
+        max={100}
+      />
+      <NumberField
+        binding={payload.field("duration")}
+        suffix="초"
+        placeholder="0"
+        tooltip="변화 시간(초)"
+        min={0}
+      />
+    </Row>
+  </Section>
 {/if}

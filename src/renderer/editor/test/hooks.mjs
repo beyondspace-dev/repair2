@@ -43,8 +43,9 @@ export async function resolve(specifier, context, next) {
 }
 
 export async function load(url, context, next) {
-  const result = await next(url, context);
   const pathname = url.startsWith("file:") ? new URL(url).pathname : "";
+  if (pathname.endsWith(".css")) return { format: "module", source: "", shortCircuit: true };
+  const result = await next(url, context);
   if (!/\.svelte\.(ts|js)$/.test(pathname)) return result;
 
   const compiler = await import(svelteCompilerUrl);

@@ -243,6 +243,35 @@ export async function runProjectMutatorTest() {
   });
 
   await clearHistory();
+  await runCase("continuous edit commits in a transaction undo together", async () => {
+    const { ElementDefinition } = await import("@shared/projectData/definitions");
+    const { project, mutator } = await createTestContext();
+    project.setRecord(
+      "elements",
+      "element-1",
+      ElementDefinition.create("empty", { id: "element-1" })
+    );
+
+    const editor = mutator.record("elements", "element-1");
+    const width = editor.field("width").begin();
+    const height = editor.field("height").begin();
+    width.update(100);
+    height.update(50);
+    mutator.transaction(() => {
+      width.commit();
+      height.commit();
+    });
+    assert.equal(editor.field("width").value, 100);
+    assert.equal(editor.field("height").value, 50);
+    await undo();
+    assert.equal(editor.field("width").value, null);
+    assert.equal(editor.field("height").value, null);
+    await redo();
+    assert.equal(editor.field("width").value, 100);
+    assert.equal(editor.field("height").value, 50);
+  });
+
+  await clearHistory();
   await runCase("deep OWN deletion restores the complete tree on undo", async () => {
     const { ComponentDefinition, ElementDefinition, ListenerDefinition } =
       await import("@shared/projectData/definitions");

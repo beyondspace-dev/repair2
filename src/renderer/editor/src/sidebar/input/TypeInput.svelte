@@ -1,4 +1,8 @@
-<script lang="ts">
+<script lang="ts" module>
+  export type TypePayloadValue = { type: string; payload: unknown; [key: string]: unknown };
+</script>
+
+<script lang="ts" generics="T extends TypePayloadValue">
   import { nanoid } from "nanoid";
   import { forEachRelationId } from "@shared/projectData/relation";
   import {
@@ -14,7 +18,6 @@
   import type { SelectOption } from "./select.types";
 
   type TypeName = keyof TypePayloadMap;
-  type TypePayloadValue = { type: string; payload: unknown; [key: string]: unknown };
 
   let {
     binding,
@@ -22,7 +25,7 @@
     options: labelMap = {},
     onchange = null
   }: {
-    binding: FieldBinding<TypePayloadValue>;
+    binding: FieldBinding<T>;
     typeName: TypeName;
     options?: Record<string, string>;
     onchange?: (() => unknown) | null;
@@ -85,7 +88,7 @@
         }
       );
       const nextValue = { ...value, type: nextType, payload };
-      binding.set(nextValue);
+      binding.set(nextValue as T);
 
       if (isRootRecord) {
         const retained = new Set<string>();
