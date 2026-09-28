@@ -4,10 +4,11 @@ import { createEditorMenu } from "./editorMenu";
 import type { MainApp } from "../app/mainApp";
 import { logger } from "../logs/logger";
 import { ipc } from "../ipc/ipcMethods";
-import { getMainScreenArea, getWindowArea } from "../system/screenManager";
+import { getMainScreenArea, getWindowArea, isBoundsOnScreen } from "../system/screenManager";
 
 export class WindowController {
   #app: MainApp;
+  #editorWindowCreating = false;
 
   constructor(app: MainApp) {
     this.#app = app;
@@ -121,13 +122,20 @@ export class WindowController {
     );
   }
 
-  createEditorWindow() {
-    const { state, editorSave, globalKey, message, system } = this.#app;
-    if (state.window.editor) return;
+  async createEditorWindow() {
+    const { state, editorSave, globalKey, message, settings, system } = this.#app;
+    if (state.window.editor || this.#editorWindowCreating) return;
+
+    this.#editorWindowCreating = true;
+    const savedState = await settings.get("editorWindowState");
+    this.#editorWindowCreating = false;
+    const savedBounds =
+      savedState && isBoundsOnScreen(savedState.bounds) ? savedState.bounds : undefined;
 
     const editorWindow = new BrowserWindow({
       width: 1200,
       height: 800,
+      ...savedBounds,
       minWidth: 750,
       minHeight: 500,
       show: false,
@@ -154,7 +162,8 @@ export class WindowController {
 
       ipc.off("editor-win-ready", showEditorWin);
 
-      editorWindow.show();
+      if (savedState?.maximized) editorWindow.maximize();
+      else editorWindow.show();
       editorWindow.focus();
       this.applyAlwaysOnTop();
     };
@@ -176,6 +185,10 @@ export class WindowController {
     });
 
     editorWindow.on("close", () => {
+      settings.set("editorWindowState", {
+        bounds: editorWindow.getNormalBounds(),
+        maximized: editorWindow.isMaximized()
+      });
       globalKey.stopSuppress("capture");
       if (editorSave.pending) {
         editorSave.resolveEditorSaveRequest(editorSave.pending.requestId, false);
