@@ -5,9 +5,9 @@
   import BigIcons from "../assets/icons/BigIcons.svelte";
   import Edit from "./edits/Edit.svelte";
   import { tippySingleton } from "../lib/tippy/tippy";
-  import Settings from "./setting/Settings.svelte";
   import { panel } from "./panel/panel";
   import { setSetting, settings } from "../lib/settings.svelte";
+  import { openSettings, settingsModal } from "../lib/settingsModal/settingsModalState.svelte";
 
   type Tab = keyof typeof tabs;
   let currentTab = $state<Tab>("edit");
@@ -21,15 +21,10 @@
     edit: "Edit",
     variables: "Variables",
     resources: "Resources",
-    plugins: "Plugins",
-    settings: "Settings"
+    plugins: "Plugins"
   } as const;
 
-  const tabButtons = [
-    ["edit", "variables", "resources", "plugins"],
-    // ["logs", "settings"]
-    []
-  ] as const satisfies [(keyof typeof tabs)[], (keyof typeof tabs)[]];
+  const tabButtons = ["edit", "variables", "resources", "plugins"] as const satisfies Tab[];
 </script>
 
 <div
@@ -42,22 +37,27 @@
   }}
 >
   <div class="tabs" use:tippySingleton={{ duration: 100, delay: [400, 0], placement: "right" }}>
-    {#each tabButtons as btnIds, i}
-      {#each btnIds as id}
-        <button
-          class={["tab-wrapper", currentTab === id && "active"]}
-          onclick={() => (currentTab = id as Tab)}
-          data-tippy-content={tabs[id]}
-        >
-          <div class="tab">
-            <BigIcons icon={id} color="#fff" size={30} />
-          </div>
-        </button>
-      {/each}
-      {#if i < tabButtons.length - 1}
-        <div class="tab-btn-spacer"></div>
-      {/if}
+    {#each tabButtons as id}
+      <button
+        class={["tab-wrapper", currentTab === id && "active"]}
+        onclick={() => (currentTab = id)}
+        data-tippy-content={tabs[id]}
+      >
+        <div class="tab">
+          <BigIcons icon={id} color="#fff" size={30} />
+        </div>
+      </button>
     {/each}
+    <div class="tab-btn-spacer"></div>
+    <button
+      class={["tab-wrapper", settingsModal.open && "active"]}
+      onclick={openSettings}
+      data-tippy-content="Settings (Ctrl+,)"
+    >
+      <div class="tab">
+        <BigIcons icon="settings" color="#fff" size={30} />
+      </div>
+    </button>
   </div>
   <div class="side-bar-body">
     <div class="title">{title}</div>
@@ -69,8 +69,6 @@
       <Resources />
     {:else if currentTab === "plugins"}
       <Plugins />
-    {:else if currentTab === "settings"}
-      <Settings />
     {/if}
   </div>
 </div>

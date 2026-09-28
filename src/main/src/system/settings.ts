@@ -3,8 +3,11 @@ import type { MainApp } from "../app/mainApp";
 import { Store } from "./store";
 import { SettingFields } from "@shared/setting/settingFields";
 import type { SettingValueMap, SettingId } from "@shared/setting/settings";
+import type { SettingFieldId, SettingFieldValueMap } from "@shared/setting/settingFields";
 import { join } from "path";
 import { DefaultInternalSettings } from "@shared/setting/internalSettings";
+import type { IpcSettingKeyValueTuple } from "@shared/ipc.types";
+import { hasModifier, parseAccelerator } from "@shared/accelerator";
 
 function createDefaultSettingMap() {
   const result: Partial<{
@@ -28,6 +31,22 @@ function createDefaultSettingMap() {
 }
 const defaultSettings = createDefaultSettingMap();
 
+function isValidSettingValue(key: SettingId, value: unknown) {
+  const field = SettingFields.find((f) => f.id === key);
+  if (!field || value === null) return true;
+  if (field.type !== "accelerator") return true;
+
+  const accel = typeof value === "string" ? parseAccelerator(value) : null;
+  return !!accel && (!field.requireModifier || hasModifier(accel));
+}
+
+const PlaySyncedSettings = new Set<SettingId>([
+  "audioOutputHardware",
+  "editorAccelerator",
+  "editorPassword",
+  "devMode"
+]);
+
 export class Settings {
   constructor(private readonly app: MainApp) {}
 
@@ -49,7 +68,8 @@ export class Settings {
     );
   }
   async set<K extends SettingId>(key: K, value: SettingValueMap[K]) {
-    if ((await this.get(key)) === value) return false;
+    if (!isValidSettingValue(key, value)) return false;
+    if ((await this.get(key)) === value) return true;
 
     const ok = await this.app.store
       .set([Store.SETTING_KEY, key], value, false)
@@ -59,6 +79,20 @@ export class Settings {
 
     this.afterSetSetting(key, value);
     return true;
+  }
+
+  async reset<K extends SettingFieldId>(key: K): Promise<SettingValueMap[K]> {
+    const prev = await this.get(key);
+    await this.app.store.delete([Store.SETTING_KEY, key], false);
+    const value = await this.get(key);
+    if (prev !== value) this.afterSetSetting(key, value);
+    return value;
+  }
+
+  getDefaults() {
+    return Object.fromEntries(
+      SettingFields.map((f) => [f.id, this.getDefaultValue(f.id)])
+    ) as SettingFieldValueMap;
   }
 
   private processSettingValue<K extends SettingId>(
@@ -73,8 +107,23 @@ export class Settings {
     const ds = defaultSettings[id];
     return typeof ds === "function" ? ds(this.app) : ds;
   }
+  async applyOnStartup() {
+    this.app.system.keepAwake.set(await this.get("keepAwake"));
+  }
+
   private afterSetSetting<K extends SettingId>(key: K, value: SettingValueMap[K]) {
     if (key === "anchorDisplay") this.app.controllers.window.updateMainWindowArea();
     else if (key === "startOnBoot") this.app.system.boot.setAutoStart(value as boolean);
+    else if (key === "keepAwake") this.app.system.keepAwake.set(value as boolean);
+    else if (key === "alwaysOnTop") this.app.controllers.window.applyAlwaysOnTop();
+    else if (key === "devMode") this.app.controllers.pluginHmr.setDevMode(value as boolean);
+    else if (key === "suppressGlobalKeys") {
+      if (value && this.app.state.window.main?.isFocused())
+        this.app.globalKey.startSuppress("play");
+      else this.app.globalKey.stopSuppress("play");
+    }
+
+    if (PlaySyncedSettings.has(key))
+      this.app.message.sendToPlay("settings:changed", [key, value] as IpcSettingKeyValueTuple);
   }
 }

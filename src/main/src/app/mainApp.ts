@@ -94,6 +94,7 @@ export class MainApp {
       setupIpcHandlers(this);
 
       await this.readyToStart;
+      await this.settings.applyOnStartup();
 
       if (await this.#appOpenedWithProject(process.argv, false)) return;
 

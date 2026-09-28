@@ -1,8 +1,8 @@
-import { getProject } from "../../project";
 import { reportPluginException } from "./pluginReporter";
 import { dynamicImportPlugin } from "./pluginImport";
 import { setStyleForce } from "./pluginStyles";
 import { ipc } from "../ipc";
+import { isDevMode } from "../devMode";
 import { deactivateAll } from "./runtimePlugins";
 import { createPluginContext } from "./pluginContext";
 import {
@@ -62,7 +62,7 @@ function importPlugin(pluginData: RendererPluginData) {
       pluginData.importing = null;
       pluginData.imported = p;
       console.log("PLUGIN LOADED: ", pluginData.info.name);
-      if (ipc.sendSync("config:is-dev")) {
+      if (isDevMode()) {
         const unexported = Object.keys(pluginData.info.exports).filter((e) => !(e in p));
         if (unexported.length)
           reportPluginException(
@@ -276,7 +276,7 @@ async function callHmr(pluginInfo: PluginRendererInfo, plugin: any) {
 ipc.on(
   "plugin:hmr",
   async (_: any, { info, cssCode }: { info: PluginRendererInfo; cssCode?: string }) => {
-    if (!getProject().data.config.devMode) return;
+    if (!isDevMode()) return;
     if (cssCode && (info.type === "element" || info.type === "frame")) {
       console.log("Plugin CSS HMR:", info.name);
       setStyleForce(info.type, info.name, cssCode);

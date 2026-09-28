@@ -33,6 +33,12 @@ const EditorMenu = [
         label: "데이터 폴더 열기",
         action: "open-data-folder"
       },
+      {
+        label: "설정",
+        action: "settings",
+        shortcut: "Ctrl+,",
+        editorAction: true
+      },
       { type: "separator" },
       {
         label: "RepairV2 종료",

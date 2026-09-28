@@ -77,22 +77,3 @@
   pluginType="runtime"
   canUnselect={false}
 />
-<hr />
-<InputField
-  label="편집기 단축키"
-  binding={editor.field("editorShortcut")}
-  maxLength="1"
-  placeholder="E"
-/>
-<InputField
-  label="에디터 비밀번호"
-  binding={editor.field("editorPassword")}
-  placeholder="비밀번호 없음"
-/>
-<InputField label="창을 항상 최상위에 표시" binding={editor.field("alwaysOnTop")} type="checkbox" />
-<InputField label="플러그인 HMR 활성화" binding={editor.field("devMode")} type="checkbox" />
-<InputField
-  label="시스템 키 비활성화"
-  binding={editor.field("suppressGlobalKeys")}
-  type="checkbox"
-/>

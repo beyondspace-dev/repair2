@@ -16,4 +16,6 @@ export function setupStoreIpc(app: MainApp) {
     return app.settings.set(key, value);
   });
   ipc.handle("settings:get-all", () => app.settings.getAll());
+  ipc.handle("settings:get-defaults", () => app.settings.getDefaults());
+  ipc.handle("settings:reset", (evt, key) => app.settings.reset(key));
 }

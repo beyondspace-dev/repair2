@@ -9,6 +9,7 @@ import {
 } from "./pluginServices";
 import { reportPluginWarning, reportPluginException, sendPluginLog } from "./pluginReporter";
 import { pluginDisposed } from "./pluginStyles";
+import { isDevMode } from "../devMode";
 import type SDK from "@fainthit/repair2-plugin-sdk";
 import type { Project } from "../../project/projectInstance";
 
@@ -253,7 +254,7 @@ function createServices(plugin: SDK.PluginIdentity, lifecycle: SDK.LifecycleApi)
 function createAppApi(): SDK.AppApi {
   return {
     get devMode() {
-      return !!getApi("appData").get().data.config.devMode;
+      return isDevMode();
     },
     getSizeRatio() {
       const ratio = (getApi("appData").get().data.config.sizeRatio || "1")

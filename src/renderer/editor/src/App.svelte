@@ -8,6 +8,7 @@
   import { onMount, tick } from "svelte";
   import { reloadAllNode } from "./lib/stores";
   import Modal from "./lib/modal/ModalDisplay.svelte";
+  import SettingsModal from "./lib/settingsModal/SettingsModal.svelte";
   import { observingViewport, setViewportSize, viewport } from "./nodes/viewport";
   import { getProject } from "./project/store";
   import TitleBar from "./titleBar/TitleBar.svelte";
@@ -51,6 +52,9 @@
   <TitleBar />
   <ContextMenu />
   <div class="window" use:observingViewport>
+    {#if ready}
+      <SettingsModal />
+    {/if}
     <Modal />
     {#if ready}
       <div class="panels">

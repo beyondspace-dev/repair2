@@ -14,7 +14,7 @@ export class WindowController {
   }
 
   createMainWindow() {
-    const { controllers, globalKey, service, startup, state, system } = this.#app;
+    const { controllers, globalKey, service, settings, startup, state, system } = this.#app;
     if (state.window.main) return;
 
     let playRendererShown = false;
@@ -52,6 +52,7 @@ export class WindowController {
       mainWindow.show();
 
       controllers.project.applyDataConfig();
+      this.applyAlwaysOnTop();
     };
     ipc.on("play-win-ready", onPlayWindowReady);
 
@@ -64,17 +65,19 @@ export class WindowController {
     mainWindow.on("closed", () => {
       ipcMain.removeListener("play-win-ready", onPlayWindowReady);
       state.window.main = null;
-      globalKey.stopSuppress();
+      globalKey.stopSuppress("play");
       if (!service.projectFileManager.importing) {
         startup.closeSplash();
         system.app.quit();
       }
     });
-    mainWindow.on("focus", () => {
-      if (state.project.data?.config?.suppressGlobalKeys) globalKey.startSuppress();
+    mainWindow.on("focus", async () => {
+      if (!(await settings.get("suppressGlobalKeys"))) return;
+      if (state.window.main === mainWindow && mainWindow.isFocused())
+        globalKey.startSuppress("play");
     });
     mainWindow.on("blur", () => {
-      globalKey.stopSuppress();
+      globalKey.stopSuppress("play");
     });
 
     mainWindow.webContents.on("render-process-gone", (evt, details) => {
@@ -119,7 +122,7 @@ export class WindowController {
   }
 
   createEditorWindow() {
-    const { state, editorSave, message, system } = this.#app;
+    const { state, editorSave, globalKey, message, system } = this.#app;
     if (state.window.editor) return;
 
     const editorWindow = new BrowserWindow({
@@ -146,17 +149,15 @@ export class WindowController {
     editorWindow.setMenu(createEditorMenu(this.#app));
     editorWindow.setMenuBarVisibility(false);
 
-    function showEditorWin(evt: IpcMainEvent) {
+    const showEditorWin = (evt: IpcMainEvent) => {
       if (evt.sender !== editorWindow.webContents) return;
 
       ipc.off("editor-win-ready", showEditorWin);
 
       editorWindow.show();
       editorWindow.focus();
-      if (state.project.data) {
-        editorWindow.setAlwaysOnTop(!!state.project.data?.config?.alwaysOnTop, "screen-saver");
-      }
-    }
+      this.applyAlwaysOnTop();
+    };
     ipc.on("editor-win-ready", showEditorWin);
 
     editorWindow.webContents.setWindowOpenHandler((details) => {
@@ -170,12 +171,25 @@ export class WindowController {
       editorWindow.loadFile(join(__dirname, "../editor/index.html"));
     }
 
+    editorWindow.on("blur", () => {
+      globalKey.stopSuppress("capture");
+    });
+
     editorWindow.on("close", () => {
+      globalKey.stopSuppress("capture");
       if (editorSave.pending) {
         editorSave.resolveEditorSaveRequest(editorSave.pending.requestId, false);
       }
       state.window.editor = null;
     });
+  }
+
+  async applyAlwaysOnTop() {
+    const { settings, state } = this.#app;
+    const alwaysOnTop = await settings.get("alwaysOnTop");
+    for (const win of [state.window.main, state.window.editor]) {
+      if (win && !win.isDestroyed()) win.setAlwaysOnTop(alwaysOnTop, "screen-saver");
+    }
   }
 
   closeProjectWindows() {

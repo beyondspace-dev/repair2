@@ -22,6 +22,13 @@ export function setupEditorIpc(app: MainApp) {
     editorWindow.setTitle("Editor");
   });
 
+  ipc.on("global-key:capture", (evt, enabled) => {
+    const editorWindow = app.state.window.editor;
+    if (!editorWindow || evt.sender !== editorWindow.webContents) return;
+    if (enabled && editorWindow.isFocused()) app.globalKey.startSuppress("capture");
+    else app.globalKey.stopSuppress("capture");
+  });
+
   ipc.handle("vscode:is-installed", () => app.state.externalTools.vscode);
 
   ipc.on("vscode:open", (_, src) => {

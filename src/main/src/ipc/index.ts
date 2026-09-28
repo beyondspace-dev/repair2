@@ -8,6 +8,7 @@ import { setupPluginIpc } from "./pluginIpc";
 import { setupProjectIpc } from "./projectIpc";
 import { setupShellIpc } from "./shellIpc";
 import { setupStoreIpc } from "./storeIpc";
+import { setupSystemIpc } from "./systemIpc";
 import type { MainApp } from "../app/mainApp";
 
 export function setupIpcHandlers(app: MainApp) {
@@ -21,4 +22,5 @@ export function setupIpcHandlers(app: MainApp) {
   setupMonitorIpc(app);
   setupMessagePortIpc(app);
   setupStoreIpc(app);
+  setupSystemIpc(app);
 }

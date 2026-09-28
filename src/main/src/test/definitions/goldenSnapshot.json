@@ -230,16 +230,11 @@
         "sizeRatio": 1,
         "filter": null,
         "style": null,
-        "editorShortcut": "E",
-        "editorPassword": null,
         "screenConfig": {
           "type": "fullscreen",
           "payload": null
         },
         "transparent": false,
-        "devMode": false,
-        "alwaysOnTop": false,
-        "suppressGlobalKeys": false,
         "runtimePlugins": []
       }
     },
@@ -1713,16 +1708,11 @@
           "sizeRatio": 1,
           "filter": null,
           "style": null,
-          "editorShortcut": "E",
-          "editorPassword": null,
           "screenConfig": {
             "type": "fullscreen",
             "payload": null
           },
           "transparent": false,
-          "devMode": false,
-          "alwaysOnTop": false,
-          "suppressGlobalKeys": false,
           "runtimePlugins": []
         },
         "viewport": {
@@ -1756,16 +1746,11 @@
           "sizeRatio": 1,
           "filter": null,
           "style": null,
-          "editorShortcut": "E",
-          "editorPassword": null,
           "screenConfig": {
             "type": "fullscreen",
             "payload": null
           },
           "transparent": false,
-          "devMode": false,
-          "alwaysOnTop": false,
-          "suppressGlobalKeys": false,
           "runtimePlugins": []
         },
         "viewport": {
@@ -2412,16 +2397,11 @@
       "sizeRatio": 1,
       "filter": null,
       "style": null,
-      "editorShortcut": "E",
-      "editorPassword": null,
       "screenConfig": {
         "type": "fullscreen",
         "payload": null
       },
       "transparent": false,
-      "devMode": false,
-      "alwaysOnTop": false,
-      "suppressGlobalKeys": false,
       "runtimePlugins": [
         "plugin-runtime-1"
       ]
