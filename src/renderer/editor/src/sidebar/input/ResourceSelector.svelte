@@ -27,13 +27,9 @@
 
   let isSelecting = $state(false);
 
-  /** @type {HTMLDivElement} */
   let selectBtnEl = $state<HTMLDivElement | null>(null);
-  /** @type {HTMLDivElement} */
   let containerEl = $state<HTMLDivElement | null>(null);
-  /** @type {HTMLDivElement} */
   let listEl = $state<HTMLDivElement | null>(null);
-  /** @type {HTMLInputElement} */
   let inputEl = $state<HTMLInputElement | null>(null);
   let searchString = $state("");
 

@@ -8,6 +8,7 @@ import type { GlobalKeyEvent, GlobalKey as GlobalKeyString } from "@shared/globa
 
 type KeyEventName = "keydown" | "keyup";
 type GlobalKeyListener = (type: KeyEventName, evt: GlobalKeyEvent) => void;
+type SuppressReason = "play" | "capture";
 
 const SuppressingKeys: UiohookKeyboardSuppressShortcut[] = [
   { metaKey: true },
@@ -25,11 +26,17 @@ export class GlobalKey {
   );
   #suppressId = uIOhook.registerSuppress(SuppressingKeys);
   #globalKeyListener: GlobalKeyListener | null = null;
+  #suppressReasons = new Set<SuppressReason>();
 
-  isSuppressing = false;
+  get isSuppressing() {
+    return this.#suppressReasons.size > 0;
+  }
+  get isCapturing() {
+    return this.#suppressReasons.has("capture");
+  }
 
   constructor() {
-    uIOhook.toggleSuppress(this.#suppressId, this.isSuppressing);
+    uIOhook.toggleSuppress(this.#suppressId, false);
 
     uIOhook.addListener("keydown", (evt: UiohookKeyboardEvent) =>
       this.callGlobalKeyListener("keydown", evt)
@@ -40,17 +47,13 @@ export class GlobalKey {
 
     uIOhook.start();
   }
-  startSuppress() {
-    if (this.isSuppressing) return;
-
-    this.isSuppressing = true;
-
-    uIOhook.toggleSuppress(this.#suppressId, true);
+  startSuppress(reason: SuppressReason) {
+    const wasSuppressing = this.isSuppressing;
+    this.#suppressReasons.add(reason);
+    if (!wasSuppressing) uIOhook.toggleSuppress(this.#suppressId, true);
   }
-  stopSuppress() {
-    if (!this.isSuppressing) return;
-
-    this.isSuppressing = false;
+  stopSuppress(reason: SuppressReason) {
+    if (!this.#suppressReasons.delete(reason) || this.isSuppressing) return;
     uIOhook.toggleSuppress(this.#suppressId, false);
   }
   setGlobalKeyListener(callback: GlobalKeyListener) {

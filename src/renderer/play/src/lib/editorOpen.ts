@@ -1,11 +1,42 @@
-import { getProject } from "../project";
+import { matchAccelerator, parseAccelerator, type ParsedAccelerator } from "@shared/accelerator";
 import { addGlobalKeyEvent } from "./globalKey";
 import { ipc } from "./ipc";
 
 const passwordEl = document.getElementById("repair-editor-password")!;
 
+let accelerator: ParsedAccelerator | null = null;
+let password = "";
+
 let inputtingPassword = false;
 let currentPassword = "";
+
+function setAccelerator(value: unknown) {
+  accelerator = typeof value === "string" ? parseAccelerator(value) : null;
+}
+function setPassword(value: unknown) {
+  password = typeof value === "string" ? value.trim().toUpperCase() : "";
+  if (inputtingPassword) stopInputting();
+}
+
+ipc
+  .invoke("settings:get", "editorAccelerator")
+  .then(setAccelerator)
+  .catch(() => {});
+ipc
+  .invoke("settings:get", "editorPassword")
+  .then(setPassword)
+  .catch(() => {});
+
+ipc.on("settings:changed", (_evt, [key, value]) => {
+  if (key === "editorAccelerator") setAccelerator(value);
+  else if (key === "editorPassword") setPassword(value);
+});
+
+function toPasswordChar(key: string) {
+  if (/^[A-Z0-9]$/.test(key)) return key;
+  const numpad = /^Numpad([0-9])$/.exec(key);
+  return numpad ? numpad[1] : null;
+}
 
 function stopInputting() {
   inputtingPassword = false;
@@ -17,13 +48,8 @@ function stopInputting() {
 addGlobalKeyEvent("keydown", (e) => {
   if (!e.key) return;
 
-  const shortcutKey = getProject().data.config.editorShortcut;
-  if (
-    e.shiftKey &&
-    e.ctrlKey &&
-    e.key.toUpperCase() === (typeof shortcutKey === "string" ? shortcutKey.toUpperCase() : "E")
-  ) {
-    if (!getProject().data.config.editorPassword?.trim?.()?.length) {
+  if (matchAccelerator(accelerator, e)) {
+    if (!password) {
       ipc.send("editor-on");
       return;
     }
@@ -33,22 +59,28 @@ addGlobalKeyEvent("keydown", (e) => {
   }
   if (!inputtingPassword) return;
 
-  const PW = getProject().data.config.editorPassword?.trim();
-  if (!PW) {
+  if (!password) {
+    stopInputting();
     ipc.send("editor-on");
     return;
   }
-  if (e.key === "Shift" || e.key === "ShiftRight") return;
-  if (PW[currentPassword.length] !== e.key) {
+
+  const char = toPasswordChar(e.key);
+  if (char === null) {
+    if (e.key === "Shift" || e.key === "ShiftRight") return;
+    stopInputting();
+    return;
+  }
+  if (password[currentPassword.length] !== char) {
     stopInputting();
     return;
   }
 
-  currentPassword += e.key;
+  currentPassword += char;
   passwordEl.style.display = "block";
   passwordEl.innerText = currentPassword;
 
-  if (currentPassword.length < PW.length) return;
+  if (currentPassword.length < password.length) return;
   ipc.send("editor-on");
   setTimeout(stopInputting, 500);
 });

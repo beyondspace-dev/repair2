@@ -232,7 +232,7 @@
       (SEGMENTS[lineSegmentIdx] + 1) * 2,
       pointsLen / FLOATS_PER_LINE
     );
-  }, 2);
+  }, 3);
 
   function setCanvas() {
     if (!canvas || !gl) return;

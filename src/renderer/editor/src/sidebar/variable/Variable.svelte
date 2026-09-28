@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from "../../assets/icons/Icon.svelte";
-  import InputField from "../input/InputField.svelte";
+  import TextField from "../edits/fields/TextField.svelte";
   import outClickAction from "../../lib/actions/outclickaction";
   import { hoverHighlight } from "../../lib/highlight";
   import { startMonitoring } from "../../lib/runtimeMonitor.svelte";
@@ -35,14 +35,14 @@
 >
   {#if isEditing}
     <div class="edit-zone" use:outClickAction={() => blur()}>
-      <InputField
-        label="변수명"
+      <TextField
         binding={editor.field("name")}
+        prefix="변수명"
         placeholder="이름 없는 변수"
+        tooltip="변수명"
         autofocus
-        small
       />
-      <InputField label="기본값" binding={editor.field("defaultValue")} small />
+      <TextField binding={editor.field("defaultValue")} prefix="기본값" tooltip="기본값" />
     </div>
   {:else}
     <div class="top">

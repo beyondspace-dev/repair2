@@ -1,8 +1,9 @@
 :root {
-  --sidebar-z: 100;
+  --panels-z: 100;
   --modal-z: 110;
   --toast-z: 120;
   --titlebar-z: 150;
+  --tippy-z: 175;
   --contextmenu-z: 200;
 
   --w-o8: rgba(255, 255, 255, 0.8);
@@ -64,8 +65,10 @@ svg {
 
 *::-webkit-scrollbar {
   width: 14px;
-  border-left: solid var(--w-o6) 1px;
   box-sizing: border-box;
+}
+.scroll::-webkit-scrollbar {
+  border-left: solid var(--w-o6) 1px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;

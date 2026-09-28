@@ -83,17 +83,6 @@ export const ComponentModifyTypes = {
   zIndex: "Z축 위치",
   style: "스타일"
 } as const;
-export const ComponentModifyInputData = {
-  visible: { label: "표시 여부", type: "checkbox" },
-  unbreakable: { label: "보호", type: "checkbox" },
-  zIndex: { type: "number", placeholder: "값이 클수록 앞에 보임" },
-  style: {
-    type: "textarea",
-    code: true,
-    autoResizeOpt: { minHeight: 50 },
-    placeholder: "inline CSS code"
-  }
-} as const;
 
 export const ValueProcessTypes = {
   replaceAll: "특정 문자열 변경",

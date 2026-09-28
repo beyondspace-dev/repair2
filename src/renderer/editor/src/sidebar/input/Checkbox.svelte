@@ -32,6 +32,7 @@
     box-sizing: border-box;
     border-radius: 10px;
     corner-shape: squircle;
+    flex: 0 0 auto;
   }
   .inner {
     width: 100%;

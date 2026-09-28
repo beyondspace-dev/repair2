@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from "../../assets/icons/Icon.svelte";
-  import InputField from "../input/InputField.svelte";
+  import TextField from "../edits/fields/TextField.svelte";
   import { hoverHighlight } from "../../lib/highlight";
   import FoldArrow from "../../lib/FoldArrow.svelte";
   import ResourcePreview from "../../lib/ResourcePreview.svelte";
@@ -39,13 +39,12 @@
         <button class="select-file">파일 선택</button>
       </div>
       <hr />
-      <InputField
-        label="자원 이름"
+      <TextField
         binding={editor.field("alias")}
+        prefix="자원 이름"
         placeholder={info.title}
+        tooltip="자원 이름"
         autofocus
-        small
-        row
       />
       <button class="remove" onclick={remove}>
         <Icon icon="bin" color="#fff" size={16} />

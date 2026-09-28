@@ -11,6 +11,9 @@ type StringField = SettingFieldBase & {
   default?: string;
   maxLength?: number;
   placeholder?: string;
+  secret?: boolean;
+  uppercase?: boolean;
+  allowedChars?: string;
 };
 type NumberField = SettingFieldBase & {
   type: "number";
@@ -29,16 +32,23 @@ type CheckboxField = SettingFieldBase & {
   type: "checkbox";
   default?: boolean;
 };
+type AcceleratorField = SettingFieldBase & {
+  type: "accelerator";
+  default?: string;
+  requireModifier?: boolean;
+};
 type SpecialFieldTypeMap = {
   display: number;
   serialPath: string;
   url: string;
+  audioOutput: string;
 };
 type SpecialField = SettingFieldBase & {
   type: keyof SpecialFieldTypeMap;
 };
 
-type SettingField = StringField | NumberField | SelectField | CheckboxField | SpecialField;
+type SettingField =
+  StringField | NumberField | SelectField | CheckboxField | AcceleratorField | SpecialField;
 
 export type {
   SettingField,
@@ -46,6 +56,7 @@ export type {
   NumberField,
   SelectField,
   CheckboxField,
+  AcceleratorField,
   SpecialField,
   SpecialFieldTypeMap
 };

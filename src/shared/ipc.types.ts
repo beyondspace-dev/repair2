@@ -17,7 +17,8 @@ import type {
 import type { GlobalKeyEvent } from "./globalKeyEvent.types";
 import type { EditorMenuAction } from "./editorMenu";
 import type { ShowToastOptions } from "./toast.types";
-import type { SettingId, SettingValueMap } from "./setting/settingFields";
+import type { SettingId, SettingValueMap } from "./setting/settings";
+import type { SettingFieldId, SettingFieldValueMap } from "./setting/settingFields";
 
 export type IpcSocketIncomeArgs = [channel: string, data: unknown, url?: string];
 
@@ -26,6 +27,23 @@ export type IpcPluginRuntimeCallPayload = {
   activationId: string;
   methodName: string;
   args: unknown[];
+};
+
+export type IpcSettingKeyValueTuple = {
+  [k in SettingId]: [key: k, value: SettingValueMap[k]];
+}[SettingId];
+
+export type IpcDisplayInfo = {
+  id: number;
+  label: string;
+  primary: boolean;
+  bounds: { x: number; y: number; width: number; height: number };
+};
+
+export type IpcSerialPortInfo = {
+  path: string;
+  friendlyName?: string;
+  manufacturer?: string;
 };
 
 export type RendererToMainInvokeMap = {
@@ -64,7 +82,29 @@ export type RendererToMainInvokeMap = {
     };
   }[SettingId];
   "settings:set": {
-    args: { [k in SettingId]: [key: k, value: SettingValueMap[k]] }[SettingId];
+    args: [IpcSettingKeyValueTuple];
+    result: boolean;
+  };
+  "settings:get-defaults": {
+    args: [];
+    result: SettingFieldValueMap;
+  };
+  "settings:reset": {
+    [k in SettingFieldId]: {
+      args: [key: k];
+      result: SettingValueMap[k];
+    };
+  }[SettingFieldId];
+  "system:get-displays": {
+    args: [];
+    result: IpcDisplayInfo[];
+  };
+  "serial:list-ports": {
+    args: [];
+    result: IpcSerialPortInfo[];
+  };
+  "app:relaunch": {
+    args: [];
     result: boolean;
   };
   "update-data": {
@@ -147,6 +187,18 @@ export type RendererToMainInvokeMap = {
     args: [];
     result: boolean;
   };
+  "plugin:delete": {
+    args: [pluginName: string];
+    result: { ok: boolean; message?: string };
+  };
+  "plugin:rebuild": {
+    args: [pluginName: string];
+    result: void;
+  };
+  "plugin:relink": {
+    args: [pluginName: string];
+    result: void;
+  };
 };
 
 export type RendererToMainSendMap = {
@@ -179,6 +231,7 @@ export type RendererToMainSendMap = {
   "message-port:ready": [];
   "request-save:done": [payload: { requestId: number; saved: boolean }];
   "editor-menu-action": [action: EditorMenuAction<"main">];
+  "global-key:capture": [enabled: boolean];
 };
 
 export type RendererToMainSyncMap = {
@@ -186,7 +239,7 @@ export type RendererToMainSyncMap = {
     args: [];
     result: string;
   };
-  "config:is-dev": {
+  "settings:dev-mode": {
     args: [];
     result: boolean;
   };
@@ -223,6 +276,7 @@ export interface MainToEditorSendMap extends MainToRendererSharedSendMap {
   "plugin:manifest-error": [errors: ManifestErrorForRenderer[]];
   "menu-action": [action: EditorMenuAction<"editor">];
   "toast:show": [option: ShowToastOptions];
+  "global-key-event": [type: "keydown" | "keyup", event: GlobalKeyEvent];
 }
 
 export interface MainToPlaySendMap extends MainToRendererSharedSendMap {
@@ -231,6 +285,7 @@ export interface MainToPlaySendMap extends MainToRendererSharedSendMap {
   "global-key-event": [type: "keydown" | "keyup", event: GlobalKeyEvent];
   "plugin:runtime:restart": [];
   "plugin:runtime:to-renderer": [payload: IpcPluginRuntimeCallPayload];
+  "settings:changed": [setting: IpcSettingKeyValueTuple];
 }
 
 export interface MainToSplashSendMap {

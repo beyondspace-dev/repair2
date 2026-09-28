@@ -1,9 +1,15 @@
 import { SvelteMap } from "svelte/reactivity";
 import { untrack } from "svelte";
 
-import type { RecordKey, RecordValue } from "@shared/constants";
+import { PROJECT_RECORDS, type RecordKey, type RecordValue } from "@shared/constants";
 import type { ProjectConfig } from "@shared/projectData/types";
-import { deepForEach } from "@shared/projectData/relation";
+import {
+  dataTargetKey,
+  readDataPath,
+  type DataPath,
+  type DataTarget
+} from "@shared/projectData/ref";
+import { deepForEach, forEachRelationId, KIND } from "@shared/projectData/relation";
 import {
   addPatchHistory,
   beginPendingHistoryChange,
@@ -11,84 +17,134 @@ import {
 } from "../lib/editUtils/history";
 import type { ProjectInstance } from "./project";
 
-export type MutationPath = readonly (string | number)[];
-
-export type MutationTarget = { kind: "record"; type: RecordKey; id: string } | { kind: "config" };
-
 export type ProjectPatch =
   | {
       kind: "set";
-      target: MutationTarget;
-      path: MutationPath;
+      target: DataTarget;
+      path: DataPath;
       before: unknown;
       after: unknown;
     }
   | {
       kind: "splice";
-      target: MutationTarget;
-      path: MutationPath;
+      target: DataTarget;
+      path: DataPath;
       index: number;
       removed: readonly unknown[];
       inserted: readonly unknown[];
     }
   | {
       kind: "move";
-      target: MutationTarget;
-      path: MutationPath;
+      target: DataTarget;
+      path: DataPath;
       from: number;
       to: number;
     }
   | {
       kind: "addRecord" | "deleteRecord";
-      target: Extract<MutationTarget, { kind: "record" }>;
+      target: Extract<DataTarget, { kind: "record" }>;
       data: RecordValue;
     };
 
 export type ProjectChange = {
-  target: MutationTarget;
+  target: DataTarget;
   operation: ProjectPatch["kind"];
-  path: MutationPath;
-  direction: HistoryDirection | "transient";
+  path: DataPath;
+  direction: HistoryDirection | "transient" | "preview";
 };
 
+export interface EditSessionOptions {
+  /**
+   * Keeps updates out of project data until commit. Updates only notify subscribers and are
+   * visible through `peek`, so reactive readers (`value`) keep showing the committed value.
+   */
+  preview?: boolean;
+}
+
 export interface EditSession<T> {
+  readonly active: boolean;
   update(value: T): void;
   commit(): void;
   cancel(): void;
 }
 
-export interface FieldBinding<T = unknown> {
-  readonly target: MutationTarget;
-  readonly path: MutationPath;
+/** Minimal binding for controls that commit a whole value at once (no edit session). */
+export interface ValueBinding<T> {
   readonly value: T;
   set(value: T): void;
+}
+
+export interface FieldBinding<T = unknown> extends ValueBinding<T> {
+  readonly target: DataTarget;
+  readonly path: DataPath;
   setTransient(value: T): void;
-  begin(): EditSession<T>;
-  at<U = unknown>(...path: MutationPath): Binding<U>;
+  begin(options?: EditSessionOptions): EditSession<T>;
+  /** Non-reactive read that includes uncommitted preview edits. */
+  peek(): T;
+  at<U = unknown>(...path: DataPath): Binding<U>;
+  field<P extends FieldKey<T>>(key: P): FieldResult<T, P>;
+}
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+/**
+ * Only object fields expose typed keys. `any` (legacy, untyped) and primitive bindings expose none,
+ * which keeps e.g. `FieldBinding<number>` assignable where `FieldBinding<number | null>` is expected.
+ */
+type FieldKey<T> =
+  IsAny<T> extends true ? never : [T] extends [object] ? keyof T & (string | number) : never;
+type FieldResult<T, P> = [FieldKey<T>] extends [never] ? unknown : Binding<T[P & keyof T]>;
+
+/** Binding whose value is computed from other data, e.g. a boolean view over an enum field. */
+export function derivedBinding<T>(get: () => T, set: (value: T) => void): ValueBinding<T> {
+  return {
+    get value() {
+      return get();
+    },
+    set
+  };
+}
+
+type TypedPayload = { type: string; payload?: unknown };
+
+/** Narrows a `{ type, payload }` binding to the payload of one variant case. */
+export function payloadOf<T extends TypedPayload, K extends T["type"]>(
+  binding: FieldBinding<T>,
+  _type: K
+): Binding<NonNullable<Extract<T, { type: K }>["payload"]>> {
+  return binding.at("payload");
 }
 
 export interface ArrayFieldBinding<Item> extends FieldBinding<Item[]> {
   at(index: number): Binding<Item>;
-  at<U = unknown>(...path: MutationPath): Binding<U>;
+  at<U = unknown>(...path: DataPath): Binding<U>;
   splice(index: number, deleteCount: number, ...inserted: Item[]): void;
   move(from: number, to: number): void;
 }
 
-export type Binding<T> = [T] extends [(infer Item)[]] ? ArrayFieldBinding<Item> : FieldBinding<T>;
+export type Binding<T> =
+  IsAny<T> extends true
+    ? FieldBinding<any>
+    : [T] extends [(infer Item)[]]
+      ? ArrayFieldBinding<Item>
+      : FieldBinding<T>;
 
 type ChangeListener = (change: ProjectChange) => unknown;
 
-function targetKey(target: MutationTarget) {
-  return target.kind === "config" ? "config" : `${target.type}:${target.id}`;
+type PreviewEdit = {
+  readonly path: DataPath;
+  value: unknown;
+  cancel(): void;
+};
+
+function isPathPrefix(prefix: DataPath, path: DataPath): boolean {
+  return prefix.length <= path.length && prefix.every((part, index) => part === path[index]);
 }
 
-function valueAtPath(root: unknown, path: MutationPath): unknown {
-  let value = root;
-  for (const key of path) value = (value as Record<string | number, unknown>)[key];
-  return value;
+function pathsOverlap(a: DataPath, b: DataPath): boolean {
+  return isPathPrefix(a, b) || isPathPrefix(b, a);
 }
 
-function replaceAtPath(root: unknown, path: MutationPath, value: unknown): unknown {
+function replaceAtPath(root: unknown, path: DataPath, value: unknown): unknown {
   if (path.length === 0) return value;
   const [key, ...rest] = path;
   const container = Array.isArray(root)
@@ -113,6 +169,7 @@ export class ProjectMutator {
   private readonly revisions = new SvelteMap<string, number>();
   private readonly listeners = new Map<string, Set<ChangeListener>>();
   private readonly activeSessions = new Set<EditSession<unknown>>();
+  private readonly previews = new Map<string, Set<PreviewEdit>>();
   private transactionDepth = 0;
   private transactionPatches: ProjectPatch[] | null = null;
 
@@ -129,8 +186,8 @@ export class ProjectMutator {
     return new ConfigEditor(this);
   }
 
-  subscribe(target: MutationTarget, listener: ChangeListener): () => void {
-    const key = targetKey(target);
+  subscribe(target: DataTarget, listener: ChangeListener): () => void {
+    const key = dataTargetKey(target);
     let listeners = this.listeners.get(key);
     if (!listeners) this.listeners.set(key, (listeners = new Set()));
     listeners.add(listener);
@@ -140,24 +197,39 @@ export class ProjectMutator {
     };
   }
 
-  read(target: MutationTarget): unknown {
-    this.revisions.get(targetKey(target));
+  read(target: DataTarget): unknown {
+    this.revisions.get(dataTargetKey(target));
     return target.kind === "config"
       ? this.project.config
       : untrack(() => this.project.getUnsafe(target.type, target.id));
   }
 
-  readPath<T>(target: MutationTarget, path: MutationPath): T {
-    return valueAtPath(this.read(target), path) as T;
+  readPath<T>(target: DataTarget, path: DataPath): T {
+    return readDataPath(this.read(target), path) as T;
   }
 
-  set(target: MutationTarget, path: MutationPath, value: unknown): void {
+  /** Non-reactive read that includes uncommitted preview edits. */
+  peek<T>(target: DataTarget, path: DataPath): T {
+    let value = readDataPath(
+      untrack(() => this.readRaw(target)),
+      path
+    );
+    for (const preview of this.previews.get(dataTargetKey(target)) ?? []) {
+      if (isPathPrefix(preview.path, path))
+        value = readDataPath(preview.value, path.slice(preview.path.length));
+      else if (isPathPrefix(path, preview.path))
+        value = replaceAtPath(value, preview.path.slice(path.length), preview.value);
+    }
+    return value as T;
+  }
+
+  set(target: DataTarget, path: DataPath, value: unknown): void {
     const before = this.readPath(target, path);
     if (Object.is(before, value)) return;
     this.perform({ kind: "set", target, path: [...path], before, after: value });
   }
 
-  setTransient(target: MutationTarget, path: MutationPath, value: unknown): void {
+  setTransient(target: DataTarget, path: DataPath, value: unknown): void {
     const before = this.readPath(target, path);
     if (Object.is(before, value)) return;
     this.applyPatch(
@@ -167,12 +239,20 @@ export class ProjectMutator {
     );
   }
 
-  beginSet<T>(target: MutationTarget, path: MutationPath): EditSession<T> {
+  beginSet<T>(
+    target: DataTarget,
+    path: DataPath,
+    options: EditSessionOptions = {}
+  ): EditSession<T> {
+    if (options.preview) return this.beginPreview<T>(target, path);
     const before = this.readPath<T>(target, path);
     let after = before;
     let finished = false;
     const pendingChange = beginPendingHistoryChange();
     const session: EditSession<T> = {
+      get active() {
+        return !finished;
+      },
       update: (value) => {
         if (finished || Object.is(after, value)) return;
         this.setTransient(target, path, value);
@@ -184,8 +264,12 @@ export class ProjectMutator {
         finished = true;
         this.activeSessions.delete(session as EditSession<unknown>);
         try {
-          if (!Object.is(before, after))
-            this.recordApplied([{ kind: "set", target, path: [...path], before, after }]);
+          if (!Object.is(before, after)) {
+            const patch: ProjectPatch = { kind: "set", target, path: [...path], before, after };
+            // Already applied transiently; inside a transaction it joins the transaction's history item.
+            if (this.transactionPatches) this.appendTransactionPatch(patch);
+            else this.recordApplied([patch]);
+          }
         } finally {
           pendingChange.finish();
         }
@@ -211,13 +295,68 @@ export class ProjectMutator {
     return session;
   }
 
+  private beginPreview<T>(target: DataTarget, path: DataPath): EditSession<T> {
+    const key = dataTargetKey(target);
+    path = [...path];
+    const before = this.readPath<T>(target, path);
+    let after = before;
+    let finished = false;
+    const pendingChange = beginPendingHistoryChange();
+    const notify = () => this.notify(key, { target, operation: "set", path, direction: "preview" });
+
+    const finish = () => {
+      finished = true;
+      this.activeSessions.delete(session as EditSession<unknown>);
+      const previews = this.previews.get(key);
+      previews?.delete(preview);
+      if (previews?.size === 0) this.previews.delete(key);
+    };
+    const session: EditSession<T> = {
+      get active() {
+        return !finished;
+      },
+      update: (value) => {
+        if (finished || Object.is(after, value)) return;
+        after = value;
+        preview.value = value;
+        pendingChange.setDirty(!Object.is(before, after));
+        notify();
+      },
+      commit: () => {
+        if (finished) return;
+        finish();
+        try {
+          if (!Object.is(before, after))
+            this.perform({ kind: "set", target, path: [...path], before, after });
+        } finally {
+          pendingChange.finish();
+        }
+      },
+      cancel: () => {
+        if (finished) return;
+        finish();
+        pendingChange.finish();
+        if (!Object.is(before, after)) notify();
+      }
+    };
+    const preview: PreviewEdit = { path, value: before, cancel: session.cancel };
+
+    for (const existing of this.previews.get(key) ?? [])
+      if (pathsOverlap(existing.path, path)) existing.cancel();
+    let previews = this.previews.get(key);
+    if (!previews) this.previews.set(key, (previews = new Set()));
+    previews.add(preview);
+    this.activeSessions.add(session as EditSession<unknown>);
+    return session;
+  }
+
   commitPendingEdits(): void {
     for (const session of [...this.activeSessions]) session.commit();
   }
 
   splice(
-    target: MutationTarget,
-    path: MutationPath,
+    target: DataTarget,
+    path: DataPath,
     index: number,
     deleteCount: number,
     ...inserted: unknown[]
@@ -236,7 +375,7 @@ export class ProjectMutator {
     });
   }
 
-  move(target: MutationTarget, path: MutationPath, from: number, to: number): void {
+  move(target: DataTarget, path: DataPath, from: number, to: number): void {
     if (from === to) return;
     this.perform({ kind: "move", target, path: [...path], from, to });
   }
@@ -277,21 +416,33 @@ export class ProjectMutator {
     });
   }
 
+  /** Clears every REF relation that points to the node. */
   disconnectOutputsTo(nodeId: string): void {
     this.transaction(() => {
-      for (const [id, node] of this.project.nodes) {
-        if (node.nodeType === "branch") {
-          if (node.trueOutput === nodeId)
-            this.set({ kind: "record", type: "nodes", id }, ["trueOutput"], null);
-          if (node.falseOutput === nodeId)
-            this.set({ kind: "record", type: "nodes", id }, ["falseOutput"], null);
-        } else if (node.output === nodeId) {
-          this.set({ kind: "record", type: "nodes", id }, ["output"], null);
+      for (const type of Object.keys(PROJECT_RECORDS) as RecordKey[]) {
+        for (const [id, data] of this.project[type] as Map<string, RecordValue>) {
+          forEachRelationId(
+            type,
+            data as never,
+            ({ id: refId, kind, path }) => {
+              if (refId !== nodeId || kind !== KIND.REF || !path) return;
+              const target: DataTarget = { kind: "record", type, id };
+              const value = this.readPath(target, path);
+              if (Array.isArray(value)) {
+                if (value.includes(nodeId)) {
+                  this.set(
+                    target,
+                    path,
+                    value.filter((item) => item !== nodeId)
+                  );
+                }
+              } else if (value === nodeId) {
+                this.set(target, path, null);
+              }
+            },
+            { includes: ["nodes"], includePath: true }
+          );
         }
-      }
-      for (const [id, listener] of this.project.listeners) {
-        if (listener.output === nodeId)
-          this.set({ kind: "record", type: "listeners", id }, ["output"], null);
       }
     });
   }
@@ -330,7 +481,7 @@ export class ProjectMutator {
       const existing = this.transactionPatches!.at(-1);
       if (
         existing?.kind === "set" &&
-        targetKey(existing.target) === targetKey(patch.target) &&
+        dataTargetKey(existing.target) === dataTargetKey(patch.target) &&
         existing.path.length === patch.path.length &&
         existing.path.every((part, index) => part === patch.path[index])
       ) {
@@ -367,14 +518,14 @@ export class ProjectMutator {
     if (patch.kind === "set") {
       next = replaceAtPath(root, patch.path, direction === "forward" ? patch.after : patch.before);
     } else if (patch.kind === "splice") {
-      const array = valueAtPath(root, patch.path) as unknown[];
+      const array = readDataPath(root, patch.path) as unknown[];
       const replacement = [...array];
       if (direction === "forward")
         replacement.splice(patch.index, patch.removed.length, ...patch.inserted);
       else replacement.splice(patch.index, patch.inserted.length, ...patch.removed);
       next = replaceAtPath(root, patch.path, replacement);
     } else {
-      const array = valueAtPath(root, patch.path) as unknown[];
+      const array = readDataPath(root, patch.path) as unknown[];
       const replacement =
         direction === "forward"
           ? moveItem(array, patch.from, patch.to)
@@ -385,27 +536,34 @@ export class ProjectMutator {
     this.changed(patch, direction, transient);
   }
 
-  private readRaw(target: MutationTarget): unknown {
+  private readRaw(target: DataTarget): unknown {
     return target.kind === "config"
       ? this.project.config
       : this.project.getUnsafe(target.type, target.id);
   }
 
-  private writeRaw(target: MutationTarget, value: unknown) {
+  private writeRaw(target: DataTarget, value: unknown) {
     if (target.kind === "config") this.project.setConfig(value as ProjectConfig);
     else this.project.setRecord(target.type, target.id, value as never);
   }
 
   private changed(patch: ProjectPatch, direction: HistoryDirection, transient: boolean) {
-    const key = targetKey(patch.target);
+    const key = dataTargetKey(patch.target);
+    const path = "path" in patch ? patch.path : [];
+    // A preview based on data that has since changed would commit a stale `before`.
+    for (const preview of this.previews.get(key) ?? [])
+      if (pathsOverlap(preview.path, path)) preview.cancel();
     if (patch.target.kind === "config" || this.project.get(patch.target.type, patch.target.id))
       this.revisions.set(key, (this.revisions.get(key) ?? 0) + 1);
-    const change: ProjectChange = {
+    this.notify(key, {
       target: patch.target,
       operation: patch.kind,
-      path: "path" in patch ? patch.path : [],
+      path,
       direction: transient ? "transient" : direction
-    };
+    });
+  }
+
+  private notify(key: string, change: ProjectChange) {
     this.listeners.get(key)?.forEach((listener) => listener(change));
   }
 }
@@ -413,8 +571,8 @@ export class ProjectMutator {
 export class Field<T = unknown> implements FieldBinding<T> {
   constructor(
     private readonly mutator: ProjectMutator,
-    readonly target: MutationTarget,
-    readonly path: MutationPath
+    readonly target: DataTarget,
+    readonly path: DataPath
   ) {}
 
   get value(): T {
@@ -429,12 +587,20 @@ export class Field<T = unknown> implements FieldBinding<T> {
     this.mutator.setTransient(this.target, this.path, value);
   }
 
-  begin(): EditSession<T> {
-    return this.mutator.beginSet<T>(this.target, this.path);
+  begin(options?: EditSessionOptions): EditSession<T> {
+    return this.mutator.beginSet<T>(this.target, this.path, options);
   }
 
-  at<U = unknown>(...path: MutationPath): Binding<U> {
+  peek(): T {
+    return this.mutator.peek<T>(this.target, this.path);
+  }
+
+  at<U = unknown>(...path: DataPath): Binding<U> {
     return new Field(this.mutator, this.target, [...this.path, ...path]) as unknown as Binding<U>;
+  }
+
+  field<P extends FieldKey<T>>(key: P): FieldResult<T, P> {
+    return this.at(key) as FieldResult<T, P>;
   }
 
   splice(index: number, deleteCount: number, ...inserted: unknown[]) {
@@ -458,18 +624,10 @@ export class RecordEditor<
     this.type = type;
     this.id = id;
   }
-
-  field<P extends keyof T>(key: P): Binding<T[P]> {
-    return this.at<T[P]>(key as string);
-  }
 }
 
 export class ConfigEditor extends Field<ProjectConfig> {
   constructor(mutator: ProjectMutator) {
     super(mutator, { kind: "config" }, []);
-  }
-
-  field<P extends keyof ProjectConfig>(key: P): Binding<ProjectConfig[P]> {
-    return this.at<ProjectConfig[P]>(key as string);
   }
 }

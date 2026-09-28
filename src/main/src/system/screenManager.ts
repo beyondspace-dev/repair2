@@ -1,6 +1,7 @@
 import { screen } from "electron";
 import type { ProjectConfig } from "@shared/projectData/types";
 import type { SettingValueMap } from "@shared/setting/settingFields";
+import type { WindowState } from "@shared/setting/internalSettings";
 
 function getFullScreenArea() {
   const screens = screen.getAllDisplays().map((d) => d.bounds);
@@ -26,6 +27,21 @@ export function getMainScreenArea(anchorDisplayId?: SettingValueMap["anchorDispl
     ? screen.getAllDisplays().find((s) => s.id === anchorDisplayId)
     : undefined;
   return (anchor ?? screen.getPrimaryDisplay()).bounds;
+}
+
+const MIN_VISIBLE_WIDTH = 100;
+const MIN_VISIBLE_HEIGHT = 36;
+
+export function isBoundsOnScreen({ x, y, width }: WindowState["bounds"]) {
+  return screen
+    .getAllDisplays()
+    .some(
+      ({ workArea: a }) =>
+        x + width - MIN_VISIBLE_WIDTH > a.x &&
+        x + MIN_VISIBLE_WIDTH < a.x + a.width &&
+        y + MIN_VISIBLE_HEIGHT > a.y &&
+        y + MIN_VISIBLE_HEIGHT < a.y + a.height
+    );
 }
 
 function getSizeRatio(config: ProjectConfig) {

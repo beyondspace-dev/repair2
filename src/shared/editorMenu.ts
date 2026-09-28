@@ -33,6 +33,12 @@ const EditorMenu = [
         label: "데이터 폴더 열기",
         action: "open-data-folder"
       },
+      {
+        label: "설정",
+        action: "settings",
+        shortcut: "Ctrl+,",
+        editorAction: true
+      },
       { type: "separator" },
       {
         label: "RepairV2 종료",
@@ -100,6 +106,19 @@ const EditorMenu = [
     label: "보기",
     key: "V",
     items: [
+      {
+        label: "사이드바 토글",
+        action: "sidebar-toggle",
+        shortcut: "Ctrl+B",
+        editorAction: true
+      },
+      {
+        label: "로그 패널 토글",
+        action: "log-toggle",
+        shortcut: "Ctrl+L",
+        editorAction: true
+      },
+      { type: "separator" },
       {
         label: "확대",
         action: "zoom-in",

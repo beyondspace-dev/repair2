@@ -3,13 +3,12 @@ import { ipc } from "../ipc";
 
 export const Logs: Map<string, LogEntry> = new Map();
 
-async function updateLogs(filter: LogListFilter = {}) {
+export async function updateLogs(filter: LogListFilter = {}) {
   const logs = (await ipc.invoke("log:list", filter)) as LogEntry[];
   // logInfo.keys = [];
   Logs.clear();
   logs.forEach(appendLog);
 }
-updateLogs();
 
 function appendLog(log: LogEntry) {
   // logInfo.keys.push(log.id);

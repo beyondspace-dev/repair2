@@ -11,7 +11,6 @@
   import inputNode from "./lines/input";
   import outputNode from "./lines/output";
   import { deleteNodeGeometry, setNodeSize } from "./geometry";
-  import { withHistoryGroup } from "../lib/editUtils/history";
 
   type OutputView = {
     id: string;
@@ -53,7 +52,7 @@
 
   function renderNodePos() {
     if (!nodeEl) return;
-    const pos = editor.value.nodePos;
+    const pos = editor.field("nodePos").peek();
     nodeEl.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
   }
   const frameUpdater = new FrameUpdater(renderNodePos, 0);
@@ -71,14 +70,15 @@
     getMutator().subscribe({ kind: "record", type: "nodes", id }, (change) => {
       if (change.path[0] !== "nodePos") return;
       frameUpdater.draw();
-      if (change.direction !== "transient") reloadNode(id);
+      reloadNode(id);
     }),
     () => frameUpdater.destroy()
   ];
 
+  type NodePos = { x: number; y: number };
   type MovingNode = {
-    id: string;
-    session: EditSession<{ x: number; y: number }>;
+    binding: FieldBinding<NodePos>;
+    session: EditSession<NodePos>;
   };
   let moving: MovingNode[] = [];
 
@@ -91,22 +91,20 @@
       onMoveStart: () => {
         const focus = $currentFocus;
         const ids = focus.type === "nodes" && focus.target.has(id) ? [...focus.target] : [id];
-        moving = ids.map((movingId) => ({
-          id: movingId,
-          session: getMutator().record("nodes", movingId).field("nodePos").begin()
-        }));
+        moving = ids.map((movingId) => {
+          const binding = getMutator().record("nodes", movingId).field("nodePos");
+          return { binding, session: binding.begin({ preview: true }) };
+        });
       },
       onMoved: ({ dx, dy }) => {
-        for (const item of moving) {
-          const movingEditor = getMutator().record("nodes", item.id);
-          const pos = movingEditor.value.nodePos;
-          item.session.update({ x: pos.x + dx, y: pos.y + dy });
-          reloadNode(item.id);
+        for (const { binding, session } of moving) {
+          const pos = binding.peek();
+          session.update({ x: pos.x + dx, y: pos.y + dy });
         }
       },
       onMoveEnd: (moved) => {
-        withHistoryGroup(() => {
-          for (const item of moving) moved ? item.session.commit() : item.session.cancel();
+        getMutator().transaction(() => {
+          for (const { session } of moving) moved ? session.commit() : session.cancel();
         });
         moving = [];
       }

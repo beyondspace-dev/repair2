@@ -1,0 +1,52 @@
+.panel {
+  position: relative;
+  background-color: var(--darkgray);
+  pointer-events: all;
+  color: #fff;
+
+  .panel-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    background-color: #4e86ff;
+    opacity: 0;
+
+    &.left,
+    &.right {
+      top: 0;
+      width: var(--handle-size);
+      height: 100%;
+      cursor: ew-resize;
+    }
+    &.top,
+    &.bottom {
+      left: 0;
+      height: var(--handle-size);
+      width: 100%;
+      cursor: ns-resize;
+    }
+    &.left {
+      right: 0;
+      transform: translateX(calc(var(--handle-size) / 2));
+    }
+    &.right {
+      left: 0;
+      transform: translateX(calc(var(--handle-size) / -2));
+    }
+    &.top {
+      bottom: 0;
+      transform: translateY(calc(var(--handle-size) / 2));
+    }
+    &.bottom {
+      top: 0;
+      transform: translateY(calc(var(--handle-size) / -2));
+    }
+
+    &.grabbing,
+    &:hover {
+      opacity: 0.8;
+      transition: opacity 500ms ease-out;
+    }
+  }
+}

@@ -21,11 +21,11 @@ const projectData = normalizeData as Types.Data;
 export async function runNormalizeDataFactoryTest() {
   (globalThis as any).__APP_VERSION__ = "normalize-data-factory-test";
 
-  const { createProject } = await import("@shared/projectData/factories");
+  const { ProjectDefinition } = await import("@shared/projectData/definitions");
 
-  runCase("createProject preserves a complex valid project during normalization", () => {
+  runCase("ProjectDefinition.create preserves a complex valid project during normalization", () => {
     const beforeNormalize = structuredClone(projectData);
-    const normalized = createProject(projectData);
+    const normalized = ProjectDefinition.create(projectData);
 
     assert.deepEqual(normalized, projectData);
     assert.deepEqual(projectData, beforeNormalize);

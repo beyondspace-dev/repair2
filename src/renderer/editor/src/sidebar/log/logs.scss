@@ -6,6 +6,7 @@
   height: 100%;
   width: 100%;
   padding-bottom: 30px;
+  contain: strict;
 
   .log-wrapper {
     border-bottom: solid #fff5 1px;

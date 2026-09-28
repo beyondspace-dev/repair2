@@ -1,14 +1,16 @@
 <script lang="ts">
-  import InputField from "../../../input/InputField.svelte";
-  import type { RecordEditor } from "../../../../project/mutator";
+  import { payloadOf, type RecordEditor } from "../../../../project/mutator";
+  import ListSection from "../../layout/ListSection.svelte";
+  import ResourceField from "../../fields/ResourceField.svelte";
+
   const { editor }: { editor: RecordEditor<"steps"> } = $props();
-  let operation = $derived(editor.value.type.split(".")[1]);
+  let type = $derived(editor.value.type);
 </script>
 
-{#if operation === "add" || operation === "release"}
-  <InputField
-    label="자원 목록"
-    type="resource"
-    seriesOption={{ binding: editor.at<string[]>("payload", "resourceArr") }}
-  />
+{#if type === "Preload.add" || type === "Preload.release"}
+  <ListSection title="자원 목록" binding={payloadOf(editor, type).field("resourceArr")}>
+    {#snippet item(resource)}
+      <ResourceField binding={resource} />
+    {/snippet}
+  </ListSection>
 {/if}

@@ -1,3 +1,4 @@
+import "./lib/audio/audioOutput";
 import { getProject, updateData } from "./project";
 import { afterPluginImported } from "./lib/plugin/pluginManager";
 import { ipc } from "./lib/ipc";

@@ -1,6 +1,6 @@
-import { createProject } from "./factories";
+import { ProjectDefinition } from "./definitions";
 import type { Types } from "./types";
 
 export function normalizeProjectData(data: Types.Data): Types.Data {
-  return createProject(data);
+  return ProjectDefinition.create(data);
 }

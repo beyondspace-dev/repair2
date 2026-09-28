@@ -5,8 +5,7 @@ import {
   type RecordKey,
   type RecordValue
 } from "@shared/constants";
-import { isRelationLeaf, isRelationTree, RelationMap, TYPE } from "@shared/projectData/relation";
-import type { RelationLeaf, RelationMapType, RelationTree } from "@shared/projectData/relation";
+import { rewriteRelationIds } from "@shared/projectData/relation";
 import type { ExtractResult } from "../extractData";
 import { getMutator, getProject } from "../../../project/store";
 import type { ProjectInstance } from "../../../project/project";
@@ -34,8 +33,6 @@ export type PasteResult = {
   rootIds: string[];
   idMap: PasteIdMap;
 };
-
-type Resolver = (type: RecordKey, id: string) => string | null;
 
 function checkPastable(pastingType: Copiable, focussing: FocusData, project: ProjectInstance) {
   const pastableType = ClipboardOwnMap[pastingType];
@@ -242,57 +239,6 @@ function forEachExtractRecord(
 
 function isRecordKey(value: string): value is RecordKey {
   return value in PROJECT_RECORDS;
-}
-
-function rewriteRelationIds(type: RecordKey, data: RecordValue, resolve: Resolver) {
-  const map = (RelationMap as RelationMapType)[type];
-  if (!map) return;
-  rewriteRelationMap(data, map, resolve);
-}
-
-function rewriteRelationMap(data: unknown, map: RelationTree, resolve: Resolver) {
-  if (!isRecord(data)) return;
-
-  if (map.$dependsOn && map.$cases) {
-    const caseKey = data[map.$dependsOn];
-    if (typeof caseKey === "string") {
-      const caseMap = map.$cases[caseKey];
-      if (caseMap) rewriteRelationMap(data, caseMap, resolve);
-    }
-  }
-
-  for (const key in map) {
-    if (key === "$dependsOn" || key === "$cases") continue;
-
-    const relation = map[key];
-    if (isRelationLeaf(relation)) {
-      rewriteRelationLeaf(data, key, relation, resolve);
-      continue;
-    }
-
-    if (isRelationTree(relation)) {
-      rewriteRelationMap(data[key], relation, resolve);
-    }
-  }
-}
-
-function rewriteRelationLeaf(
-  data: Record<string, unknown>,
-  key: string,
-  relation: RelationLeaf,
-  resolve: Resolver
-) {
-  const value = data[key];
-  if (relation.$type === TYPE.ID) {
-    if (typeof value === "string") data[key] = resolve(relation.$key, value);
-    return;
-  }
-
-  if (relation.$type === TYPE.ID_ARRAY && Array.isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      if (typeof value[i] === "string") value[i] = resolve(relation.$key, value[i]);
-    }
-  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

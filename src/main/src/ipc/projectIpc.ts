@@ -3,8 +3,8 @@ import { logger } from "../logs/logger";
 import { ipc } from "./ipcMethods";
 
 export function setupProjectIpc(app: MainApp) {
-  ipc.on("config:is-dev", (evt) => {
-    evt.returnValue = !!app.state.project.data?.config?.devMode;
+  ipc.on("settings:dev-mode", (evt) => {
+    evt.returnValue = app.controllers.pluginHmr.devMode;
   });
 
   ipc.on("request-data", (evt) => {

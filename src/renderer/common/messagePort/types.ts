@@ -9,7 +9,7 @@ export type MsgRuntimeMonitorChange =
   | [type: "component", status: "set", target: string[]];
 
 export type MsgRuntimeMonitorTotal = {
-  variables: Map<string, string>;
+  variables: Map<string, string | null>;
   preloads: string[];
   steps: Map<string, number>;
   entries: string[];

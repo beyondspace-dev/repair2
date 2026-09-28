@@ -20,6 +20,16 @@ export default class SerialConnector {
     private readonly onconnect: SerialConnectHandler
   ) {}
 
+  async list() {
+    const SP = await getSerialPort();
+    const ports = await SP.list();
+    return ports.map((p) => ({
+      path: p.path,
+      friendlyName: (p as { friendlyName?: string }).friendlyName,
+      manufacturer: p.manufacturer
+    }));
+  }
+
   async open(portAlias?: string, path?: string | null, baudRate = 9600) {
     if (this.port?.isOpen) this.port.close();
 

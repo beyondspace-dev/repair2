@@ -4,17 +4,20 @@ import { createEditorMenu } from "./editorMenu";
 import type { MainApp } from "../app/mainApp";
 import { logger } from "../logs/logger";
 import { ipc } from "../ipc/ipcMethods";
-import { getMainScreenArea, getWindowArea } from "../system/screenManager";
+import { getMainScreenArea, getWindowArea, isBoundsOnScreen } from "../system/screenManager";
 
 export class WindowController {
   #app: MainApp;
+  #editorWindowCreating = false;
 
   constructor(app: MainApp) {
     this.#app = app;
   }
 
   createMainWindow() {
-    const { controllers, globalKey, service, startup, state, system } = this.#app;
+    const { controllers, globalKey, service, settings, startup, state, system } = this.#app;
+    if (state.window.main) return;
+
     let playRendererShown = false;
     let playRendererFailed = false;
     const quitOnStartupError = () => {
@@ -50,6 +53,7 @@ export class WindowController {
       mainWindow.show();
 
       controllers.project.applyDataConfig();
+      this.applyAlwaysOnTop();
     };
     ipc.on("play-win-ready", onPlayWindowReady);
 
@@ -62,17 +66,19 @@ export class WindowController {
     mainWindow.on("closed", () => {
       ipcMain.removeListener("play-win-ready", onPlayWindowReady);
       state.window.main = null;
-      globalKey.stopSuppress();
+      globalKey.stopSuppress("play");
       if (!service.projectFileManager.importing) {
         startup.closeSplash();
         system.app.quit();
       }
     });
-    mainWindow.on("focus", () => {
-      if (state.project.data?.config?.suppressGlobalKeys) globalKey.startSuppress();
+    mainWindow.on("focus", async () => {
+      if (!(await settings.get("suppressGlobalKeys"))) return;
+      if (state.window.main === mainWindow && mainWindow.isFocused())
+        globalKey.startSuppress("play");
     });
     mainWindow.on("blur", () => {
-      globalKey.stopSuppress();
+      globalKey.stopSuppress("play");
     });
 
     mainWindow.webContents.on("render-process-gone", (evt, details) => {
@@ -116,13 +122,20 @@ export class WindowController {
     );
   }
 
-  createEditorWindow() {
-    const { state, editorSave, message, system } = this.#app;
-    if (state.window.editor) return;
+  async createEditorWindow() {
+    const { state, editorSave, globalKey, message, settings, system } = this.#app;
+    if (state.window.editor || this.#editorWindowCreating) return;
+
+    this.#editorWindowCreating = true;
+    const savedState = await settings.get("editorWindowState");
+    this.#editorWindowCreating = false;
+    const savedBounds =
+      savedState && isBoundsOnScreen(savedState.bounds) ? savedState.bounds : undefined;
 
     const editorWindow = new BrowserWindow({
       width: 1200,
       height: 800,
+      ...savedBounds,
       minWidth: 750,
       minHeight: 500,
       show: false,
@@ -144,17 +157,16 @@ export class WindowController {
     editorWindow.setMenu(createEditorMenu(this.#app));
     editorWindow.setMenuBarVisibility(false);
 
-    function showEditorWin(evt: IpcMainEvent) {
+    const showEditorWin = (evt: IpcMainEvent) => {
       if (evt.sender !== editorWindow.webContents) return;
 
       ipc.off("editor-win-ready", showEditorWin);
 
-      editorWindow.show();
+      if (savedState?.maximized) editorWindow.maximize();
+      else editorWindow.show();
       editorWindow.focus();
-      if (state.project.data) {
-        editorWindow.setAlwaysOnTop(!!state.project.data?.config?.alwaysOnTop, "screen-saver");
-      }
-    }
+      this.applyAlwaysOnTop();
+    };
     ipc.on("editor-win-ready", showEditorWin);
 
     editorWindow.webContents.setWindowOpenHandler((details) => {
@@ -168,12 +180,29 @@ export class WindowController {
       editorWindow.loadFile(join(__dirname, "../editor/index.html"));
     }
 
+    editorWindow.on("blur", () => {
+      globalKey.stopSuppress("capture");
+    });
+
     editorWindow.on("close", () => {
+      settings.set("editorWindowState", {
+        bounds: editorWindow.getNormalBounds(),
+        maximized: editorWindow.isMaximized()
+      });
+      globalKey.stopSuppress("capture");
       if (editorSave.pending) {
         editorSave.resolveEditorSaveRequest(editorSave.pending.requestId, false);
       }
       state.window.editor = null;
     });
+  }
+
+  async applyAlwaysOnTop() {
+    const { settings, state } = this.#app;
+    const alwaysOnTop = await settings.get("alwaysOnTop");
+    for (const win of [state.window.main, state.window.editor]) {
+      if (win && !win.isDestroyed()) win.setAlwaysOnTop(alwaysOnTop, "screen-saver");
+    }
   }
 
   closeProjectWindows() {

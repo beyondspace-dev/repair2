@@ -1,15 +1,17 @@
 <script lang="ts">
-  import InputField from "../../input/InputField.svelte";
   import type { Types } from "@shared/projectData/types";
   import type { RecordEditor } from "../../../project/mutator";
+  import Section from "../layout/Section.svelte";
+  import TextField from "../fields/TextField.svelte";
+  import VariableField from "../fields/VariableField.svelte";
 
   const { editor }: { editor: RecordEditor<"nodes", Types.VariableSet> } = $props();
 </script>
 
-<InputField label="노드 이름" binding={editor.field("alias")} />
-<InputField
-  label="설정할 변수"
-  binding={editor.field("variable")}
-  type="variable"
-  canUnselect={false}
-/>
+<Section>
+  <TextField binding={editor.field("alias")} placeholder="노드 이름" tooltip="노드 이름" />
+</Section>
+
+<Section title="설정할 변수">
+  <VariableField binding={editor.field("variable")} unselectable={false} placeholder="변수 선택" />
+</Section>

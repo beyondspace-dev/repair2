@@ -11,16 +11,17 @@
   const valueProcess = $derived(editor.value);
 </script>
 
-<div
-  class="value-process"
-  onpointerdown={(event) => {
-    if (event.button || $grabbing) return;
-    onpointerdown(event);
-  }}
-  use:data={{ type: "valueProcess", id, parents }}
->
+<div class="value-process" use:data={{ type: "valueProcess", id, parents }}>
   <div class="info">
-    <div class="handle"><Icon icon="hamburger" color="rgba(0,0,0,.5)" size={8} /></div>
+    <div
+      class="handle"
+      onpointerdown={(event) => {
+        if (event.button || $grabbing) return;
+        onpointerdown(event);
+      }}
+    >
+      <Icon icon="hamburger" color="rgba(0,0,0,.5)" size={8} />
+    </div>
     <span>{ValueProcessTypes[valueProcess.type as keyof typeof ValueProcessTypes] ?? "?"}</span>
   </div>
 </div>

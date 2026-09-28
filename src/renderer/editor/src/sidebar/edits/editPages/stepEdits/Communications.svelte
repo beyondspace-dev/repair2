@@ -1,64 +1,95 @@
 <script lang="ts">
-  import InputField from "../../../input/InputField.svelte";
-  import type { RecordEditor } from "../../../../project/mutator";
+  import { payloadOf, type RecordEditor } from "../../../../project/mutator";
+  import ListSection from "../../layout/ListSection.svelte";
+  import TextField from "../../fields/TextField.svelte";
+  import TextareaField from "../../fields/TextareaField.svelte";
+  import NumberField from "../../fields/NumberField.svelte";
+  import Section from "../../layout/Section.svelte";
+
   const { editor }: { editor: RecordEditor<"steps"> } = $props();
-  let parts = $derived(editor.value.type.split("."));
+  let type = $derived(editor.value.type);
 </script>
 
-{#if parts[1] === "Serial"}
-  {#if parts[2] === "open"}
-    <InputField
-      label="연결 키워드(선택)"
-      binding={editor.at("payload", "portAlias")}
-      placeholder="기기 이름에 포함 시 연결"
+{#if type === "Communication.Serial.open"}
+  {@const payload = payloadOf(editor, type)}
+  <Section title="시리얼 통신">
+    <TextField
+      binding={payload.field("portAlias")}
+      prefix="키워드"
+      placeholder="기기 이름에 포함 시 연결 (선택)"
+      tooltip="연결 키워드(선택)"
     />
-    <InputField
-      label="포트 번호"
-      binding={editor.at("payload", "port")}
+    <TextField
+      binding={payload.field("port")}
+      prefix="포트"
       placeholder="키워드 없을 시 연결"
+      tooltip="포트 번호"
     />
-    <InputField
-      label="통신 속도"
-      binding={editor.at("payload", "baudRate")}
-      type="number"
+    <NumberField
+      binding={payload.field("baudRate")}
+      prefix="속도"
       placeholder="9600"
+      tooltip="통신 속도"
     />
-  {:else if parts[2] === "send"}
-    <InputField label="전송할 데이터" binding={editor.at("payload", "data")} type="textarea" />
-  {/if}
-{:else if parts[1] === "Socket"}
-  {#if parts[2] === "connect"}
-    <InputField
-      label="URL"
-      binding={editor.at("payload", "url")}
+  </Section>
+{:else if type === "Communication.Serial.send"}
+  <Section title="데이터">
+    <TextareaField
+      binding={payloadOf(editor, type).field("data")}
+      minHeight={0}
+      placeholder="전송할 데이터"
+    />
+  </Section>
+{:else if type === "Communication.Socket.connect"}
+  <Section title="URL">
+    <TextareaField
+      binding={payloadOf(editor, type).field("url")}
+      minHeight={0}
       placeholder="Enter로 구분"
-      type="textarea"
     />
-  {:else if parts[2] === "connectService"}
-    <InputField label="서비스 종류" binding={editor.at("payload", "type")} placeholder="http" />
-    <InputField
-      label="서비스 이름"
-      binding={editor.at("payload", "name")}
+  </Section>
+{:else if type === "Communication.Socket.connectService"}
+  {@const payload = payloadOf(editor, type)}
+  <Section title="서비스">
+    <TextField
+      binding={payload.field("type")}
+      prefix="종류"
+      placeholder="http"
+      tooltip="서비스 종류"
+    />
+    <TextField
+      binding={payload.field("name")}
+      prefix="이름"
       placeholder="서비스 이름"
+      tooltip="서비스 이름"
     />
-  {:else if parts[2] === "send"}
-    <InputField label="통신 채널" binding={editor.at("payload", "channel")} />
-    <InputField
-      label="전송할 데이터"
-      type="textarea"
-      seriesOption={{ binding: editor.at("payload", "data"), min: 1 }}
-      autoResizeOpt={{ minHeight: 0 }}
-    />
-  {/if}
-{:else if parts[1] === "Mqtt"}
-  {#if parts[2] === "connect"}
-    <InputField label="URL" binding={editor.at("payload", "url")} />
-    <InputField
-      label="구독할 토픽"
-      seriesOption={{ binding: editor.at("payload", "topics"), min: 0 }}
-    />
-  {:else if parts[2] === "publish"}
-    <InputField label="토픽" binding={editor.at("payload", "topic")} />
-    <InputField label="전송할 메시지" binding={editor.at("payload", "payload")} />
-  {/if}
+  </Section>
+{:else if type === "Communication.Socket.send"}
+  {@const payload = payloadOf(editor, type)}
+  <Section title="채널">
+    <TextField binding={payload.field("channel")} />
+  </Section>
+  <ListSection title="전송할 데이터" binding={payload.field("data")} min={1}>
+    {#snippet item(data)}
+      <TextareaField binding={data} minHeight={0} />
+    {/snippet}
+  </ListSection>
+{:else if type === "Communication.Mqtt.connect"}
+  {@const payload = payloadOf(editor, type)}
+  <Section title="URL">
+    <TextField binding={payload.field("url")} prefix="URL" tooltip="URL" />
+  </Section>
+  <ListSection title="구독할 토픽" binding={payload.field("topics")} newItem={() => ""}>
+    {#snippet item(topic)}
+      <TextField binding={topic} placeholder="토픽" />
+    {/snippet}
+  </ListSection>
+{:else if type === "Communication.Mqtt.publish"}
+  {@const payload = payloadOf(editor, type)}
+  <Section title="토픽">
+    <TextField binding={payload.field("topic")} />
+  </Section>
+  <Section title="메시지">
+    <TextField binding={payload.field("payload")} placeholder="전송할 메시지" />
+  </Section>
 {/if}

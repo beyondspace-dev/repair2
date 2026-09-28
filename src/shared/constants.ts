@@ -1,9 +1,12 @@
 import type { Types } from "./projectData/types";
 import { typedEntries, typedFromEntries, type ReverseRecord, type ValueOf } from "./utils.types";
 
-export const NODE_TYPES = ["sequence", "entry", "branch", "variableSet"] as const;
 export const PLUGIN_TYPES = ["runtime", "element", "transition", "function", "frame"] as const;
 
+/**
+ * Record maps of the project root and the singular name of each record type.
+ * ProjectDefinitions must declare a definition for every key.
+ */
 export const PROJECT_RECORDS = {
   resources: "resource",
   variables: "variable",

@@ -9,3 +9,4 @@ docs
 build
 reporters
 v1Data.json
+goldenSnapshot.json

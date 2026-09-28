@@ -420,7 +420,7 @@ export default class MainRuntimePluginEngine {
     if (this.child === child) this.child = null;
   }
 
-  private startRestart<T>(work: () => Promise<T>) {
+  private startRestart<T>(work: () => T | Promise<T>) {
     this.plugins.forEach((plugin) => {
       plugin.instance?.markDisposed();
       delete plugin.instance;
@@ -486,12 +486,16 @@ export default class MainRuntimePluginEngine {
     return this.startRestart(async () => undefined);
   }
 
-  withPluginsStopped<T>(work: () => Promise<T>): Promise<T> {
+  withPluginsStopped<T>(work: () => T | Promise<T>, removeAfterSuccess: string[] = []): Promise<T> {
     const run = async () => {
       if (this.restartPromise) await this.restartPromise.catch(() => undefined);
       if (this.destroyed) throw new Error("Runtime plugin engine has been destroyed.");
       this.restartRendererRequested = true;
-      return this.startRestart(work);
+      return this.startRestart(async () => {
+        const result = await work();
+        removeAfterSuccess.forEach((name) => this.plugins.delete(name));
+        return result;
+      });
     };
     const queued = this.stoppedWorkQueue.then(run, run);
     this.stoppedWorkQueue = queued.then(

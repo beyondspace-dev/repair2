@@ -40,6 +40,7 @@ export class PluginManager {
   private sendUpdate: UpdateSender;
   private getNpmExists: () => boolean;
   private getPluginDir: () => string;
+  private busyPlugins = new Set<string>();
 
   destroyed: boolean = false;
 
@@ -162,7 +163,7 @@ export class PluginManager {
     }
   }
   private async watchFineManifest({ info, data }: PluginInfoData) {
-    if (!this.watchable) return;
+    if (!this.watchable || this.busyPlugins.has(info.name)) return;
 
     let prevError = this.manifestErrors.get(info.dir);
     const closeErrorWatcher = prevError?.watch?.close;
@@ -200,7 +201,7 @@ export class PluginManager {
       this.plugins.delete(info.name);
       this.sendUpdate({ type: "removed", pluginInfo: info });
 
-      if ("manifestError" in updateResult) {
+      if ("error" in updateResult) {
         await this.manifestErrorHandler(info.dir, manifestDir, updateResult.reason, watching);
         this.sendUpdate({ type: "manifest-error" });
       } else watching.close();
@@ -338,21 +339,21 @@ export class PluginManager {
     info: PluginInfo;
     forceBuild: boolean;
     forceUpdateSource: boolean;
-  }): Promise<
-    { removed: true } | { manifestError: true; reason: string } | { plugin: PluginInfoData }
-  > {
+  }): Promise<{ removed: true } | { error: true; reason: string } | { plugin: PluginInfoData }> {
+    if (this.busyPlugins.has(info.name)) return { error: true, reason: "BUSY PLUGIN" };
+
     await this.updateSourceManifest(info, forceUpdateSource);
     const result = await this.getPluginInfoFromDir(info.dir);
     if (!result.info) {
       return result.isENOENT
         ? { removed: true }
         : {
-            manifestError: true,
+            error: true,
             reason: result.reason
           };
     }
     const changeResult = await this.changePluginInfo(info, result.info, true);
-    if (changeResult.error) return { manifestError: true, reason: changeResult.reason };
+    if (changeResult.error) return { error: true, reason: changeResult.reason };
 
     const plugin = changeResult.plugin;
     const { builtNow } = await this.ready(plugin, forceBuild, this.devMode);
@@ -386,7 +387,7 @@ export class PluginManager {
     };
   }
 
-  private async getPluginInfoFromDir(
+  async getPluginInfoFromDir(
     dir: string
   ): Promise<{ info: PluginInfo } | { reason: string; isENOENT: boolean; info: null }> {
     const manifestResult = await getManifest(join(this.getPluginDir(), dir, MANIFEST));
@@ -408,7 +409,7 @@ export class PluginManager {
   }
 
   private async updateSourceManifest(info: PluginInfo, force = false): Promise<boolean> {
-    if (!info.linked || !info.linked.linked) return false;
+    if (!info.linked || !info.linked.linked || this.busyPlugins.has(info.name)) return false;
 
     const linkUpdateResult = await this.pluginLinkService.updateManifestFromSource(
       info.linked.sourcePath,
@@ -446,6 +447,9 @@ export class PluginManager {
     newInfo: PluginInfo,
     checkExisting: boolean = true
   ): Promise<{ error: boolean; reason?: string; plugin: null | PluginInfoData }> {
+    if (this.busyPlugins.has(oldInfo.name))
+      return { error: true, reason: "THE PLUGIN IS BUSY", plugin: null };
+
     if (newInfo.name !== oldInfo.name) {
       if (this.checkExistingName(newInfo.name))
         return { error: true, reason: "Duplicated plugin name", plugin: null };
@@ -488,6 +492,9 @@ export class PluginManager {
     if (!plugin) return { builtNow: false };
 
     const { info, data } = plugin;
+
+    if (this.busyPlugins.has(info.name)) return { builtNow: false };
+
     if (data.building) {
       await data.building;
       if (forceBuild && !this.destroyed) {
@@ -521,6 +528,7 @@ export class PluginManager {
   }
   private async ensureMainDependencies(plugin: PluginInfoData, forceUpdate = false) {
     const { info, data } = plugin;
+    if (this.busyPlugins.has(info.name)) return false;
     if (info.type !== "runtime" || !info.main || !info.linked?.linked) return true;
 
     const updating = (data.dependenciesUpdating ?? Promise.resolve()).then(async () => {
@@ -553,6 +561,8 @@ export class PluginManager {
     forceDependencies = false
   ): Promise<boolean> {
     const { info, data } = plugin;
+    if (this.busyPlugins.has(info.name)) return false;
+
     await closeViteWatchers(data);
     if (!data.building) {
       logger.info("PLUGIN BUILDING: " + info.name);
@@ -597,6 +607,8 @@ export class PluginManager {
     return data.building;
   }
   private registerWatchers(plugin: PluginInfoData, watchData?: WatchData) {
+    if (this.busyPlugins.has(plugin.info.name)) return;
+
     const callHmr = (cssCode?: string | null) => {
       this.sendUpdate({
         type: "hmr",
@@ -728,5 +740,28 @@ export class PluginManager {
     if (this.destroyed) return;
     this.destroyed = true;
     await Promise.all([this.mainRuntime.shutdown(), this.closeAllWatchers()]);
+  }
+
+  async touchPlugin(
+    pluginName: string,
+    work: (plugin: PluginInfoData) => unknown | Promise<unknown>
+  ): Promise<{ ok: boolean; message?: string; error?: any }> {
+    if (this.busyPlugins.has(pluginName)) return { ok: false, message: "ALREADY BUSY" };
+
+    const plugin = this.plugins.get(pluginName);
+    if (!plugin) return { ok: false, message: "PLUGIN NOT FOUND" };
+
+    this.busyPlugins.add(pluginName);
+
+    try {
+      await Promise.all([plugin.data.building, plugin.data.dependenciesUpdating]);
+      await Promise.all([closeViteWatchers(plugin.data), plugin.data.sourceWatcher?.close()]);
+      await work(plugin);
+    } catch (error) {
+      return { ok: false, error };
+    } finally {
+      this.busyPlugins.delete(pluginName);
+    }
+    return { ok: true };
   }
 }

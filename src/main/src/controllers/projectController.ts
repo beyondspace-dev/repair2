@@ -88,7 +88,10 @@ export class ProjectController {
     }
     startup.sendStartupInfo("플러그인 처리 중...");
     await Promise.all([
-      controllers.pluginHmr.setPluginManager(!!state.project.data?.config?.devMode),
+      this.#app.settings.get("devMode").then(async (devMode) => {
+        await controllers.pluginHmr.setPluginManager(devMode);
+        await controllers.pluginHmr.setHmrActive(devMode);
+      }),
       controllers.pluginHmr.updateCss()
     ]);
     this.applyDataConfig();
@@ -98,17 +101,11 @@ export class ProjectController {
   }
 
   applyDataConfig() {
-    const { state, controllers } = this.#app;
+    const { state } = this.#app;
     if (!state.project.data?.config) return;
-
-    controllers.pluginHmr.setDevMode(!!state.project.data.config?.devMode);
 
     if (!state.window.main) return;
 
-    state.window.main.setAlwaysOnTop(!!state.project.data.config?.alwaysOnTop, "screen-saver");
-    if (state.window.editor) {
-      state.window.editor.setAlwaysOnTop(!!state.project.data.config?.alwaysOnTop, "screen-saver");
-    }
     state.window.main.setTitle?.(state.project.data.config?.title ?? "REPAIRv2");
 
     this.#app.controllers.window.updateMainWindowArea();

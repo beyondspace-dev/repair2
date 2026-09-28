@@ -7,6 +7,7 @@ import { logger } from "../logs/logger";
 
 export class PluginHmrController {
   #app: MainApp;
+  devMode = false;
 
   constructor(app: MainApp) {
     this.#app = app;
@@ -79,6 +80,7 @@ export class PluginHmrController {
   }
 
   async setDevMode(devMode: boolean) {
+    this.devMode = devMode;
     const { service } = this.#app;
     const pluginManager = service.pluginManager;
     if (pluginManager) await pluginManager.setDevMode(devMode);
@@ -86,6 +88,7 @@ export class PluginHmrController {
   }
 
   async setPluginManager(devMode = false) {
+    this.devMode = devMode;
     const { service, message, paths } = this.#app;
     if (service.pluginManager) await this.destroyPluginManager();
     const pluginManager = new PluginManager(message, {

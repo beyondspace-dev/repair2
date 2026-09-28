@@ -132,6 +132,8 @@ export class MainAppServices {
     app.globalKey.setGlobalKeyListener((type, evt) => {
       if (app.state.window.main?.isFocused?.()) {
         app.message.sendToPlay("global-key-event", type, evt);
+      } else if (app.globalKey.isCapturing && app.state.window.editor?.isFocused?.()) {
+        app.message.sendToEditor("global-key-event", type, evt);
       }
     });
   }

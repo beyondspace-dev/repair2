@@ -4,6 +4,7 @@
   import { closeModal, modal } from "./modal.svelte.js";
   import type { ResolveParams } from "./types";
   import Select from "../../sidebar/input/Select.svelte";
+  import ModalFrame from "./ModalFrame.svelte";
 
   type ModalValues = NonNullable<ResolveParams["fields"]>;
 
@@ -35,113 +36,75 @@
 
   function onkeydown({ key }: KeyboardEvent) {
     if (key === "Enter") tryConfirm();
-    else if (key === "Escape") cancel();
   }
 </script>
-
-<svelte:body {onkeydown} />
 
 {#if modal.currentModal && values}
   {@const m = modal.currentModal}
   {@const buttons = m.buttons ?? [{ label: "취소" }, { label: "확인" }]}
-  <div class="modal-wrapper">
-    <div class="modal">
-      {#if m.title}
-        <div class="title">{m.title}</div>
-      {/if}
-      <div class="body">
-        {#each m.fields as f, i}
-          <div
-            class={["field", f.type ?? "input"]}
-            onclick={f.type === "checkbox"
-              ? () => {
-                  if (values) values[i] = !values[i];
-                }
-              : null}
-          >
-            <span class="label">{f.label}</span>
-            {#if f.type === "checkbox"}
-              <Checkbox value={!!values[i]} />
-            {:else if f.type === "select"}
-              {@const options = Array.isArray(f.options) ? f.options : Object.entries(f.options)}
-              <Select
-                bind:value={values[i]}
-                unselectable={!f.required}
-                placeholder="선택 없음"
-                autofocus={f.autofocus}
-                {options}
-              />
-            {:else}
-              <input
-                type="text"
-                value={values[i]}
-                oninput={(evt) => {
-                  if (!values) return;
+  <ModalFrame title={m.title || null} onclose={cancel} {onkeydown}>
+    <div class="body">
+      {#each m.fields as f, i}
+        <div
+          class={["field", f.type ?? "input"]}
+          onclick={f.type === "checkbox"
+            ? () => {
+                if (values) values[i] = !values[i];
+              }
+            : null}
+        >
+          <span class="label">{f.label}</span>
+          {#if f.type === "checkbox"}
+            <Checkbox value={!!values[i]} />
+          {:else if f.type === "select"}
+            {@const options = Array.isArray(f.options) ? f.options : Object.entries(f.options)}
+            <Select
+              bind:value={values[i]}
+              unselectable={!f.required}
+              placeholder="선택 없음"
+              autofocus={f.autofocus}
+              {options}
+            />
+          {:else}
+            <input
+              type="text"
+              value={values[i]}
+              oninput={(evt) => {
+                if (!values) return;
 
-                  const target = evt.currentTarget;
-                  values[i] = f.filter?.(target.value) ?? target.value;
-                  target.value = values[i] ?? "";
-                }}
-                placeholder={f.placeholder}
-                use:autofocus={f.autofocus}
-              />
-            {/if}
-          </div>
-        {/each}
-      </div>
-      <div class="buttons">
-        {#each buttons as btn, i}
-          {@const isCancel = buttons.length - 1 !== i}
-          <button
-            class={[isCancel ? "cancel" : "confirm"]}
-            disabled={!isCancel && !confirmable}
-            onclick={() => {
-              if (!values) return;
-
-              const params = { canceled: isCancel, fields: $state.snapshot(values) };
-              if (btn.onclick && !btn.onclick?.(params)) return;
-              closeModal(params);
-            }}
-          >
-            {btn.label}
-          </button>
-        {/each}
-      </div>
+                const target = evt.currentTarget;
+                values[i] = f.filter?.(target.value) ?? target.value;
+                target.value = values[i] ?? "";
+              }}
+              placeholder={f.placeholder}
+              use:autofocus={f.autofocus}
+            />
+          {/if}
+        </div>
+      {/each}
     </div>
-  </div>
+    {#snippet footer()}
+      {#each buttons as btn, i}
+        {@const isCancel = buttons.length - 1 !== i}
+        <button
+          class={[isCancel ? "cancel" : "confirm"]}
+          disabled={!isCancel && !confirmable}
+          onclick={() => {
+            if (!values) return;
+
+            const params = { canceled: isCancel, fields: $state.snapshot(values) };
+            if (btn.onclick && !btn.onclick?.(params)) return;
+            closeModal(params);
+          }}
+        >
+          {btn.label}
+        </button>
+      {/each}
+    {/snippet}
+  </ModalFrame>
 {/if}
 
 <style>
-  .modal-wrapper {
-    z-index: var(--modal-z);
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--b-o4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal {
-    min-width: 300px;
-    max-width: calc(100% - 100px);
-    max-height: calc(100% - 100px);
-    color: #fff;
-    background-color: #232323;
-    display: flex;
-    flex-direction: column;
-    border-radius: 20px;
-    corner-shape: squircle;
-  }
-  .title {
-    padding: 15px;
-    flex: 0 0 auto;
-  }
-  .title {
-    border-bottom: solid var(--w-o8) 1px;
-  }
   .body {
     display: flex;
     flex-direction: column;
@@ -165,16 +128,6 @@
     opacity: 0.8;
     font-size: 14px;
     margin-left: 3px;
-  }
-  .buttons {
-    border-top: solid rgba(255, 255, 255, 0.4) 1px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: end;
-    gap: 10px;
-    flex: 0 0 auto;
-    padding: 10px 15px;
   }
   button {
     padding: 3px 8px;
