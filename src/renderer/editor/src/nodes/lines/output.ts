@@ -6,6 +6,7 @@ import { writable, type Writable } from "svelte/store";
 import { getMutator, getProject } from "../../project/store";
 import type { FieldBinding } from "../../project/mutator";
 import type { Action } from "svelte/action";
+import { getNodePos } from "../geometry";
 
 type Coord = Record<"x" | "y", number>;
 export interface Output {
@@ -52,9 +53,10 @@ const outputNode: Action<HTMLElement, OutputNodeParams> = (node, params) => {
     const connectedNode = getProject().nodes.get(o.output!);
     if (!connectedNode) return false;
 
+    const pos = getNodePos(o.output!)!;
     o.toCoord = {
-      x: connectedNode.nodePos.x,
-      y: connectedNode.nodePos.y + (connectedNode.nodeType === "entry" ? 45 : 30) / 2
+      x: pos.x,
+      y: pos.y + (connectedNode.nodeType === "entry" ? 45 : 30) / 2
     };
 
     return true;

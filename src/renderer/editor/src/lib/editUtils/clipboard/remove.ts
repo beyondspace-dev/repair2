@@ -5,13 +5,6 @@ import { currentFocus, focusData, type FocusData } from "../focus";
 import { isAbleTo } from "./utils";
 import { ClipboardOwnMap } from "./constants";
 
-const ParentRecordMap = {
-  sequence: "nodes",
-  component: "components",
-  element: "elements",
-  value: "values"
-} as const;
-
 function reconcileFocusAfterRemove() {
   const focus = get(currentFocus);
   if (focus.type === "project") return;
@@ -51,7 +44,7 @@ export function removeData(target: FocusData = get(currentFocus)) {
       const parentId = target.parents?.[0];
       if (!parentId)
         throw new Error(`Parents are required to remove ${target.type}:${target.target}.`);
-      const parentType = ParentRecordMap[removeFrom[0]];
+      const parentType = removeFrom[2];
       const parentEditor = mutator.record(parentType, parentId);
       const binding = parentEditor.at<string[]>(removeFrom[1]);
       const index = binding.value.indexOf(target.target);

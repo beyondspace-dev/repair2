@@ -1,20 +1,17 @@
 import type { RecordKey, RecordValue } from "@shared/constants";
 import {
-  createComponent,
-  createBranch,
-  createElement,
-  createEntry,
-  createListener,
-  createPluginPointer,
-  createResource,
-  createSequence,
-  createStep,
-  createValue,
-  createValueProcess,
-  createVariableSet,
-  createVariable
-} from "@shared/projectData/factories";
-import type { RegisterOwned } from "@shared/projectData/factories/factory";
+  ComponentDefinition,
+  ElementDefinition,
+  ListenerDefinition,
+  NodeDefinition,
+  PluginPointerDefinition,
+  ResourceDefinition,
+  StepDefinition,
+  ValueDefinition,
+  ValueProcessDefinition,
+  VariableDefinition,
+  type RegisterOwned
+} from "@shared/projectData/definitions";
 import { nanoid } from "nanoid";
 import { getMutator } from "./store";
 
@@ -49,8 +46,8 @@ function createEditorFactory<K extends RecordKey>(
 type NodeData = RecordValue<"nodes">;
 type NodePosition = NodeData["nodePos"];
 
-function createEditorNodeFactory<T extends NodeData>(
-  factory: (overrides: { nodePos: NodePosition }, registerOwned: RegisterOwned) => T
+function createEditorNodeFactory(
+  factory: (nodePos: NodePosition, registerOwned: RegisterOwned) => NodeData
 ): (nodePos: NodePosition) => string {
   return (nodePos) => {
     const mutator = getMutator();
@@ -60,26 +57,34 @@ function createEditorNodeFactory<T extends NodeData>(
         return mutator.add(ownedType, id, data);
       };
 
-      const data = factory({ nodePos }, registerOwned);
+      const data = factory(nodePos, registerOwned);
       return mutator.add("nodes", data.id, data);
     });
   };
 }
 
 export const Factories = {
-  resource: createEditorFactory("resources", createResource),
-  variable: createEditorFactory("variables", createVariable),
+  resource: createEditorFactory("resources", ResourceDefinition.create),
+  variable: createEditorFactory("variables", VariableDefinition.create),
   node: {
-    entry: createEditorNodeFactory(createEntry),
-    sequence: createEditorNodeFactory(createSequence),
-    branch: createEditorNodeFactory(createBranch),
-    variableSet: createEditorNodeFactory(createVariableSet)
+    entry: createEditorNodeFactory((nodePos, registerOwned) =>
+      NodeDefinition.create("entry", { nodePos }, registerOwned)
+    ),
+    sequence: createEditorNodeFactory((nodePos, registerOwned) =>
+      NodeDefinition.create("sequence", { nodePos }, registerOwned)
+    ),
+    branch: createEditorNodeFactory((nodePos, registerOwned) =>
+      NodeDefinition.create("branch", { nodePos }, registerOwned)
+    ),
+    variableSet: createEditorNodeFactory((nodePos, registerOwned) =>
+      NodeDefinition.create("variableSet", { nodePos }, registerOwned)
+    )
   },
-  step: createEditorFactory("steps", createStep),
-  component: createEditorFactory("components", createComponent),
-  element: createEditorFactory("elements", createElement),
-  listener: createEditorFactory("listeners", createListener),
-  valueProcess: createEditorFactory("valueProcesses", createValueProcess),
-  pluginPointer: createEditorFactory("pluginPointers", createPluginPointer),
-  value: createEditorFactory("values", createValue)
+  step: createEditorFactory("steps", StepDefinition.create),
+  component: createEditorFactory("components", ComponentDefinition.create),
+  element: createEditorFactory("elements", ElementDefinition.create),
+  listener: createEditorFactory("listeners", ListenerDefinition.create),
+  valueProcess: createEditorFactory("valueProcesses", ValueProcessDefinition.create),
+  pluginPointer: createEditorFactory("pluginPointers", PluginPointerDefinition.create),
+  value: createEditorFactory("values", ValueDefinition.create)
 } as const;

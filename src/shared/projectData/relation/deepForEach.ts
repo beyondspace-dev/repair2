@@ -76,17 +76,38 @@ export function forEachRelationId<K extends RelationRootKey>(
 ) {
   const map = (RelationMap as RelationMapType)[type];
   if (!map) return;
-  walkMap(
-    {
-      callback,
-      opt,
-      includes: opt.includes ? new Set(opt.includes) : undefined,
-      includePath: opt.includePath === true
-    },
-    data,
-    map,
-    { path: opt.includePath === true ? [] : undefined }
+  const ctx: RelationIdWalkContext = {
+    callback,
+    opt,
+    includes: opt.includes ? new Set(opt.includes) : undefined,
+    includePath: opt.includePath === true
+  };
+  const state: RelationIdWalkState = { path: ctx.includePath ? [] : undefined };
+  walkMap(data, map, state, (relation, container, key) =>
+    followRelation(ctx, state, relation, container[key])
   );
+}
+
+/** Replaces every relation id in `data` in place with `resolve(type, id)`. */
+export function rewriteRelationIds<K extends RelationRootKey>(
+  type: K,
+  data: RelationRootData<K>,
+  resolve: (type: RecordKey, id: string) => string | null
+) {
+  const map = (RelationMap as RelationMapType)[type];
+  if (!map) return;
+  walkMap(data, map, {}, (relation, container, key) => {
+    const value = container[key];
+    if (relation.$type === TYPE.ID) {
+      if (typeof value === "string") container[key] = resolve(relation.$key, value);
+      return;
+    }
+    if (relation.$type === TYPE.ID_ARRAY && Array.isArray(value)) {
+      for (let i = 0; i < value.length; i++) {
+        if (typeof value[i] === "string") value[i] = resolve(relation.$key, value[i]);
+      }
+    }
+  });
 }
 
 export function deepForEach(
@@ -125,35 +146,40 @@ function dfe(ctx: WalkContext, type: RecordKey, id: string | null, state: VisitS
 
   const map = (RelationMap as RelationMapType)[type];
   if (!map) return;
-  walkMap(
-    {
-      callback: ({ type: relationType, id: relationId, owned, path, kind }) => {
-        dfe(ctx, relationType, relationId, {
-          level: state.level + 1,
-          owned,
-          via: {
-            type,
-            id,
-            ...(path !== undefined ? { path } : {}),
-            kind
-          }
-        });
-      },
-      opt: ctx.opt,
-      includes: ctx.includes,
-      includePath: ctx.includePath
+  const walkCtx: RelationIdWalkContext = {
+    callback: ({ type: relationType, id: relationId, owned, path, kind }) => {
+      dfe(ctx, relationType, relationId, {
+        level: state.level + 1,
+        owned,
+        via: {
+          type,
+          id,
+          ...(path !== undefined ? { path } : {}),
+          kind
+        }
+      });
     },
-    data,
-    map,
-    { path: ctx.includePath ? [] : undefined }
+    opt: ctx.opt,
+    includes: ctx.includes,
+    includePath: ctx.includePath
+  };
+  const walkState: RelationIdWalkState = { path: ctx.includePath ? [] : undefined };
+  walkMap(data, map, walkState, (relation, container, key) =>
+    followRelation(walkCtx, walkState, relation, container[key])
   );
 }
 
+type LeafVisitor = (
+  relation: RelationLeaf,
+  container: Record<string, unknown>,
+  key: string
+) => void;
+
 function walkMap(
-  ctx: RelationIdWalkContext,
   data: unknown,
   map: RelationTree,
-  state: RelationIdWalkState
+  state: RelationIdWalkState,
+  visitLeaf: LeafVisitor
 ) {
   if (!isRecord(data)) return;
 
@@ -161,7 +187,7 @@ function walkMap(
     const caseKey = data[map.$dependsOn];
     if (typeof caseKey === "string") {
       const caseMap = map.$cases[caseKey];
-      if (caseMap) walkMap(ctx, data, caseMap, state);
+      if (caseMap) walkMap(data, caseMap, state, visitLeaf);
     }
   }
 
@@ -169,16 +195,15 @@ function walkMap(
     if (key === "$dependsOn" || key === "$cases") continue;
 
     const relation = map[key];
-    const value = data[key];
     if (state.path) state.path.push(key);
     if (isRelationLeaf(relation)) {
-      followRelation(ctx, state, relation, value);
+      visitLeaf(relation, data, key);
       if (state.path) state.path.pop();
       continue;
     }
 
     if (isRelationTree(relation)) {
-      walkMap(ctx, value, relation, state);
+      walkMap(data[key], relation, state, visitLeaf);
     }
 
     if (state.path) state.path.pop();

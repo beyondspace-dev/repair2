@@ -1,7 +1,12 @@
+import { deepForEach, forEachRelationId, KIND } from "@shared/projectData/relation";
 import type { Types } from "@shared/projectData/types";
 import { getProject } from "../../project/store";
 import type { ProjectInstance } from "../../project/project";
 
+/**
+ * Nodes that a node leads to: every node referenced by the node itself or by records it owns
+ * (e.g. listener outputs inside components created by its steps).
+ */
 export function getOutsFromNode(
   node: Types.Node,
   project: ProjectInstance = getProject(),
@@ -9,33 +14,24 @@ export function getOutsFromNode(
 ): Set<string> {
   const outs = new Set<string>();
 
-  function add(targetId: string | null) {
-    if (!targetId) return;
-    outs.add(targetId);
-    forEach?.(targetId);
-  }
-  if (node.nodeType === "entry" || node.nodeType === "variableSet") {
-    add(node.output);
-    return outs;
-  }
-
-  if (node.nodeType === "branch") {
-    add(node.trueOutput);
-    add(node.falseOutput);
-    return outs;
-  }
-
-  add(node.output);
-  node.steps.forEach((s) => {
-    const step = project.getUnsafe("steps", s);
-    if (!step || step.type !== "Component.create") return;
-
-    project.getUnsafe("components", step.payload.componentId!).elements.forEach((e) => {
-      project.getUnsafe("elements", e).listeners.forEach((l) => {
-        add(project.getUnsafe("listeners", l).output);
-      });
-    });
-  }); //eww
+  deepForEach(
+    project,
+    "nodes",
+    node.id,
+    ({ type, data }) => {
+      forEachRelationId(
+        type,
+        data as never,
+        ({ id, kind }) => {
+          if (kind !== KIND.REF) return;
+          outs.add(id);
+          forEach?.(id);
+        },
+        { includes: ["nodes"] }
+      );
+    },
+    { onlyOwns: true }
+  );
   return outs;
 }
 
