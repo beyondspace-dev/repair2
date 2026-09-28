@@ -95,7 +95,7 @@
         onclick={() => (revealed = !revealed)}
         aria-label={revealed ? "숨기기" : "보기"}
       >
-        <Icon icon={revealed ? "invisible" : "visible"} color="#fff" size={16} lineWidth={1} />
+        <Icon icon={revealed ? "visible" : "invisible"} color="#fff" size={16} lineWidth={1} />
       </button>
     {/if}
   </div>

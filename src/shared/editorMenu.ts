@@ -107,11 +107,18 @@ const EditorMenu = [
     key: "V",
     items: [
       {
+        label: "사이드바 토글",
+        action: "sidebar-toggle",
+        shortcut: "Ctrl+B",
+        editorAction: true
+      },
+      {
         label: "로그 패널 토글",
         action: "log-toggle",
         shortcut: "Ctrl+L",
         editorAction: true
       },
+      { type: "separator" },
       {
         label: "확대",
         action: "zoom-in",

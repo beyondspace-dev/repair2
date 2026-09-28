@@ -38,19 +38,23 @@ function setSize(dir: DIR, v: number, first = false) {
   onResize(first);
 }
 
-export const panel: Action<
-  HTMLElement,
-  {
-    startSize: number;
-    handleSize?: number;
-    minSize?: number;
-    dir?: DIR;
-    onResize?(size: number): unknown;
-  }
-> = (node, { startSize, handleSize = 6, minSize = 0, dir = "left", onResize: afterResized }) => {
+interface PanelParams {
+  startSize: number;
+  handleSize?: number;
+  minSize?: number;
+  dir?: DIR;
+  collapsed?: boolean;
+  collapsedSize?: number;
+  onResize?(size: number): unknown;
+}
+
+export const panel: Action<HTMLElement, PanelParams> = (node, params) => {
+  const { startSize, handleSize = 6, minSize = 0, dir = "left", onResize: afterResized } = params;
   if (dir in Panels) {
     throw new Error(`${dir} panel is already registered`);
   }
+  let collapsed = params.collapsed ?? false;
+  let collapsedSize = params.collapsedSize ?? 0;
 
   node.classList.add("panel");
 
@@ -64,10 +68,11 @@ export const panel: Action<
   node.append(resizer);
 
   let displaySize: number = startSize;
+  let expandedSize: number = startSize;
 
-  function setDisplaySize(size: number = Panels[dir]!) {
+  function setDisplaySize(size: number, clamp = true) {
     displaySize = size;
-    const sizeStr = `${Math.max(minSize, size)}px`;
+    const sizeStr = `${clamp ? Math.max(minSize, size) : size}px`;
     node.style[sizeKey] = sizeStr;
     node.style.setProperty("--panel-size", sizeStr);
   }
@@ -75,29 +80,42 @@ export const panel: Action<
     Panels[dir] = size;
     setSize(dir, size, first);
   }
-  set(startSize, true);
-  setDisplaySize();
+  function applySize(first = false) {
+    resizer.style.display = collapsed ? "none" : "";
+    const size = collapsed ? collapsedSize : expandedSize;
+    set(size, first);
+    setDisplaySize(size, !collapsed);
+  }
+  applySize(true);
 
   const grabber = new Grabber({
     container: resizer,
     optimizedOnMoved: true,
     onMoveStart: () => {
-      setDisplaySize();
+      setDisplaySize(expandedSize);
       set(0);
     },
     onMoved: (m) => {
       setDisplaySize(displaySize + m[isX ? "dx" : "dy"] * (isNegative ? -1 : 1));
     },
     onMoveEnd: () => {
-      const v = Math.max(minSize, displaySize);
-      set(v);
-      afterResized?.(v);
-      setDisplaySize();
+      expandedSize = Math.max(minSize, displaySize);
+      set(expandedSize);
+      afterResized?.(expandedSize);
+      setDisplaySize(expandedSize);
     },
     inNodeSpace: false
   });
 
   return {
+    update: (next) => {
+      const nextCollapsed = next.collapsed ?? false;
+      const nextCollapsedSize = next.collapsedSize ?? 0;
+      if (nextCollapsed === collapsed && nextCollapsedSize === collapsedSize) return;
+      collapsed = nextCollapsed;
+      collapsedSize = nextCollapsedSize;
+      applySize();
+    },
     destroy: () => {
       grabber.destroy();
       delete Panels[dir];

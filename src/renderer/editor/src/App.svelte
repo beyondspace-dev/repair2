@@ -4,7 +4,8 @@
   import ToastDisplay from "./lib/toast/ToastDisplay.svelte";
   import ContextMenu from "./lib/editUtils/contextMenu/ContextMenu.svelte";
   import NodeSpace from "./nodes/NodeSpace.svelte";
-  import SideBar from "./sidebar/SideBar.svelte";
+  import LeftSideBar from "./sidebar/LeftSideBar.svelte";
+  import RightSideBar from "./sidebar/RightSideBar.svelte";
   import { onMount, tick } from "svelte";
   import { reloadAllNode } from "./lib/stores";
   import Modal from "./lib/modal/ModalDisplay.svelte";
@@ -58,7 +59,7 @@
     <Modal />
     {#if ready}
       <div class="panels">
-        <SideBar />
+        <LeftSideBar />
         <div class="y-panels">
           <div class="center">
             <ToastDisplay />
@@ -67,6 +68,7 @@
             <Logs close={() => setLogVisiblity(false)} />
           {/if}
         </div>
+        <RightSideBar />
       </div>
     {/if}
   </div>

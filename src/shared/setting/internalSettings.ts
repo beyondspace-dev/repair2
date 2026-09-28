@@ -6,6 +6,7 @@ function i<T>(d: T | (() => T)) {
 
 const InternalSettingData = {
   sidebarWidth: i(350),
+  editPanelWidth: i(350),
   showLogs: i(false),
   logHeight: i(200)
 } as const;

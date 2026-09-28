@@ -3,28 +3,38 @@
   import Resources from "./resource/Resources.svelte";
   import Plugins from "./plugins/Plugins.svelte";
   import BigIcons from "../assets/icons/BigIcons.svelte";
-  import Edit from "./edits/Edit.svelte";
   import { tippySingleton } from "../lib/tippy/tippy";
   import { panel } from "./panel/panel";
   import { setSetting, settings } from "../lib/settings.svelte";
   import { openSettings, settingsModal } from "../lib/settingsModal/settingsModalState.svelte";
+  import { registerMenuAction } from "../titleBar/menuActions";
+  import { onMount } from "svelte";
 
-  type Tab = keyof typeof tabs;
-  let currentTab = $state<Tab>("edit");
-
-  let title = $state("");
-  $effect(() => {
-    if (currentTab !== "edit") title = tabs[currentTab];
-  });
+  const TAB_BAR_WIDTH = 47;
 
   const tabs = {
-    edit: "Edit",
-    variables: "Variables",
     resources: "Resources",
+    variables: "Variables",
     plugins: "Plugins"
   } as const;
 
-  const tabButtons = ["edit", "variables", "resources", "plugins"] as const satisfies Tab[];
+  type Tab = keyof typeof tabs;
+  const tabButtons = ["resources", "variables", "plugins"] as const satisfies Tab[];
+
+  let openTab = $state<Tab | null>(null);
+  let lastTab: Tab = "resources";
+
+  function toggleTab(id: Tab) {
+    openTab = openTab === id ? null : id;
+    if (openTab) lastTab = openTab;
+  }
+  toggleTab(lastTab);
+
+  onMount(() =>
+    registerMenuAction("view:sidebar-toggle", () => {
+      openTab = openTab ? null : lastTab;
+    })
+  );
 </script>
 
 <div
@@ -33,14 +43,20 @@
     dir: "left",
     startSize: settings.sidebarWidth,
     minSize: 310,
+    collapsed: openTab === null,
+    collapsedSize: TAB_BAR_WIDTH,
     onResize: (s) => setSetting("sidebarWidth", s)
   }}
 >
-  <div class="tabs" use:tippySingleton={{ duration: 100, delay: [400, 0], placement: "right" }}>
+  <div
+    class="tabs"
+    style:width="{TAB_BAR_WIDTH}px"
+    use:tippySingleton={{ duration: 100, delay: [400, 0], placement: "right" }}
+  >
     {#each tabButtons as id}
       <button
-        class={["tab-wrapper", currentTab === id && "active"]}
-        onclick={() => (currentTab = id)}
+        class={["tab-wrapper", openTab === id && "active"]}
+        onclick={() => toggleTab(id)}
         data-tippy-content={tabs[id]}
       >
         <div class="tab">
@@ -59,18 +75,18 @@
       </div>
     </button>
   </div>
-  <div class="side-bar-body">
-    <div class="title">{title}</div>
-    {#if currentTab === "edit"}
-      <Edit bind:title />
-    {:else if currentTab === "variables"}
-      <Variables />
-    {:else if currentTab === "resources"}
-      <Resources />
-    {:else if currentTab === "plugins"}
-      <Plugins />
-    {/if}
-  </div>
+  {#if openTab}
+    <div class="side-bar-body">
+      <div class="title">{tabs[openTab]}</div>
+      {#if openTab === "variables"}
+        <Variables />
+      {:else if openTab === "resources"}
+        <Resources />
+      {:else if openTab === "plugins"}
+        <Plugins />
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -90,6 +106,7 @@
     flex-direction: column;
     flex: 0 0 auto;
     box-sizing: border-box;
+    border-right: solid var(--w-o6) 1px;
   }
   .tab-btn-spacer {
     flex: 1 1 auto;
@@ -115,7 +132,7 @@
     background-color: var(--w-o1);
   }
   .side-bar-body {
-    border-inline: solid var(--w-o6) 1px;
+    border-right: solid var(--w-o6) 1px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
